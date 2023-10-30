@@ -9,6 +9,8 @@ export class EventScanner implements IEventScanner {
   private contract: ethers.Contract
   private S3Service: S3Service
   private topics: string[]
+  private eventsQueueURL: string
+  private bucketName: string
 
   constructor() {
     // Initialize AWS SDK for S3 and SQS
@@ -21,6 +23,9 @@ export class EventScanner implements IEventScanner {
     // Initialize contract
     const abi = [] // Your ABI here
     const leverageEngineAddress = process.env.LEVERAGE_ENGINE_ADDRESS!
+    this.eventsQueueURL = process.env.NEW_EVENTS_QUEUE_URL!
+    this.bucketName = process.env.BUCKET_NAME!
+
     this.topics = process.env.TOPICS!.split(',')
     this.contract = new ethers.Contract(
       leverageEngineAddress,
@@ -50,7 +55,7 @@ export class EventScanner implements IEventScanner {
   async getLastScannedBlock(): Promise<number> {
     try {
       const data = await this.S3Service.getObject(
-        'your-s3-bucket-name',
+        this.bucketName,
         'last-block.txt',
       )
       return parseInt(data)
@@ -61,7 +66,7 @@ export class EventScanner implements IEventScanner {
 
   async setLastScannedBlock(blockNumber: number): Promise<void> {
     await this.S3Service.putObject(
-      'your-s3-bucket-name',
+      this.bucketName,
       'last-block.txt',
       blockNumber.toString(),
     )
@@ -86,7 +91,7 @@ export class EventScanner implements IEventScanner {
         log,
       }
       await this.sqsService.sendMessage(
-        'your-sqs-queue-url',
+        this.eventsQueueURL,
         JSON.stringify(event),
       )
     }
