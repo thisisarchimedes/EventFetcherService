@@ -3,13 +3,6 @@ node_modules/
 \#*\#
 .\#*
 **/.DS_Store
-.settings
-**/.vs
-**/.vscode/*
-!**/.vscode/tasks.json
-!**/.vscode/settings.template.json
-!**/.vscode/launch.template.json
-!**/.vscode/extensions.json
 .idea
 .eslintcache
 *v8.log
