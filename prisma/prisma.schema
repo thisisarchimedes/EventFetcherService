@@ -1,0 +1,30 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "mongodb"
+    url      = env("DATABASE_URL")
+}
+
+model OpenLeverage {
+    id                  String @id @default(auto()) @map("_id") @db.ObjectId
+    nftId               BigInt
+    user                String
+    strategy            String
+    collateralAmount    BigInt
+    wbtcToBorrow        BigInt
+    positionExpireBlock BigInt
+    blockNumber         BigInt
+}
+
+model CloseLeverage {
+    id             String @id @default(auto()) @map("_id") @db.ObjectId
+    nftId          BigInt
+    user           String
+    strategy       String
+    receivedAmount BigInt
+    wbtcDebtAmount BigInt
+    exitFee        BigInt
+    blockNumber    BigInt
+}

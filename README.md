@@ -22,4 +22,11 @@ pnpm run test
 ## Environment file
 
 ```sh
+
+```
+
+## Create Prisma Client
+
+```sh
+pnpm prisma generate
 ```
