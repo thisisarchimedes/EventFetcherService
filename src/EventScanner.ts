@@ -44,11 +44,15 @@ export class EventProcessorService {
   }
 
   public async execute(): Promise<void> {
+    console.log('Executing the event processing workflow...')
+
     const lastBlock = await this.getLastScannedBlock()
     const currentBlock = await this.getCurrentBlockNumber()
     const events = await this.fetchAndProcessEvents(lastBlock, currentBlock)
     await this.queueEvents(events)
     await this.setLastScannedBlock(currentBlock)
+
+    console.log('Event processing workflow completed.')
   }
 
   private async getCurrentBlockNumber(): Promise<number> {
