@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-  AWS_REGION: us-east-1 # Change to your preferred region
+  AWS_REGION: ${{ env.AWS_REGION }}
 
 jobs:
   deploy:
@@ -27,6 +27,16 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Prepare deployment package
+        run: |
+          mkdir -p deploy-package
+          cp -r ./dist ./deploy-package/
+          cp -r ./node_modules ./deploy-package/
+
+      # Adjust this step to list the contents of the deploy-package directory
+      - name: List contents of deploy-package directory
+        run: ls -al ./deploy-package
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -42,7 +52,7 @@ jobs:
         run: sam package --template-file template.yaml --output-template-file packaged.yaml --s3-bucket aws-sam-eventsfetcher
 
       - name: Deploy the SAM application
-        run:
+        run: |
           sam deploy --template-file packaged.yaml --stack-name EventProcessorStack --capabilities CAPABILITY_IAM --parameter-overrides \
           LeverageEngineAddress="${{ secrets.LEVERAGE_ENGINE_ADDRESS }}" \
           NewEventsQueueUrl="${{ secrets.NEW_EVENTS_QUEUE_URL }}" \
