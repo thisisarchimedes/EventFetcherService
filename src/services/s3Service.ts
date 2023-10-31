@@ -1,7 +1,7 @@
 import { S3 } from 'aws-sdk'
 
 export class S3Service {
-  private s3: S3
+  private readonly s3: S3
 
   constructor() {
     this.s3 = new S3()
@@ -14,8 +14,9 @@ export class S3Service {
         .promise()
       return data.Body!.toString()
     } catch (e) {
-      if (e instanceof Error)
+      if (e instanceof Error) {
         throw new Error(`Failed to get object from S3: ${e.message}`)
+      }
     }
 
     return ''
@@ -36,7 +37,7 @@ export class S3Service {
         throw new Error(`Failed to put object into S3: ${e.message}`)
       } else {
         console.error(`FFailed to put object into S3: ${e}`)
-        throw new Error(`Failed to put object into S3`)
+        throw new Error('Failed to put object into S3')
       }
     }
   }

@@ -1,7 +1,7 @@
 import { SQS } from 'aws-sdk'
 
 export class SQSService {
-  private sqs: SQS
+  private readonly sqs: SQS
 
   constructor() {
     this.sqs = new SQS()
@@ -22,7 +22,7 @@ export class SQSService {
         throw new Error(`Failed to send message to SQS: ${e.message}`)
       } else {
         console.error(`Failed to send message to SQS: ${e}`)
-        throw new Error(`Failed to send message to SQS`)
+        throw new Error('Failed to send message to SQS')
       }
     }
   }

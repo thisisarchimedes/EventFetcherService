@@ -1,4 +1,4 @@
-export interface IEventScanner {
+export type IEventScanner = {
   getLastScannedBlock(): Promise<number>
   setLastScannedBlock(blockNumber: number): Promise<void>
   scanEvents(): Promise<void>

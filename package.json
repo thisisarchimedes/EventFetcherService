@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {
     "start": "node --loader ts-node/esm index.ts",
-    "lint": "npx eslint --fix --fix-type suggestion --fix-type problem .",
+    "lint": "npx eslint --ext .ts,.tsx --fix --fix-type suggestion --fix-type problem .",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc"
   },
