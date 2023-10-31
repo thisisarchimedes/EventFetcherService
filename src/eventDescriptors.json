@@ -1,0 +1,41 @@
+[
+  {
+    "name": "StrategyConfigUpdated",
+    "decodeData": ["address", "uint256", "uint256", "uint256", "uint256"]
+  },
+  {
+    "name": "StrategyRemoved",
+    "decodeData": ["address"]
+  },
+  {
+    "name": "GlobalParameterUpdated",
+    "decodeData": ["string", "uint256"]
+  },
+  {
+    "name": "FeeCollectorUpdated",
+    "decodeData": ["address"]
+  },
+  {
+    "name": "PositionOpened",
+    "decodeData": [
+      "uint256",
+      "address",
+      "address",
+      "uint256",
+      "uint256",
+      "uint256",
+      "uint256"
+    ]
+  },
+  {
+    "name": "PositionClosed",
+    "decodeData": [
+      "uint256",
+      "address",
+      "address",
+      "uint256",
+      "uint256",
+      "uint256"
+    ]
+  }
+]

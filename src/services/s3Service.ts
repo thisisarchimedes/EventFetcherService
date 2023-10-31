@@ -14,8 +14,11 @@ export class S3Service {
         .promise()
       return data.Body!.toString()
     } catch (e) {
-      throw new Error(`Failed to get object from S3: ${e.message}`)
+      if (e instanceof Error)
+        throw new Error(`Failed to get object from S3: ${e.message}`)
     }
+
+    return ''
   }
 
   async putObject(bucket: string, key: string, body: string): Promise<void> {
@@ -28,7 +31,13 @@ export class S3Service {
         })
         .promise()
     } catch (e) {
-      throw new Error(`Failed to put object into S3: ${e.message}`)
+      if (e instanceof Error) {
+        console.error(`Failed to put object into S3: ${e.message}`)
+        throw new Error(`Failed to put object into S3: ${e.message}`)
+      } else {
+        console.error(`FFailed to put object into S3: ${e}`)
+        throw new Error(`Failed to put object into S3`)
+      }
     }
   }
 }
