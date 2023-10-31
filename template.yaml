@@ -1,0 +1,58 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: An example AWS SAM template for a Node.js Lambda function.
+
+Globals:
+  Function:
+    Timeout: 20
+
+Resources:
+  WBTCEventsFetcher:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: lambda-handler.handler
+      Runtime: nodejs14.x
+      CodeUri: .
+      Events:
+        EveryMinuteEvent: # This can be any logical ID
+          Type: Schedule
+          Properties:
+            Schedule: rate(1 minute)
+      Environment:
+        Variables:
+          LEVERAGE_ENGINE_ADDRESS: !Ref LeverageEngineAddress
+          NEW_EVENTS_QUEUE_URL: !Ref NewEventsQueueUrl
+          S3_BUCKET: !Ref S3Bucket
+          S3_KEY: !Ref S3Key
+          ALCHEMY_API_URL: !Ref AlchemyApiUrl
+          INFURA_API_URL: !Ref InfuraApiUrl
+          EVENTS_FETCH_PAGE_SIZE: !Ref EventsFetchPageSize
+
+Parameters:
+  LeverageEngineAddress:
+    Type: String
+    Description: Leverage Engine Address
+
+  NewEventsQueueUrl:
+    Type: String
+    Description: SQS Queue URL
+
+  S3Bucket:
+    Type: String
+    Description: S3 Bucket
+
+  S3Key:
+    Type: String
+    Description: S3 Key
+
+  AlchemyApiUrl:
+    Type: String
+    Description: Alchemy API URL
+
+  InfuraApiUrl:
+    Type: String
+    Description: Infura API URL
+
+  EventsFetchPageSize:
+    Type: Number
+    Description: Events Fetch Page Size

@@ -1,9 +1,12 @@
-name: Deploy to AWS Lambda
+name: Deploy to AWS Lambda using SAM
 
 on:
   push:
     branches:
       - main
+
+env:
+  AWS_REGION: us-east-1 # Change to your preferred region
 
 jobs:
   deploy:
@@ -24,36 +27,27 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Create .env file
-        run: |
-          echo LEVERAGE_ENGINE_ADDRESS=${{ secrets.LEVERAGE_ENGINE_ADDRESS }} >> .env
-          echo NEW_EVENTS_QUEUE_URL=${{ secrets.NEW_EVENTS_QUEUE_URL }} >> .env
-          echo S3_BUCKET=${{ secrets.S3_BUCKET }} >> .env
-          echo S3_KEY=${{ secrets.S3_KEY }} >> .env
-          echo ALCHEMY_API_URL=${{ secrets.ALCHEMY_API_URL }} >> .env
-          echo INFURA_API_URL=${{ secrets.INFURA_API_URL }} >> .env
-          echo EVENTS_FETCH_PAGE_SIZE=${{ secrets.EVENTS_FETCH_PAGE_SIZE }} >> .env
-
-      - name: Zip the code
-        run: zip -r lambda.zip dist/* node_modules/ package.json .env
-
-      - name: Configure AWS credentials
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
+          aws-region: ${{ env.AWS_REGION }}
 
-      - name: Create or Update Lambda function
+      - name: Install AWS SAM CLI
         run: |
-          if aws lambda get-function --function-name your_lambda_function_name ; then
-            echo "Function exists, updating."
-            aws lambda update-function-code --function-name your_lambda_function_name --zip-file fileb://lambda.zip
-          else
-            echo "Function does not exist, creating."
-            aws lambda create-function --function-name your_lambda_function_name \
-                                        --zip-file fileb://lambda.zip \
-                                        --handler your_handler \
-                                        --runtime nodejs14.x \
-                                        --role arn:aws:iam::your_iam_role_arn
-          fi
+          pip install --user aws-sam-cli
+
+      - name: Package the SAM application
+        run: sam package --template-file template.yaml --output-template-file packaged.yaml --s3-bucket aws-sam-eventsfetcher
+
+      - name: Deploy the SAM application
+        run:
+          sam deploy --template-file packaged.yaml --stack-name EventProcessorStack --capabilities CAPABILITY_IAM --parameter-overrides \
+          LeverageEngineAddress="${{ secrets.LEVERAGE_ENGINE_ADDRESS }}" \
+          NewEventsQueueUrl="${{ secrets.NEW_EVENTS_QUEUE_URL }}" \
+          S3Bucket="${{ secrets.S3_BUCKET }}" \
+          S3Key="${{ secrets.S3_KEY }}" \
+          AlchemyApiUrl="${{ secrets.ALCHEMY_API_URL }}" \
+          InfuraApiUrl="${{ secrets.INFURA_API_URL }}" \
+          EventsFetchPageSize="${{ secrets.EVENTS_FETCH_PAGE_SIZE }}"
