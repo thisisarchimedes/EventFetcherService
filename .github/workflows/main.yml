@@ -37,11 +37,23 @@ jobs:
       - name: Zip the code
         run: zip -r lambda.zip dist/* node_modules/ package.json .env
 
-      - name: Deploy to AWS Lambda
-        uses: appleboy/lambda-action@master
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws_region: us-east-1
-          function_name: wbtc_events_fetcher
-          zip_file: lambda.zip
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Create or Update Lambda function
+        run: |
+          if aws lambda get-function --function-name your_lambda_function_name ; then
+            echo "Function exists, updating."
+            aws lambda update-function-code --function-name your_lambda_function_name --zip-file fileb://lambda.zip
+          else
+            echo "Function does not exist, creating."
+            aws lambda create-function --function-name your_lambda_function_name \
+                                        --zip-file fileb://lambda.zip \
+                                        --handler your_handler \
+                                        --runtime nodejs14.x \
+                                        --role arn:aws:iam::your_iam_role_arn
+          fi
