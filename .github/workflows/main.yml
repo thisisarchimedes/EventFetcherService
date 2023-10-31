@@ -30,7 +30,7 @@ jobs:
       - name: Prepare deployment package
         run: |
           mkdir -p deploy-package
-          cp -r ./dist ./deploy-package/
+          cp -r ./dist/* ./deploy-package/
           cp -r ./node_modules ./deploy-package/
 
       # Adjust this step to list the contents of the deploy-package directory
