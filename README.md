@@ -21,5 +21,4 @@ pnpm run test
 
 ## Environment file
 
-```sh
-```
+see .env.example
