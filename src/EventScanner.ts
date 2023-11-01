@@ -52,7 +52,11 @@ export class EventProcessorService {
 		const currentBlock = await this.getCurrentBlockNumber();
 		const events = await this.fetchAndProcessEvents(lastBlock, currentBlock);
 		if(events.length > 0){
+			console.log(`fetched ${events.length} events from blocks ${lastBlock} to ${currentBlock}`);
 			await this.queueEvents(events);
+		}
+		else{
+			console.log(`no new events found on blocks ${lastBlock} to ${currentBlock}`);
 		}
 		
 		await this.setLastScannedBlock(currentBlock);
