@@ -1,6 +1,6 @@
-# LeverageBackend
+# Leverage events fetcher
 
-Backend microservices infrastructure supports Archimedes Leverage Smart Contracts.
+Backend microservices infrastructure to fetch events from leverage engine smart contract
 
 see [Architecture design](https://www.notion.so/archimedesfi/Architectural-Proposal-for-Event-Processing-Micro-Service-327458f8dfec462c87758fbd509ef314)
 
