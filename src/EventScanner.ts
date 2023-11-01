@@ -6,6 +6,7 @@ import {S3Service} from './services/s3Service';
 import {SQSService} from './services/sqsService';
 import dotenv from 'dotenv';
 import {IEventScanner} from './IEventScanner';
+import {Logger} from './logger/logger';
 
 const EVENT_DESCRIPTORS: EventDescriptor[] = rawEventDescriptors.map(
   event => ({
@@ -28,9 +29,11 @@ export class EventProcessorService implements IEventScanner  {
 	private readonly S3_KEY: string;
 	private readonly SQS_QUEUE_URL: string;
 	private readonly PAGE_SIZE: number;
+	private readonly logger : Logger;
 
 	constructor() {
 		dotenv.config();
+		this.logger = new Logger();
 
 		this.alchemyProvider = new ethers.JsonRpcProvider(
 			process.env.ALCHEMY_API_URL ?? '',
@@ -49,22 +52,22 @@ export class EventProcessorService implements IEventScanner  {
 	}
 
 	public async execute(): Promise<void> {
-		console.log('Executing the event processing workflow...');
+		this.logger.info('Executing the event fetcher workflow...');
 
 		const lastBlock = await this.getLastScannedBlock();
 		const currentBlock = await this.getCurrentBlockNumber();
 		const events = await this.fetchAndProcessEvents(lastBlock, currentBlock);
 		if(events.length > 0){
-			console.log(`fetched ${events.length} events from blocks ${lastBlock} to ${currentBlock}`);
+			this.logger.info(`fetched ${events.length} events from blocks ${lastBlock} to ${currentBlock}`);
 			await this.queueEvents(events);
 		}
 		else{
-			console.log(`no new events found on blocks ${lastBlock} to ${currentBlock}`);
+			this.logger.info(`no new events found on blocks ${lastBlock} to ${currentBlock}`);
 		}
 		
 		await this.setLastScannedBlock(currentBlock);
 
-		console.log('Event processing workflow completed.');
+		this.logger.info('Event fetcher workflow completed.');
 	}
 
 	private async getCurrentBlockNumber(): Promise<number> {
@@ -137,9 +140,10 @@ export class EventProcessorService implements IEventScanner  {
 
 			return retObj;
 			} catch (error) {
-				console.error("Failed to decode log:", log);
-				console.error("Error:", error);
-			return null;  // Or handle error as you see fit
+				if(error instanceof Error){
+					this.logger.error("Failed to decode log:", error);
+				}
+				return null;  // Or handle error as you see fit
 			}
 		}).filter(event => event !== null);  // Filter out failed decodings
 	}

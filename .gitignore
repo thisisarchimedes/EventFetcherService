@@ -8,3 +8,4 @@ node_modules/
 *v8.log
 .env
 dist/
+newrelic_agent.log
