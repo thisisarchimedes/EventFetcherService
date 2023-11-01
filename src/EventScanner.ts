@@ -14,6 +14,7 @@ const EVENT_DESCRIPTORS: EventDescriptor[] = rawEventDescriptors.map(
     ),
   }),
 );
+
 export class EventProcessorService {
 	private readonly alchemyProvider: ethers.JsonRpcProvider;
 	private readonly infuraProvider: ethers.JsonRpcProvider;
@@ -120,16 +121,18 @@ export class EventProcessorService {
 			// Merge both indexed and non-indexed data
 			const allData = [...indexedData, ...nonIndexedData];
 
-			return {
+			let retObj = {
 				name: descriptor.name,
 				txHash:log.transactionHash,
 				data: Object.fromEntries(
 				descriptor.decodeData.map((param: any, index: number) => [
-					param.type,
+					param.name,
 					allData[index].toString(),
 				]),
 				),
 			};
+
+			return retObj;
 			} catch (error) {
 				console.error("Failed to decode log:", log);
 				console.error("Error:", error);
