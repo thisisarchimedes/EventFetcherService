@@ -126,6 +126,7 @@ export class EventProcessorService implements IEventScanner  {
 			let retObj = {
 				name: descriptor.name,
 				txHash:log.transactionHash,
+				blockNumber: log.blockNumber,
 				data: Object.fromEntries(
 				descriptor.decodeData.map((param: any, index: number) => [
 					param.name,
