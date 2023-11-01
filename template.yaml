@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: An example AWS SAM template for a Node.js Lambda function.
+Description: Deploys a Lambda function to fetch and queue WBTC engine events every minute.
 
 Globals:
   Function:
