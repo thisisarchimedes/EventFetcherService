@@ -1,5 +1,8 @@
 export type EventDescriptor = {
-  name: string
-  signature: string
-  decodeData: string[]
-}
+    name: string;
+    signature: string;
+    decodeData: {
+        type: string;
+        indexed: boolean;
+    }[];
+};

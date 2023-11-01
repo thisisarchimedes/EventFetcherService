@@ -7,12 +7,13 @@ import {SQSService} from './services/sqsService';
 import dotenv from 'dotenv';
 
 const EVENT_DESCRIPTORS: EventDescriptor[] = rawEventDescriptors.map(
-	event => ({
-		...event,
-		signature: ethers.id(`${event.name}(${event.decodeData.join(',')})`),
-	}),
+  event => ({
+    ...event,
+    signature: ethers.id(
+      `${event.name}(${event.decodeData.map(param => param.type).join(',')})`
+    ),
+  }),
 );
-
 export class EventProcessorService {
 	private readonly alchemyProvider: ethers.JsonRpcProvider;
 	private readonly infuraProvider: ethers.JsonRpcProvider;
@@ -50,7 +51,10 @@ export class EventProcessorService {
 		const lastBlock = await this.getLastScannedBlock();
 		const currentBlock = await this.getCurrentBlockNumber();
 		const events = await this.fetchAndProcessEvents(lastBlock, currentBlock);
-		await this.queueEvents(events);
+		if(events.length > 0){
+			await this.queueEvents(events);
+		}
+		
 		await this.setLastScannedBlock(currentBlock);
 
 		console.log('Event processing workflow completed.');
@@ -88,20 +92,46 @@ export class EventProcessorService {
 
 	private decodeAndProcessLogs(logs: ethers.Log[], descriptor: any): any[] {
 		return logs.map(log => {
-			const event = ethers.AbiCoder.defaultAbiCoder().decode(
-				descriptor.decodeData,
-				log.data,
+			const indexedTypes = descriptor.decodeData
+			.filter((param: any) => param.indexed)
+			.map((param: any) => param.type);
+
+			const nonIndexedTypes = descriptor.decodeData
+			.filter((param: any) => !param.indexed)
+			.map((param: any) => param.type);
+
+			try {
+			// Decode non-indexed parameters from log.data
+			const nonIndexedData = ethers.AbiCoder.defaultAbiCoder().decode(
+				nonIndexedTypes,
+				log.data
 			);
+
+			// Decode indexed parameters from log.topics
+			const indexedData = indexedTypes.map((type:any, index:any	) => {
+				const topic = log.topics[index + 1];
+				return ethers.AbiCoder.defaultAbiCoder().decode([type], topic)[0];
+			});
+
+			// Merge both indexed and non-indexed data
+			const allData = [...indexedData, ...nonIndexedData];
+
 			return {
 				name: descriptor.name,
+				txHash:log.transactionHash,
 				data: Object.fromEntries(
-					descriptor.decodeData.map((type: any, index: number) => [
-						type,
-						event[index].toString(),
-					]),
+				descriptor.decodeData.map((param: any, index: number) => [
+					param.type,
+					allData[index].toString(),
+				]),
 				),
 			};
-		});
+			} catch (error) {
+				console.error("Failed to decode log:", log);
+				console.error("Error:", error);
+			return null;  // Or handle error as you see fit
+			}
+		}).filter(event => event !== null);  // Filter out failed decodings
 	}
 
 	private async fetchAndProcessEvents(
@@ -138,7 +168,7 @@ export class EventProcessorService {
 
 	private async queueEvents(events: any[]): Promise<void> {
 		for (const event of events) {
-			await this.sqsService.sendMessage(this.SQS_QUEUE_URL, event);
+			await this.sqsService.sendMessage(this.SQS_QUEUE_URL, JSON.stringify(event));
 		}
 	}
 
