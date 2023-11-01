@@ -6,13 +6,13 @@ This repository contains the backend microservices infrastructure designed to fe
 
 ## Quick start
 
-###Prerequisites
+### Prerequisites
 
 + Node.js
 
 + pnpm package manager
 
-##Installation Steps
+## Installation Steps
 
 1. Clone the Repository
 ```sh
