@@ -61,3 +61,6 @@ jobs:
           AlchemyApiUrl="${{ secrets.ALCHEMY_API_URL }}" \
           InfuraApiUrl="${{ secrets.INFURA_API_URL }}" \
           EventsFetchPageSize="${{ secrets.EVENTS_FETCH_PAGE_SIZE }}"
+          AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}"
+          AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+          AWS_REGION="${{ env.AWS_REGION }}"
