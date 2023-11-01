@@ -1,10 +1,11 @@
 
 import {ethers} from 'ethers';
 import {type EventDescriptor} from './EventDescriptor';
-import rawEventDescriptors from './eventDescriptors.json';
+import rawEventDescriptors from './events.json';
 import {S3Service} from './services/s3Service';
 import {SQSService} from './services/sqsService';
 import dotenv from 'dotenv';
+import {IEventScanner} from './IEventScanner';
 
 const EVENT_DESCRIPTORS: EventDescriptor[] = rawEventDescriptors.map(
   event => ({
@@ -15,7 +16,8 @@ const EVENT_DESCRIPTORS: EventDescriptor[] = rawEventDescriptors.map(
   }),
 );
 
-export class EventProcessorService {
+
+export class EventProcessorService implements IEventScanner  {
 	private readonly alchemyProvider: ethers.JsonRpcProvider;
 	private readonly infuraProvider: ethers.JsonRpcProvider;
 	private readonly s3Service: S3Service;
@@ -113,7 +115,7 @@ export class EventProcessorService {
 			);
 
 			// Decode indexed parameters from log.topics
-			const indexedData = indexedTypes.map((type:any, index:any	) => {
+			const indexedData = indexedTypes.map((type:any, index:any) => {
 				const topic = log.topics[index + 1];
 				return ethers.AbiCoder.defaultAbiCoder().decode([type], topic)[0];
 			});

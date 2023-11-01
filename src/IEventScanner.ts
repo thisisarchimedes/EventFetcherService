@@ -1,5 +1,7 @@
+import { ethers } from 'ethers';
+
 export type IEventScanner = {
-  getLastScannedBlock(): Promise<number>
-  setLastScannedBlock(blockNumber: number): Promise<void>
-  scanEvents(): Promise<void>
-}
+    execute(): Promise<void>;
+    getLastScannedBlock(): Promise<number>;
+    setLastScannedBlock(blockNumber: number): Promise<void>;
+};
