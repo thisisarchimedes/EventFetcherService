@@ -1,6 +1,6 @@
 
 import {ethers} from 'ethers';
-import {type EventDescriptor} from './EventDescriptor';
+import {type EventDescriptor} from './types/EventDescriptor';
 import rawEventDescriptors from './events.json';
 import {S3Service} from './services/s3Service';
 import {SQSService} from './services/sqsService';
