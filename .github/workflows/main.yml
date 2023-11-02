@@ -56,13 +56,11 @@ jobs:
       - name: Deploy the SAM application
         run: |
           sam deploy --template-file packaged.yaml --stack-name EventProcessorStack --capabilities CAPABILITY_IAM --parameter-overrides \
-          LeverageEngineAddress="${{ secrets.LEVERAGE_ENGINE_ADDRESS }}" \
-          NewEventsQueueUrl="${{ secrets.NEW_EVENTS_QUEUE_URL }}" \
-          S3Bucket="${{ secrets.S3_BUCKET }}" \
-          S3Key="${{ secrets.S3_KEY }}" \
-          AlchemyApiUrl="${{ secrets.ALCHEMY_API_URL }}" \
-          InfuraApiUrl="${{ secrets.INFURA_API_URL }}" \
-          EventsFetchPageSize="${{ secrets.EVENTS_FETCH_PAGE_SIZE }}" \
-          AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
-          AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
-          AWS_REGION="${{ env.AWS_REGION }}"
+          ParameterKey=LeverageEngineAddress,ParameterValue="${{ secrets.LEVERAGE_ENGINE_ADDRESS }}" \
+          ParameterKey=NewEventsQueueUrl,ParameterValue="${{ secrets.NEW_EVENTS_QUEUE_URL }}" \
+          ParameterKey=S3Bucket,ParameterValue="${{ secrets.S3_BUCKET }}" \
+          ParameterKey=S3Key,ParameterValue="${{ secrets.S3_KEY }}" \
+          ParameterKey=AlchemyApiUrl,ParameterValue="${{ secrets.ALCHEMY_API_URL }}" \
+          ParameterKey=InfuraApiUrl,ParameterValue="${{ secrets.INFURA_API_URL }}" \
+          ParameterKey=EventsFetchPageSize,ParameterValue="${{ secrets.EVENTS_FETCH_PAGE_SIZE }}"
+
