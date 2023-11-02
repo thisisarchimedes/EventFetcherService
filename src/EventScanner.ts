@@ -143,7 +143,7 @@ export class EventProcessorService implements IEventScanner  {
 				if(error instanceof Error){
 					this.logger.error("Failed to decode log:", error);
 				}
-				return null;  // Or handle error as you see fit
+				return null; 
 			}
 		}).filter(event => event !== null);  // Filter out failed decodings
 	}
