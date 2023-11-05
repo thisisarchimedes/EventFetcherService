@@ -14,7 +14,7 @@ Resources:
       Runtime: nodejs14.x
       CodeUri: ./deploy-package
       Events:
-        EveryMinuteEvent: # This can be any logical ID
+        EveryMinuteEvent:
           Type: Schedule
           Properties:
             Schedule: rate(1 minute)
@@ -22,11 +22,36 @@ Resources:
         Variables:
           LEVERAGE_ENGINE_ADDRESS: !Ref LeverageEngineAddress
           NEW_EVENTS_QUEUE_URL: !Ref NewEventsQueueUrl
-          S3_BUCKET: !Ref S3Bucket
+          S3_BUCKET: !Ref WbtcEventsS3Bucket
           S3_KEY: !Ref S3Key
           ALCHEMY_API_URL: !Ref AlchemyApiUrl
           INFURA_API_URL: !Ref InfuraApiUrl
           EVENTS_FETCH_PAGE_SIZE: !Ref EventsFetchPageSize
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Ref WbtcEventsS3Bucket
+
+  WbtcEventsS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: wbtc-engine-events-store 
+
+  BucketPolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref WbtcEventsS3Bucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: LambdaS3Access
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action:
+              - 's3:GetObject'
+              - 's3:PutObject'
+              - 's3:DeleteObject' 
+            Resource: !Sub 'arn:aws:s3:::${WbtcEventsS3Bucket}/*'
 
 Parameters:
   LeverageEngineAddress:
@@ -36,10 +61,6 @@ Parameters:
   NewEventsQueueUrl:
     Type: String
     Description: SQS Queue URL
-
-  S3Bucket:
-    Type: String
-    Description: S3 Bucket
 
   S3Key:
     Type: String
