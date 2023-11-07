@@ -1,55 +1,54 @@
-
-import {ethers} from 'ethers';
-import {type EventDescriptor} from './types/EventDescriptor';
+import { ethers } from 'ethers';
+import { type EventDescriptor } from './types/EventDescriptor';
 import rawEventDescriptors from './events.json';
-import {S3Service} from './services/s3Service';
-import {SQSService} from './services/sqsService';
+import { S3Service } from './services/s3Service';
+import { SQSService } from './services/sqsService';
 import dotenv from 'dotenv';
-import {IEventScanner} from './IEventScanner';
-import {Logger} from './logger/logger';
+import { IEventProcessorService } from './IEventProcessorService';
+import { Logger } from './logger/logger';
 
-const EVENT_DESCRIPTORS: EventDescriptor[] = rawEventDescriptors.map(
-  event => ({
-    ...event,
-    signature: ethers.id(
-      `${event.name}(${event.decodeData.map(param => param.type).join(',')})`
-    ),
-  }),
-);
+const EVENT_DESCRIPTORS: EventDescriptor[] = rawEventDescriptors.map(event => ({
+  ...event,
+  signature: ethers.id(`${event.name}(${event.decodeData.map(param => param.type).join(',')})`),
+}));
 
+export class EventProcessorService implements IEventProcessorService {
+  private readonly alchemyProvider: ethers.JsonRpcProvider;
+  private readonly infuraProvider: ethers.JsonRpcProvider;
+  private readonly s3Service: S3Service;
+  private readonly sqsService: SQSService;
+  private readonly CONTRACT_ADDRESS: string;
+  private readonly EVENT_DESCRIPTORS = EVENT_DESCRIPTORS;
+  private readonly S3_BUCKET: string;
+  private readonly S3_KEY: string;
+  private readonly SQS_QUEUE_URL: string;
+  private readonly PAGE_SIZE: number;
+  private readonly logger: Logger;
 
-export class EventProcessorService implements IEventScanner  {
-	private readonly alchemyProvider: ethers.JsonRpcProvider;
-	private readonly infuraProvider: ethers.JsonRpcProvider;
-	private readonly s3Service: S3Service;
-	private readonly sqsService: SQSService;
-	private readonly CONTRACT_ADDRESS: string;
-	private readonly EVENT_DESCRIPTORS = EVENT_DESCRIPTORS;
-	private readonly S3_BUCKET: string;
-	private readonly S3_KEY: string;
-	private readonly SQS_QUEUE_URL: string;
-	private readonly PAGE_SIZE: number;
-	private readonly logger : Logger;
+  constructor(
+    alchemyProvider: ethers.JsonRpcProvider,
+    infuraProvider: ethers.JsonRpcProvider,
+    s3Service: S3Service,
+    sqsService: SQSService,
+    logger: Logger,
+    config: { [key: string]: any } = process.env
+  ) {
+    dotenv.config();
 
-	constructor() {
-		dotenv.config();
-		this.logger = new Logger();
+    this.logger = logger;
 
-		this.alchemyProvider = new ethers.JsonRpcProvider(
-			process.env.ALCHEMY_API_URL ?? '',
-		);
-		this.infuraProvider = new ethers.JsonRpcProvider(
-			process.env.INFURA_API_URL ?? '',
-		);
+    this.alchemyProvider = alchemyProvider;
+    this.infuraProvider = infuraProvider;
 
-		this.s3Service = new S3Service();
-		this.sqsService = new SQSService();
-		this.S3_BUCKET = process.env.S3_BUCKET ?? '';
-		this.S3_KEY = process.env.S3_KEY ?? '';
-		this.SQS_QUEUE_URL = process.env.NEW_EVENTS_QUEUE_URL ?? '';
-		this.CONTRACT_ADDRESS = process.env.LEVERAGE_ENGINE_ADDRESS ?? '';
-		this.PAGE_SIZE = Number(process.env.EVENTS_FETCH_PAGE_SIZE) ?? 1000;
-	}
+    this.s3Service = s3Service;
+    this.sqsService = sqsService;
+    this.S3_BUCKET = config.S3_BUCKET ?? '';
+    this.S3_KEY = config.S3_KEY ?? '';
+    this.SQS_QUEUE_URL = config.NEW_EVENTS_QUEUE_URL ?? '';
+    this.CONTRACT_ADDRESS = config.LEVERAGE_ENGINE_ADDRESS ?? '';
+    this.PAGE_SIZE = Number(config.EVENTS_FETCH_PAGE_SIZE) ?? 1000;
+  }
+
 
 	public async execute(): Promise<void> {
 		this.logger.info('Executing the event fetcher workflow...');
@@ -149,17 +148,17 @@ export class EventProcessorService implements IEventScanner  {
 	}
 
 	private async fetchAndProcessEvents(
-		lastBlock: number,
-		newBlock: number,
+		fromBlock: number,
+		toBlock: number,
 	): Promise<any[]> {
 		const processedEvents: any[] = [];
 
 		for (
-			let startBlock = lastBlock + 1;
-			startBlock <= newBlock;
+			let startBlock = fromBlock + 1;
+			startBlock <= toBlock;
 			startBlock += this.PAGE_SIZE
 		) {
-			const endBlock = Math.min(startBlock + this.PAGE_SIZE - 1, newBlock);
+			const endBlock = Math.min(startBlock + this.PAGE_SIZE - 1, toBlock);
 
 			for (const descriptor of this.EVENT_DESCRIPTORS) {
 				const filter = {
