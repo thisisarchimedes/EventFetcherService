@@ -1,7 +1,10 @@
-name: Deploy to AWS Lambda using SAM
+name: Deploy and Test
 
 on:
   push:
+    branches:
+      - main
+  pull_request:
     branches:
       - main
 
@@ -9,9 +12,28 @@ env:
   AWS_REGION: us-east-1
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Use Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run Hardhat Tests
+        run: npx hardhat test
+
   deploy:
     runs-on: ubuntu-latest
-
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -63,4 +85,3 @@ jobs:
           ParameterKey=AlchemyApiUrl,ParameterValue="${{ secrets.ALCHEMY_API_URL }}" \
           ParameterKey=InfuraApiUrl,ParameterValue="${{ secrets.INFURA_API_URL }}" \
           ParameterKey=EventsFetchPageSize,ParameterValue="${{ secrets.EVENTS_FETCH_PAGE_SIZE }}"
-
