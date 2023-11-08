@@ -116,8 +116,6 @@ describe('Event Processor Service', function () {
     );
   });
 
-  // Additional test cases would follow here, each with their setup, actions, and assertions...
-
   // This runs after each individual test to reset the sandboxed environment
   afterEach(() => {
     sinon.restore();
