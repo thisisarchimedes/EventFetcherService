@@ -6,10 +6,10 @@ import { SQSService } from './services/sqsService';
 import { ethers } from 'ethers';
 
 export const handler = async (event: any, context: any): Promise<void> => {
-  const alchemyProvider = new ethers.JsonRpcProvider(
+  const alchemyProvider = new ethers.providers.JsonRpcProvider(
     process.env.ALCHEMY_API_URL ?? '',
   );
-  const infuraProvider = new ethers.JsonRpcProvider(
+  const infuraProvider = new ethers.providers.JsonRpcProvider(
     process.env.INFURA_API_URL ?? '',
   );
   const s3Service = new S3Service();
