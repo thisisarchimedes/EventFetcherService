@@ -116,7 +116,47 @@ describe('Event Processor Service', function () {
     );
   });
 
-  // This runs after each individual test to reset the sandboxed environment
+  it('should process closePosition event and push messages to SQS', async function () {
+    const nftID = Math.floor(Math.random() * 1000);
+    const user = ethers.Wallet.createRandom().address;
+    const strategy = ethers.Wallet.createRandom().address;
+    const receivedAmount = Math.floor(Math.random() * 1000);
+    const wbtcDebtAmount = Math.floor(Math.random() * 1000);
+    const exitFee = Math.floor(Math.random() * 1000);
+
+    const tx = await mockContract.closePosition(
+      nftID,
+      user,
+      strategy,
+      receivedAmount,
+      wbtcDebtAmount,
+      exitFee,
+    );
+
+    await tx.wait();
+
+    await eventProcessorService.execute();
+
+    const expectedMessage = {
+      name: 'PositionClosed',
+      txHash: tx.hash,
+      blockNumber: tx.blockNumber,
+      data: {
+        nftID: nftID.toString(),
+        user: user,
+        strategy: strategy,
+        receivedAmount: receivedAmount.toString(),
+        wbtcDebtAmount: wbtcDebtAmount.toString(),
+        exitFee: exitFee.toString(),
+      },
+    };
+
+    expect(sqsStub.sendMessage).to.have.been.calledOnceWith(
+      'test-queue-url',
+      JSON.stringify(expectedMessage),
+    );
+  });
+
   afterEach(() => {
     sinon.restore();
   });
