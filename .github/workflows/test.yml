@@ -20,5 +20,5 @@ jobs:
           node-version: '16'
       - name: Install dependencies
         run: npm install
-      - name: Run Hardhat Tests
-        run: npx hardhat test
+      - name: Run npm Tests
+        run: npm test
