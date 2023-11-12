@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node --loader ts-node/esm index.ts",
     "lint": "npx eslint --ext .ts,.tsx --fix --fix-type suggestion --fix-type problem .",
-    "test": "jest",
+    "test": "npx hardhat test",
     "build": "tsc && mv dist/src/* dist/ && rm -r dist/src"
   },
   "dependencies": {
