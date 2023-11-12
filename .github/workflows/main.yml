@@ -46,7 +46,7 @@ jobs:
       - name: Prepare deployment package
         run: |
           mkdir -p deploy-package
-          cp -r ./dist/* ./deploy-package/
+          rsync -av --progress ./dist/ ./deploy-package/ --exclude test
           cp -r ./node_modules ./deploy-package/
       - name: List contents of deploy-package directory
         run: ls -al ./deploy-package
