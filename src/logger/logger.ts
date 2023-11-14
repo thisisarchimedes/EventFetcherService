@@ -1,19 +1,3 @@
-// export class Logger {
-//   info(message: string, metaData?: any): void {
-//     console.info(message, metaData ? metaData : '');
-//   }
-
-//   // Function to log warnings
-//   warn(message: string, metaData?: any): void {
-//     console.warn(message, metaData ? metaData : '');
-//   }
-
-//   // Function to log errors
-//   error(message: string, error: Error, metaData?: any): void {
-//     console.error(message, error, metaData ? metaData : '');
-//   }
-// }
-
 import newrelic from 'newrelic';
 
 export class Logger {
