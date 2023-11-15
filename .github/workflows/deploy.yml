@@ -56,6 +56,8 @@ jobs:
           ParameterKey=AlchemyApiUrl,ParameterValue="${{ secrets.ALCHEMY_API_URL }}" \
           ParameterKey=InfuraApiUrl,ParameterValue="${{ secrets.INFURA_API_URL }}" \
           ParameterKey=EventsFetchPageSize,ParameterValue="${{ secrets.EVENTS_FETCH_PAGE_SIZE }}" \
+          ParameterKey=NewRelicLicenseKey,ParameterValue="${{ secrets.NEW_RELIC_LICENSE_KEY }}" \
+          ParameterKey=NewRelicApiUrl,ParameterValue="${{ secrets.NEW_RELIC_API_URL }}" \
           2>&1)
           deploy_status=$?
           echo "$deploy_output"
