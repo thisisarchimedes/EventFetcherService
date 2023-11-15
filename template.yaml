@@ -27,6 +27,8 @@ Resources:
           ALCHEMY_API_URL: !Ref AlchemyApiUrl
           INFURA_API_URL: !Ref InfuraApiUrl
           EVENTS_FETCH_PAGE_SIZE: !Ref EventsFetchPageSize
+          NEW_RELIC_LICENSE_KEY: !Ref NewRelicLicenseKey
+          NEW_RELIC_API_URL: !Ref NewRelicApiUrl
       Policies:
         - S3CrudPolicy:
             BucketName: !Ref WbtcEventsS3Bucket
@@ -77,3 +79,11 @@ Parameters:
   EventsFetchPageSize:
     Type: Number
     Description: Events Fetch Page Size
+
+  NewRelicLicenseKey:
+    Type: String
+    Description: New Relic License Key
+
+  NewRelicApiUrl:
+    Type: String
+    Description: New Relic API URL    
