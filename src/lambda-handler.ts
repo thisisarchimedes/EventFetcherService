@@ -1,4 +1,5 @@
 import newrelic from 'newrelic';
+require('newrelic');
 import { EventProcessorService } from './EventProcessorService';
 import { Logger } from './logger/logger';
 import { S3Service } from './services/s3Service';
