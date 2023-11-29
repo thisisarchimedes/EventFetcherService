@@ -21,12 +21,12 @@ export class EventProcessorService implements IEventProcessorService {
   private readonly infuraProvider: ethers.providers.Provider;
   private readonly s3Service: S3Service;
   private readonly sqsService: SQSService;
-  private readonly CONTRACT_ADDRESS: string;
+  private readonly LEVERAGE_ENGINE_ADDRESS: string;
   private readonly EVENT_DESCRIPTORS = EVENT_DESCRIPTORS;
   private readonly S3_BUCKET: string;
   private readonly S3_KEY: string;
   private readonly SQS_QUEUE_URL: string;
-  private readonly PAGE_SIZE: number;
+  private readonly EVENTS_FETCH_PAGE_SIZE: number;
   private readonly logger: Logger;
 
   constructor(
@@ -47,8 +47,8 @@ export class EventProcessorService implements IEventProcessorService {
     this.S3_BUCKET = config.S3_BUCKET ?? '';
     this.S3_KEY = config.S3_KEY ?? '';
     this.SQS_QUEUE_URL = config.SQS_QUEUE_URL ?? '';
-    this.CONTRACT_ADDRESS = config.CONTRACT_ADDRESS ?? '';
-    this.PAGE_SIZE = Number(config.PAGE_SIZE) || 1000;
+    this.LEVERAGE_ENGINE_ADDRESS = config.LEVERAGE_ENGINE_ADDRESS ?? '';
+    this.EVENTS_FETCH_PAGE_SIZE = Number(config.EVENTS_FETCH_PAGE_SIZE) || 1000;
   }
 
   public async execute(): Promise<void> {
@@ -169,12 +169,15 @@ export class EventProcessorService implements IEventProcessorService {
     for (
       let startBlock = fromBlock + 1;
       startBlock <= toBlock;
-      startBlock += this.PAGE_SIZE
+      startBlock += this.EVENTS_FETCH_PAGE_SIZE
     ) {
-      const endBlock = Math.min(startBlock + this.PAGE_SIZE - 1, toBlock);
+      const endBlock = Math.min(
+        startBlock + this.EVENTS_FETCH_PAGE_SIZE - 1,
+        toBlock,
+      );
       for (const descriptor of this.EVENT_DESCRIPTORS) {
         const filter = {
-          address: this.CONTRACT_ADDRESS,
+          address: this.LEVERAGE_ENGINE_ADDRESS,
           topics: [descriptor.signature],
           fromBlock: startBlock,
           toBlock: endBlock + 5,
