@@ -28,6 +28,7 @@ export class EventProcessorService implements IEventProcessorService {
   private readonly SQS_QUEUE_URL: string;
   private readonly EVENTS_FETCH_PAGE_SIZE: number;
   private readonly logger: Logger;
+  private readonly config: any;
 
   constructor(
     alchemyProvider: ethers.providers.Provider,
@@ -42,11 +43,12 @@ export class EventProcessorService implements IEventProcessorService {
     this.s3Service = s3Service;
     this.sqsService = sqsService;
     this.logger = logger;
+    this.config = config;
 
     // Ensure these environment variables are set in your .env file
     this.S3_BUCKET = config.S3_BUCKET ?? '';
     this.S3_KEY = config.S3_KEY ?? '';
-    this.SQS_QUEUE_URL = config.SQS_QUEUE_URL ?? '';
+    this.SQS_QUEUE_URL = config.NEW_EVENTS_QUEUE_URL ?? '';
     this.LEVERAGE_ENGINE_ADDRESS = config.LEVERAGE_ENGINE_ADDRESS ?? '';
     this.EVENTS_FETCH_PAGE_SIZE = Number(config.EVENTS_FETCH_PAGE_SIZE) || 1000;
   }
@@ -54,7 +56,6 @@ export class EventProcessorService implements IEventProcessorService {
   public async execute(): Promise<void> {
     try {
       this.logger.info('Executing the event fetcher workflow...');
-
       const lastBlock = await this.getLastScannedBlock();
       const currentBlock = await this.getCurrentBlockNumber();
       const events = await this.fetchAndProcessEvents(lastBlock, currentBlock);
@@ -69,9 +70,7 @@ export class EventProcessorService implements IEventProcessorService {
           `no new events found on blocks ${lastBlock} to ${currentBlock}`,
         );
       }
-
       await this.setLastScannedBlock(currentBlock);
-
       this.logger.info('Event fetcher workflow completed.');
     } catch (error) {
       console.log(error);
@@ -93,6 +92,7 @@ export class EventProcessorService implements IEventProcessorService {
       this.alchemyProvider.getLogs(filter),
       this.infuraProvider.getLogs(filter),
     ]);
+
     return [...alchemyLogs, ...infuraLogs];
   }
 
@@ -165,7 +165,6 @@ export class EventProcessorService implements IEventProcessorService {
     toBlock: number,
   ): Promise<any[]> {
     const processedEvents: any[] = [];
-
     for (
       let startBlock = fromBlock + 1;
       startBlock <= toBlock;
