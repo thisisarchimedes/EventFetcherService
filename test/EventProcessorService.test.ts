@@ -55,9 +55,9 @@ describe('Event Processor Service', function () {
       {
         S3_BUCKET: 'test-bucket',
         S3_KEY: 'test-key',
-        SQS_QUEUE_URL: 'test-queue-url',
-        PAGE_SIZE: 1000,
-        CONTRACT_ADDRESS: mockContract.address,
+        NEW_EVENTS_QUEUE_URL: 'test-queue-url',
+        EVENTS_FETCH_PAGE_SIZE: 1000,
+        LEVERAGE_ENGINE_ADDRESS: mockContract.address,
       },
     );
   });

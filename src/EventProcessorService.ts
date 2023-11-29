@@ -21,13 +21,14 @@ export class EventProcessorService implements IEventProcessorService {
   private readonly infuraProvider: ethers.providers.Provider;
   private readonly s3Service: S3Service;
   private readonly sqsService: SQSService;
-  private readonly CONTRACT_ADDRESS: string;
+  private readonly LEVERAGE_ENGINE_ADDRESS: string;
   private readonly EVENT_DESCRIPTORS = EVENT_DESCRIPTORS;
   private readonly S3_BUCKET: string;
   private readonly S3_KEY: string;
   private readonly SQS_QUEUE_URL: string;
-  private readonly PAGE_SIZE: number;
+  private readonly EVENTS_FETCH_PAGE_SIZE: number;
   private readonly logger: Logger;
+  private readonly config: any;
 
   constructor(
     alchemyProvider: ethers.providers.Provider,
@@ -42,19 +43,19 @@ export class EventProcessorService implements IEventProcessorService {
     this.s3Service = s3Service;
     this.sqsService = sqsService;
     this.logger = logger;
+    this.config = config;
 
     // Ensure these environment variables are set in your .env file
     this.S3_BUCKET = config.S3_BUCKET ?? '';
     this.S3_KEY = config.S3_KEY ?? '';
-    this.SQS_QUEUE_URL = config.SQS_QUEUE_URL ?? '';
-    this.CONTRACT_ADDRESS = config.CONTRACT_ADDRESS ?? '';
-    this.PAGE_SIZE = Number(config.PAGE_SIZE) || 1000;
+    this.SQS_QUEUE_URL = config.NEW_EVENTS_QUEUE_URL ?? '';
+    this.LEVERAGE_ENGINE_ADDRESS = config.LEVERAGE_ENGINE_ADDRESS ?? '';
+    this.EVENTS_FETCH_PAGE_SIZE = Number(config.EVENTS_FETCH_PAGE_SIZE) || 1000;
   }
 
   public async execute(): Promise<void> {
     try {
       this.logger.info('Executing the event fetcher workflow...');
-
       const lastBlock = await this.getLastScannedBlock();
       const currentBlock = await this.getCurrentBlockNumber();
       const events = await this.fetchAndProcessEvents(lastBlock, currentBlock);
@@ -69,9 +70,7 @@ export class EventProcessorService implements IEventProcessorService {
           `no new events found on blocks ${lastBlock} to ${currentBlock}`,
         );
       }
-
       await this.setLastScannedBlock(currentBlock);
-
       this.logger.info('Event fetcher workflow completed.');
     } catch (error) {
       console.log(error);
@@ -93,6 +92,7 @@ export class EventProcessorService implements IEventProcessorService {
       this.alchemyProvider.getLogs(filter),
       this.infuraProvider.getLogs(filter),
     ]);
+
     return [...alchemyLogs, ...infuraLogs];
   }
 
@@ -165,16 +165,18 @@ export class EventProcessorService implements IEventProcessorService {
     toBlock: number,
   ): Promise<any[]> {
     const processedEvents: any[] = [];
-
     for (
       let startBlock = fromBlock + 1;
       startBlock <= toBlock;
-      startBlock += this.PAGE_SIZE
+      startBlock += this.EVENTS_FETCH_PAGE_SIZE
     ) {
-      const endBlock = Math.min(startBlock + this.PAGE_SIZE - 1, toBlock);
+      const endBlock = Math.min(
+        startBlock + this.EVENTS_FETCH_PAGE_SIZE - 1,
+        toBlock,
+      );
       for (const descriptor of this.EVENT_DESCRIPTORS) {
         const filter = {
-          address: this.CONTRACT_ADDRESS,
+          address: this.LEVERAGE_ENGINE_ADDRESS,
           topics: [descriptor.signature],
           fromBlock: startBlock,
           toBlock: endBlock + 5,
