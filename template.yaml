@@ -20,15 +20,16 @@ Resources:
             Schedule: rate(1 minute)
       Environment:
         Variables:
-          LEVERAGE_ENGINE_ADDRESS: !Ref LeverageEngineAddress
           NEW_EVENTS_QUEUE_URL: !Ref NewEventsQueueUrl
           S3_BUCKET: !Ref WbtcEventsS3Bucket
-          S3_KEY: !Ref S3Key
+          S3_LAST_BLOCK_KEY: !Ref S3LastBlockKey
+          S3_DEPLOYMENT_ADDRESS_KEY: !Ref S3DeploymentAddressKey
           ALCHEMY_API_URL: !Ref AlchemyApiUrl
           INFURA_API_URL: !Ref InfuraApiUrl
           EVENTS_FETCH_PAGE_SIZE: !Ref EventsFetchPageSize
           NEW_RELIC_LICENSE_KEY: !Ref NewRelicLicenseKey
           NEW_RELIC_API_URL: !Ref NewRelicApiUrl
+          AWS_REGION: !Ref AwsRegion
       Policies:
         - S3CrudPolicy:
             BucketName: !Ref WbtcEventsS3Bucket
@@ -36,7 +37,7 @@ Resources:
   WbtcEventsS3Bucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: wbtc-engine-events-store 
+      BucketName: !Ref S3Bucket
 
   BucketPolicy:
     Type: 'AWS::S3::BucketPolicy'
@@ -52,21 +53,25 @@ Resources:
             Action:
               - 's3:GetObject'
               - 's3:PutObject'
-              - 's3:DeleteObject' 
+              - 's3:DeleteObject'
             Resource: !Sub 'arn:aws:s3:::${WbtcEventsS3Bucket}/*'
 
 Parameters:
-  LeverageEngineAddress:
-    Type: String
-    Description: Leverage Engine Address
-
   NewEventsQueueUrl:
     Type: String
     Description: SQS Queue URL
 
-  S3Key:
+  S3Bucket:
     Type: String
-    Description: S3 Key
+    Description: S3 Bucket Name
+
+  S3LastBlockKey:
+    Type: String
+    Description: S3 Key for Last Block Number
+
+  S3DeploymentAddressKey:
+    Type: String
+    Description: S3 Key for Deployment Address
 
   AlchemyApiUrl:
     Type: String
@@ -78,6 +83,7 @@ Parameters:
 
   EventsFetchPageSize:
     Type: Number
+    Default: 1000
     Description: Events Fetch Page Size
 
   NewRelicLicenseKey:
@@ -86,4 +92,9 @@ Parameters:
 
   NewRelicApiUrl:
     Type: String
-    Description: New Relic API URL    
+    Description: New Relic API URL
+
+  AwsRegion:
+    Type: String
+    Default: us-east-1
+    Description: AWS Region

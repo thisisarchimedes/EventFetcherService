@@ -3,6 +3,7 @@ import { EventProcessorService } from './EventProcessorService';
 import { Logger } from './logger/logger';
 import { S3Service } from './services/s3Service';
 import { SQSService } from './services/sqsService';
+import { ConfigService } from './services/configService';
 import { ethers } from 'ethers';
 
 export const handler = async (event: any, context: any): Promise<void> => {
@@ -16,12 +17,15 @@ export const handler = async (event: any, context: any): Promise<void> => {
   const sqsService = new SQSService();
   const logger = new Logger();
 
+  const leverageEngineAddress = await new ConfigService().getLeverageEngineAddress();
+
   const eventProcessorService = new EventProcessorService(
     alchemyProvider,
     infuraProvider,
     s3Service,
     sqsService,
     logger,
+    leverageEngineAddress,
   );
 
   await eventProcessorService.execute();

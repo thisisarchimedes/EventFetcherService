@@ -3,6 +3,7 @@ import { Logger } from './logger/logger';
 import { S3Service } from './services/s3Service';
 import { SQSService } from './services/sqsService';
 import { ethers } from 'ethers';
+import { ConfigService } from './services/configService';
 
 export const handler = async (event: any, context: any): Promise<void> => {
   const alchemyProvider = new ethers.providers.JsonRpcProvider(
@@ -15,12 +16,15 @@ export const handler = async (event: any, context: any): Promise<void> => {
   const sqsService = new SQSService();
   const logger = new Logger();
 
+  const leverageEngineAddress = await new ConfigService().getLeverageEngineAddress();
+
   const eventProcessorService = new EventProcessorService(
     alchemyProvider,
     infuraProvider,
     s3Service,
     sqsService,
     logger,
+    leverageEngineAddress,
   );
 
   await eventProcessorService.execute();

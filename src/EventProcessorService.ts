@@ -24,11 +24,10 @@ export class EventProcessorService implements IEventProcessorService {
   private readonly LEVERAGE_ENGINE_ADDRESS: string;
   private readonly EVENT_DESCRIPTORS = EVENT_DESCRIPTORS;
   private readonly S3_BUCKET: string;
-  private readonly S3_KEY: string;
+  private readonly S3_LAST_BLOCK_KEY: string;
   private readonly SQS_QUEUE_URL: string;
   private readonly EVENTS_FETCH_PAGE_SIZE: number;
   private readonly logger: Logger;
-  private readonly config: any;
 
   constructor(
     alchemyProvider: ethers.providers.Provider,
@@ -36,6 +35,7 @@ export class EventProcessorService implements IEventProcessorService {
     s3Service: S3Service,
     sqsService: SQSService,
     logger: Logger,
+    leverageEngineAddress: string,
     config: { [key: string]: any } = process.env,
   ) {
     this.alchemyProvider = alchemyProvider;
@@ -43,14 +43,14 @@ export class EventProcessorService implements IEventProcessorService {
     this.s3Service = s3Service;
     this.sqsService = sqsService;
     this.logger = logger;
-    this.config = config;
 
     // Ensure these environment variables are set in your .env file
     this.S3_BUCKET = config.S3_BUCKET ?? '';
-    this.S3_KEY = config.S3_KEY ?? '';
+    this.S3_LAST_BLOCK_KEY = config.S3_LAST_BLOCK_KEY ?? '';
     this.SQS_QUEUE_URL = config.NEW_EVENTS_QUEUE_URL ?? '';
-    this.LEVERAGE_ENGINE_ADDRESS = config.LEVERAGE_ENGINE_ADDRESS ?? '';
     this.EVENTS_FETCH_PAGE_SIZE = Number(config.EVENTS_FETCH_PAGE_SIZE) || 1000;
+
+    this.LEVERAGE_ENGINE_ADDRESS = leverageEngineAddress ?? '';
   }
 
   public async execute(): Promise<void> {
@@ -206,7 +206,10 @@ export class EventProcessorService implements IEventProcessorService {
     let _default = (await this.getCurrentBlockNumber()) - 1000;
     if (_default < 0) _default = 0;
     try {
-      const data = await this.s3Service.getObject(this.S3_BUCKET, this.S3_KEY);
+      const data = await this.s3Service.getObject(
+        this.S3_BUCKET,
+        this.S3_LAST_BLOCK_KEY,
+      );
       if (data === undefined) {
         return _default;
       }
@@ -219,7 +222,7 @@ export class EventProcessorService implements IEventProcessorService {
   async setLastScannedBlock(blockNumber: number): Promise<void> {
     await this.s3Service.putObject(
       this.S3_BUCKET,
-      this.S3_KEY,
+      this.S3_LAST_BLOCK_KEY,
       blockNumber.toString(),
     );
   }
