@@ -39,8 +39,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
       - name: Install AWS SAM CLI
-        run: |
-          pip install --user aws-sam-cli
+        run: pip install --user aws-sam-cli
       - name: Package the SAM application
         run: sam package --template-file template.yaml --output-template-file packaged.yaml --s3-bucket aws-sam-eventsfetcher
       - name: Deploy the SAM application
@@ -49,15 +48,16 @@ jobs:
         run: |
           set +e
           deploy_output=$(sam deploy --template-file packaged.yaml --stack-name EventProcessorStack --capabilities CAPABILITY_IAM --parameter-overrides \
-          ParameterKey=LeverageEngineAddress,ParameterValue="${{ secrets.LEVERAGE_ENGINE_ADDRESS }}" \
           ParameterKey=NewEventsQueueUrl,ParameterValue="${{ secrets.NEW_EVENTS_QUEUE_URL }}" \
           ParameterKey=S3Bucket,ParameterValue="${{ secrets.S3_BUCKET }}" \
-          ParameterKey=S3Key,ParameterValue="${{ secrets.S3_KEY }}" \
+          ParameterKey=S3LastBlockKey,ParameterValue="${{ secrets.S3_LAST_BLOCK_KEY }}" \
+          ParameterKey=S3DeploymentAddressKey,ParameterValue="${{ secrets.S3_DEPLOYMENT_ADDRESS_KEY }}" \
           ParameterKey=AlchemyApiUrl,ParameterValue="${{ secrets.ALCHEMY_API_URL }}" \
           ParameterKey=InfuraApiUrl,ParameterValue="${{ secrets.INFURA_API_URL }}" \
           ParameterKey=EventsFetchPageSize,ParameterValue="${{ secrets.EVENTS_FETCH_PAGE_SIZE }}" \
           ParameterKey=NewRelicLicenseKey,ParameterValue="${{ secrets.NEW_RELIC_LICENSE_KEY }}" \
           ParameterKey=NewRelicApiUrl,ParameterValue="${{ secrets.NEW_RELIC_API_URL }}" \
+          ParameterKey=AwsRegion,ParameterValue="${{ env.AWS_REGION }}" \
           2>&1)
           deploy_status=$?
           echo "$deploy_output"

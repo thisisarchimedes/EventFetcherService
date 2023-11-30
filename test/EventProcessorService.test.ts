@@ -52,12 +52,12 @@ describe('Event Processor Service', function () {
       s3Stub,
       sqsStub,
       loggerStub,
+      mockContract.address,
       {
         S3_BUCKET: 'test-bucket',
         S3_KEY: 'test-key',
         NEW_EVENTS_QUEUE_URL: 'test-queue-url',
         EVENTS_FETCH_PAGE_SIZE: 1000,
-        LEVERAGE_ENGINE_ADDRESS: mockContract.address,
       },
     );
   });
