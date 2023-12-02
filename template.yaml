@@ -21,7 +21,6 @@ Resources:
       Environment:
         Variables:
           NEW_EVENTS_QUEUE_URL: !Ref NewEventsQueueUrl
-          S3_BUCKET: !Ref WbtcEventsS3Bucket
           S3_LAST_BLOCK_KEY: !Ref S3LastBlockKey
           S3_DEPLOYMENT_ADDRESS_KEY: !Ref S3DeploymentAddressKey
           ALCHEMY_API_URL: !Ref AlchemyApiUrl
@@ -30,40 +29,11 @@ Resources:
           NEW_RELIC_LICENSE_KEY: !Ref NewRelicLicenseKey
           NEW_RELIC_API_URL: !Ref NewRelicApiUrl
           AWS_REGION: !Ref AwsRegion
-      Policies:
-        - S3CrudPolicy:
-            BucketName: !Ref WbtcEventsS3Bucket
-
-  WbtcEventsS3Bucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: !Ref S3Bucket
-
-  BucketPolicy:
-    Type: 'AWS::S3::BucketPolicy'
-    Properties:
-      Bucket: !Ref WbtcEventsS3Bucket
-      PolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Sid: LambdaS3Access
-            Effect: Allow
-            Principal:
-              Service: lambda.amazonaws.com
-            Action:
-              - 's3:GetObject'
-              - 's3:PutObject'
-              - 's3:DeleteObject'
-            Resource: !Sub 'arn:aws:s3:::${WbtcEventsS3Bucket}/*'
 
 Parameters:
   NewEventsQueueUrl:
     Type: String
     Description: SQS Queue URL
-
-  S3Bucket:
-    Type: String
-    Description: S3 Bucket Name
 
   S3LastBlockKey:
     Type: String
