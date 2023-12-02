@@ -28,6 +28,7 @@ Resources:
           EVENTS_FETCH_PAGE_SIZE: !Ref EventsFetchPageSize
           NEW_RELIC_LICENSE_KEY: !Ref NewRelicLicenseKey
           NEW_RELIC_API_URL: !Ref NewRelicApiUrl
+          S3_BUCKET: !Ref S3Bucket
 
 Parameters:
   NewEventsQueueUrl:
@@ -62,3 +63,7 @@ Parameters:
   NewRelicApiUrl:
     Type: String
     Description: New Relic API URL
+
+  S3Bucket:
+    Type: String
+    Description: S3 Bucket Name
