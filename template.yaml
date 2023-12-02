@@ -28,7 +28,6 @@ Resources:
           EVENTS_FETCH_PAGE_SIZE: !Ref EventsFetchPageSize
           NEW_RELIC_LICENSE_KEY: !Ref NewRelicLicenseKey
           NEW_RELIC_API_URL: !Ref NewRelicApiUrl
-          AWS_REGION: !Ref AwsRegion
 
 Parameters:
   NewEventsQueueUrl:
