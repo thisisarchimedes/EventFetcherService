@@ -48,6 +48,7 @@ jobs:
         run: |
           deploy_output=$(sam deploy --template-file packaged.yaml --stack-name EventProcessorStack --capabilities CAPABILITY_IAM --parameter-overrides \
           ParameterKey=NewEventsQueueUrl,ParameterValue="${{ secrets.NEW_EVENTS_QUEUE_URL }}" \
+          ParameterKey=S3Bucket,ParameterValue="${{ secrets.S3_BUCKET }}" \
           ParameterKey=S3LastBlockKey,ParameterValue="${{ secrets.S3_LAST_BLOCK_KEY }}" \
           ParameterKey=S3DeploymentAddressKey,ParameterValue="${{ secrets.S3_DEPLOYMENT_ADDRESS_KEY }}" \
           ParameterKey=AlchemyApiUrl,ParameterValue="${{ secrets.ALCHEMY_API_URL }}" \
@@ -55,7 +56,6 @@ jobs:
           ParameterKey=EventsFetchPageSize,ParameterValue="${{ secrets.EVENTS_FETCH_PAGE_SIZE }}" \
           ParameterKey=NewRelicLicenseKey,ParameterValue="${{ secrets.NEW_RELIC_LICENSE_KEY }}" \
           ParameterKey=NewRelicApiUrl,ParameterValue="${{ secrets.NEW_RELIC_API_URL }}" \
-          ParameterKey=AwsRegion,ParameterValue="${{ env.AWS_REGION }}" \
           2>&1)
           deploy_status=$?
           echo "$deploy_output"
