@@ -62,8 +62,3 @@ Parameters:
   NewRelicApiUrl:
     Type: String
     Description: New Relic API URL
-
-  AwsRegion:
-    Type: String
-    Default: us-east-1
-    Description: AWS Region
