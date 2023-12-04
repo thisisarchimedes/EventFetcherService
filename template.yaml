@@ -13,6 +13,7 @@ Resources:
       Handler: lambda-handler.handler
       Runtime: nodejs16.x
       CodeUri: ./deploy-package
+      FunctionName: !Sub 'WBTCEventsFetcher${FunctionNameSuffix}'
       Events:
         EveryMinuteEvent:
           Type: Schedule
@@ -67,3 +68,8 @@ Parameters:
   S3Bucket:
     Type: String
     Description: S3 Bucket Name
+
+  FunctionNameSuffix:
+    Type: String
+    Description: Function Name Suffix
+    Default: ""
