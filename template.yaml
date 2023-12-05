@@ -30,6 +30,7 @@ Resources:
           NEW_RELIC_LICENSE_KEY: !Ref NewRelicLicenseKey
           NEW_RELIC_API_URL: !Ref NewRelicApiUrl
           S3_BUCKET: !Ref S3Bucket
+          Environment: !Ref Environment
 
 Parameters:
   NewEventsQueueUrl:
@@ -68,6 +69,11 @@ Parameters:
   S3Bucket:
     Type: String
     Description: S3 Bucket Name
+
+  Environment:
+    Type: String
+    Description: Environment
+    Default: "local"
 
   FunctionNameSuffix:
     Type: String
