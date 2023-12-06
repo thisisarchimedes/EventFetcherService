@@ -56,6 +56,66 @@ jobs:
           ParameterKey=EventsFetchPageSize,ParameterValue="${{ secrets.EVENTS_FETCH_PAGE_SIZE }}" \
           ParameterKey=NewRelicLicenseKey,ParameterValue="${{ secrets.NEW_RELIC_LICENSE_KEY }}" \
           ParameterKey=NewRelicApiUrl,ParameterValue="${{ secrets.NEW_RELIC_API_URL }}" \
+          ParameterKey=Environment,ParameterValue="staging" \
+          2>&1)
+          deploy_status=$?
+          echo "$deploy_output"
+          if [[ $deploy_status -ne 0 && "$deploy_output" == *"No changes to deploy"* ]]; then
+            echo "Deployment skipped: No changes to deploy."
+            exit 0
+          else
+            exit $deploy_status
+          fi
+  
+  deploy_demo:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+      - name: Install dependencies
+        run: npm install
+      - name: Build
+        run: npm run build
+      - name: Remove development dependencies
+        run: npm prune --production
+      - name: Prepare deployment package
+        run: |
+          mkdir -p deploy-package
+          rsync -av --progress ./dist/ ./deploy-package/ --exclude test
+          cp -r ./node_modules ./deploy-package/
+      - name: List contents of deploy-package directory
+        run: ls -al ./deploy-package
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Install AWS SAM CLI
+        run: pip install --user aws-sam-cli
+      - name: Package the SAM application
+        run: sam package --template-file template.yaml --output-template-file packaged.yaml --s3-bucket aws-sam-eventsfetcher
+      - name: Deploy the SAM application
+        id: deploy
+        continue-on-error: true
+        run: |
+          deploy_output=$(sam deploy --template-file packaged.yaml --stack-name EventProcessorStack --capabilities CAPABILITY_IAM --parameter-overrides \
+          ParameterKey=NewEventsQueueUrl,ParameterValue="${{ secrets.DEMO_EVENTS_QUEUE_URL }}" \
+          ParameterKey=S3Bucket,ParameterValue="${{ secrets.DEMO_S3_BUCKET }}" \
+          ParameterKey=S3LastBlockKey,ParameterValue="${{ secrets.S3_LAST_BLOCK_KEY }}" \
+          ParameterKey=S3DeploymentAddressKey,ParameterValue="${{ secrets.S3_DEPLOYMENT_ADDRESS_KEY }}" \
+          ParameterKey=AlchemyApiUrl,ParameterValue="${{ secrets.RPC_URL_DEMO }}" \
+          ParameterKey=InfuraApiUrl,ParameterValue="${{ secrets.RPC_URL_DEMO }}" \
+          ParameterKey=EventsFetchPageSize,ParameterValue="${{ secrets.EVENTS_FETCH_PAGE_SIZE }}" \
+          ParameterKey=NewRelicLicenseKey,ParameterValue="${{ secrets.NEW_RELIC_LICENSE_KEY }}" \
+          ParameterKey=NewRelicApiUrl,ParameterValue="${{ secrets.NEW_RELIC_API_URL }}" \
+          ParameterKey=Environment,ParameterValue="demo" \
+          ParameterKey=FunctionNameSuffix,ParameterValue="-Demo" \
           2>&1)
           deploy_status=$?
           echo "$deploy_output"

@@ -15,7 +15,7 @@ const infuraProvider = new ethers.providers.JsonRpcProvider(
 );
 const s3Service = new S3Service();
 const sqsService = new SQSService();
-const logger = new Logger();
+const logger = new Logger(process.env.ENVIRONMENT);
 let leverageEngineAddress: string;
 
 const initializeDependencies = async () => {
