@@ -104,7 +104,7 @@ jobs:
         id: deploy
         continue-on-error: true
         run: |
-          deploy_output=$(sam deploy --template-file packaged.yaml --stack-name EventProcessorStack --capabilities CAPABILITY_IAM --parameter-overrides \
+          deploy_output=$(sam deploy --template-file packaged.yaml --stack-name EventProcessorStackDemo --capabilities CAPABILITY_IAM --parameter-overrides \
           ParameterKey=NewEventsQueueUrl,ParameterValue="${{ secrets.DEMO_EVENTS_QUEUE_URL }}" \
           ParameterKey=S3Bucket,ParameterValue="${{ secrets.DEMO_S3_BUCKET }}" \
           ParameterKey=S3LastBlockKey,ParameterValue="${{ secrets.S3_LAST_BLOCK_KEY }}" \
