@@ -26,9 +26,9 @@ export class Logger {
   }
 
   // Function to log errors
-  error(message: string, error: Error, metaData: any = {}): void {
+  error(message: string, metaData: any = {}): void {
     metaData.env = this.env;
-    // logger.error(message, error, metaData ? metaData : '');
-    console.error(message, error, metaData ? metaData : '');
+    // logger.error(message, metaData ? metaData : '');
+    console.error(message, metaData ? metaData : '');
   }
 }

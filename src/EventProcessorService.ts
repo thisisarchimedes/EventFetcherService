@@ -151,9 +151,7 @@ export class EventProcessorService implements IEventProcessorService {
             data: eventData,
           };
         } catch (error) {
-          if (error instanceof Error) {
-            this.logger.error('Failed to decode log:', error);
-          }
+          this.logger.error(`Failed to decode log: ${JSON.stringify(error)}`);
           return null;
         }
       })
