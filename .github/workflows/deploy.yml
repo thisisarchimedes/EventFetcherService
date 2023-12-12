@@ -110,7 +110,7 @@ jobs:
           ParameterKey=NewEventsQueueUrl,ParameterValue="${{ secrets.DEMO_EVENTS_QUEUE_URL }}" \
           ParameterKey=S3Bucket,ParameterValue="${{ secrets.DEMO_S3_BUCKET }}" \
           ParameterKey=S3LastBlockKey,ParameterValue="${{ secrets.S3_LAST_BLOCK_KEY }}" \
-          ParameterKey=S3DeploymentAddressKey,ParameterValue="${{ secrets.S3_DEPLOYMENT_ADDRESS_KEY }}" \
+          ParameterKey=S3DeploymentAddressKey,ParameterValue="${{ secrets.S3_DEPLOYMENT_ADDRESS_KEY_DEMO }}" \
           ParameterKey=AlchemyApiUrl,ParameterValue="${{ secrets.RPC_URL_DEMO }}" \
           ParameterKey=InfuraApiUrl,ParameterValue="${{ secrets.RPC_URL_DEMO }}" \
           ParameterKey=EventsFetchPageSize,ParameterValue="${{ secrets.EVENTS_FETCH_PAGE_SIZE }}" \
