@@ -49,6 +49,7 @@ jobs:
           deploy_output=$(sam deploy --template-file packaged.yaml --stack-name EventProcessorStack --capabilities CAPABILITY_IAM --parameter-overrides \
           ParameterKey=NewEventsQueueUrl,ParameterValue="${{ secrets.NEW_EVENTS_QUEUE_URL }}" \
           ParameterKey=S3Bucket,ParameterValue="${{ secrets.S3_BUCKET }}" \
+          ParameterKey=S3BucketConfig,ParameterValue="${{ secrets.S3_BUCKET_CONFIG }}" \
           ParameterKey=S3LastBlockKey,ParameterValue="${{ secrets.S3_LAST_BLOCK_KEY }}" \
           ParameterKey=S3DeploymentAddressKey,ParameterValue="${{ secrets.S3_DEPLOYMENT_ADDRESS_KEY }}" \
           ParameterKey=AlchemyApiUrl,ParameterValue="${{ secrets.ALCHEMY_API_URL }}" \
@@ -109,6 +110,7 @@ jobs:
           ParameterKey=FunctionNameSuffix,ParameterValue="-Demo" \
           ParameterKey=NewEventsQueueUrl,ParameterValue="${{ secrets.DEMO_EVENTS_QUEUE_URL }}" \
           ParameterKey=S3Bucket,ParameterValue="${{ secrets.DEMO_S3_BUCKET }}" \
+          ParameterKey=S3BucketConfig,ParameterValue="${{ secrets.S3_BUCKET_CONFIG }}" \
           ParameterKey=S3LastBlockKey,ParameterValue="${{ secrets.S3_LAST_BLOCK_KEY }}" \
           ParameterKey=S3DeploymentAddressKey,ParameterValue="${{ secrets.S3_DEPLOYMENT_ADDRESS_KEY_DEMO }}" \
           ParameterKey=AlchemyApiUrl,ParameterValue="${{ secrets.RPC_URL_DEMO }}" \

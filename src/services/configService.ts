@@ -11,7 +11,7 @@ export class ConfigService {
   async getLeverageEngineAddress() {
     //get leverage engine address from config bucket
     let obj = await this.s3.getObject(
-      process.env.S3_BUCKET ?? '',
+      process.env.S3_BUCKET_CONFIG ?? '',
       process.env.S3_DEPLOYMENT_ADDRESS_KEY ?? '',
     );
 
