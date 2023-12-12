@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: Deploys a Lambda function to fetch and queue WBTC engine events every minute.
 
@@ -13,7 +13,7 @@ Resources:
       Handler: lambda-handler.handler
       Runtime: nodejs16.x
       CodeUri: ./deploy-package
-      FunctionName: !Sub 'WBTCEventsFetcher${FunctionNameSuffix}'
+      FunctionName: !Sub "WBTCEventsFetcher${FunctionNameSuffix}"
       Events:
         EveryMinuteEvent:
           Type: Schedule
@@ -31,7 +31,7 @@ Resources:
           NEW_RELIC_API_URL: !Ref NewRelicApiUrl
           S3_BUCKET: !Ref S3Bucket
           S3_BUCKET_CONFIG: !Ref S3BucketConfig
-          Environment: !Ref Environment
+          ENVIRONMENT: !Ref Environment
 
 Parameters:
   NewEventsQueueUrl:

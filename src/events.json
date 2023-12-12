@@ -12,8 +12,7 @@
                 "type": "uint256",
                 "indexed": false
             },
-            { "name": "sharesReceived", "type": "uint256", "indexed": false },
-            { "name": "liquidationBuffer", "type": "uint256", "indexed": false }
+            { "name": "sharesReceived", "type": "uint256", "indexed": false }
         ]
     },
     {

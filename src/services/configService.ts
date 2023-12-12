@@ -1,4 +1,3 @@
-import { any } from 'hardhat/internal/core/params/argumentTypes';
 import { S3Service } from './s3Service';
 
 export class ConfigService {
@@ -16,7 +15,7 @@ export class ConfigService {
     );
 
     let contractAddress = JSON.parse(obj);
-    return contractAddress.filter((f: any) => f.name == 'LeverageEngine')[0]
+    return contractAddress.filter((f: any) => f.name == 'PositionOpener')[0]
       .address;
   }
 }
