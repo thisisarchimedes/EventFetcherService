@@ -15,7 +15,7 @@ export class ConfigService {
     );
 
     let contractAddress = JSON.parse(obj);
-    return contractAddress.filter((f: any) => f.name == 'LeverageEngine')[0]
+    return contractAddress.filter((f: any) => f.name == 'PositionOpener')[0]
       .address;
   }
 }
