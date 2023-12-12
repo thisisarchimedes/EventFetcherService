@@ -26,7 +26,7 @@ const initializeDependencies = async () => {
 export const handler = async (event: any, context: any): Promise<void> => {
   if (leverageEngineAddress === undefined) await initializeDependencies();
 
-  logger.info('Working with leverageEngine at: ', leverageEngineAddress);
+  logger.info(`Working with leverageEngine at: ${leverageEngineAddress}`);
 
   const eventProcessorService = new EventProcessorService(
     alchemyProvider,

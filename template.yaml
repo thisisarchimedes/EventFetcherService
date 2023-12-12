@@ -30,6 +30,7 @@ Resources:
           NEW_RELIC_LICENSE_KEY: !Ref NewRelicLicenseKey
           NEW_RELIC_API_URL: !Ref NewRelicApiUrl
           S3_BUCKET: !Ref S3Bucket
+          S3_BUCKET_CONFIG: !Ref S3BucketConfig
           Environment: !Ref Environment
 
 Parameters:
@@ -69,6 +70,10 @@ Parameters:
   S3Bucket:
     Type: String
     Description: S3 Bucket Name
+
+  S3BucketConfig:
+    Type: String
+    Description: S3 Bucket Config Name
 
   Environment:
     Type: String
