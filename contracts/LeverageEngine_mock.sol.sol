@@ -4,23 +4,28 @@ pragma solidity ^0.8.0;
 contract LeverageEngine_mock {
   // Define the events according to the given specifications
   event PositionOpened(
-    uint256 indexed nftID,
+    uint256 indexed nftId,
     address indexed user,
     address indexed strategy,
     uint256 collateralAmount,
     uint256 wbtcToBorrow,
     uint256 positionExpireBlock,
-    uint256 sharesReceived,
-    uint256 liquidationBuffer
+    uint256 sharesReceived
   );
-
   event PositionClosed(
-    uint256 indexed nftID,
+    uint256 indexed nftId,
     address indexed user,
     address indexed strategy,
     uint256 receivedAmount,
     uint256 wbtcDebtAmount,
     uint256 exitFee
+  );
+  event PositionLiquidated(
+    uint256 indexed nftId,
+    address indexed strategy,
+    uint256 wbtcDebtPaid,
+    uint256 claimableAmount,
+    uint256 liquidationFee
   );
 
   // Function to emit the PositionOpened event
@@ -31,8 +36,7 @@ contract LeverageEngine_mock {
     uint256 _collateralAmount,
     uint256 _wbtcToBorrow,
     uint256 _positionExpireBlock,
-    uint256 _sharesReceived,
-    uint256 _liquidationBuffer
+    uint256 _sharesReceived
   ) external {
     // Emit the PositionOpened event with the provided parameters
     emit PositionOpened(
@@ -42,8 +46,7 @@ contract LeverageEngine_mock {
       _collateralAmount,
       _wbtcToBorrow,
       _positionExpireBlock,
-      _sharesReceived,
-      _liquidationBuffer
+      _sharesReceived
     );
   }
 
@@ -64,6 +67,22 @@ contract LeverageEngine_mock {
       _receivedAmount,
       _wbtcDebtAmount,
       _exitFee
+    );
+  }
+
+  function liquidatePosition(
+    uint256 nftId,
+    address strategy,
+    uint256 wbtcDebtPaid,
+    uint256 claimableAmount,
+    uint256 liquidationFee
+  ) external {
+    emit PositionLiquidated(
+      nftId,
+      strategy,
+      wbtcDebtPaid,
+      claimableAmount,
+      liquidationFee
     );
   }
 }

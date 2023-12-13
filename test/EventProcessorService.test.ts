@@ -72,7 +72,6 @@ describe('Event Processor Service', function () {
     const wbtcToBorrow = Math.floor(Math.random() * 1000);
     const positionExpireBlock = Math.floor(Math.random() * 1000);
     const sharesReceived = Math.floor(Math.random() * 1000);
-    const liquidationBuffer = Math.floor(Math.random() * 1000);
 
     // Call the openPosition function on the mock contract with random values
     const tx = await mockContract.openPosition(
@@ -83,7 +82,6 @@ describe('Event Processor Service', function () {
       wbtcToBorrow,
       positionExpireBlock,
       sharesReceived,
-      liquidationBuffer,
     );
 
     // Wait for the transaction to be mined
@@ -105,7 +103,6 @@ describe('Event Processor Service', function () {
         wbtcToBorrow: wbtcToBorrow.toString(),
         positionExpireBlock: positionExpireBlock.toString(),
         sharesReceived: sharesReceived.toString(),
-        liquidationBuffer: liquidationBuffer.toString(),
       },
     };
 
