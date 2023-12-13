@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: "2010-09-09"
+AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: Deploys a Lambda function to fetch and queue WBTC engine events every minute.
 
@@ -23,15 +23,15 @@ Resources:
             Version: '2012-10-17'
             Statement:
               - Effect: Allow
-                Action: 
+                Action:
                   - 's3:*'
-                  - 's3-object-lambda:*' 
+                  - 's3-object-lambda:*'
                 Resource: '*'
               - Effect: Allow
                 Action: 'sqs:*'
                 Resource: '*'
               - Effect: Allow
-                Action: 
+                Action:
                   - 'logs:CreateLogStream'
                   - 'logs:CreateLogGroup'
                   - 'logs:TagResource'
@@ -44,7 +44,7 @@ Resources:
       Handler: lambda-handler.handler
       Runtime: nodejs16.x
       CodeUri: ./deploy-package
-      FunctionName: !Sub "WBTCEventsFetcher${FunctionNameSuffix}"
+      FunctionName: !Sub 'WBTCEventsFetcher${FunctionNameSuffix}'
       Role: !GetAtt LambdaExecutionRole.Arn
       Events:
         EveryMinuteEvent:
@@ -64,6 +64,8 @@ Resources:
           S3_BUCKET: !Ref S3Bucket
           S3_BUCKET_CONFIG: !Ref S3BucketConfig
           ENVIRONMENT: !Ref Environment
+          S3_TEST_FORK_KEY: !Ref S3TestForkKey
+          S3_DEMO_FORK_KEY: !Ref S3DemoForkKey
 
 Parameters:
   NewEventsQueueUrl:
@@ -110,9 +112,17 @@ Parameters:
   Environment:
     Type: String
     Description: Environment
-    Default: "local"
+    Default: 'local'
+
+  S3TestForkKey: !Ref S3TestForkKey
+    Type: String
+    Description: S3 Key for test RPC URL
+
+  S3DemoForkKey: !Ref S3DemoForkKey
+  Type: String
+  Description: S3 Key for Demo env RPC URL
 
   FunctionNameSuffix:
     Type: String
     Description: Function Name Suffix
-    Default: ""
+    Default: ''

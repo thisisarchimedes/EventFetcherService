@@ -20,16 +20,16 @@ export const handler = async (event: any, context: any): Promise<void> => {
 
   const logger = new Logger(_context.enviroment);
 
-  const alchemyProvider = new ethers.providers.JsonRpcProvider(
+  const mainrovider = new ethers.providers.JsonRpcProvider(
     _context.rpcAddress ?? '',
   );
-  const infuraProvider = new ethers.providers.JsonRpcProvider(
+  const altProvider = new ethers.providers.JsonRpcProvider(
     _context.alternateRpcAddress ?? '',
   );
 
   const eventProcessorService = new EventProcessorService(
-    alchemyProvider,
-    infuraProvider,
+    mainrovider,
+    altProvider,
     s3Service,
     sqsService,
     logger,

@@ -29,8 +29,8 @@ const EVENT_DESCRIPTORS: EventDescriptor[] = rawEventDescriptors.map(event => {
 });
 
 export class EventProcessorService implements IEventProcessorService {
-  private readonly alchemyProvider: ethers.providers.Provider;
-  private readonly infuraProvider: ethers.providers.Provider;
+  private readonly mainProvider: ethers.providers.Provider;
+  private readonly altProvider: ethers.providers.Provider;
   private readonly s3Service: S3Service;
   private readonly sqsService: SQSService;
   private readonly EVENT_DESCRIPTORS = EVENT_DESCRIPTORS;
@@ -38,15 +38,15 @@ export class EventProcessorService implements IEventProcessorService {
   private readonly _context: EnviromentContext;
 
   constructor(
-    alchemyProvider: ethers.providers.Provider,
-    infuraProvider: ethers.providers.Provider,
+    mainProvider: ethers.providers.Provider,
+    altProvider: ethers.providers.Provider,
     s3Service: S3Service,
     sqsService: SQSService,
     logger: Logger,
     context: EnviromentContext,
   ) {
-    this.alchemyProvider = alchemyProvider;
-    this.infuraProvider = infuraProvider;
+    this.mainProvider = mainProvider;
+    this.altProvider = altProvider;
     this.s3Service = s3Service;
     this.sqsService = sqsService;
     this.logger = logger;
@@ -79,8 +79,8 @@ export class EventProcessorService implements IEventProcessorService {
 
   private async getCurrentBlockNumber(): Promise<number> {
     const [alchemyBlock, infuraBlock] = await Promise.all([
-      this.alchemyProvider.getBlockNumber(),
-      this.infuraProvider.getBlockNumber(),
+      this.mainProvider.getBlockNumber(),
+      this.altProvider.getBlockNumber(),
     ]);
     return Math.min(alchemyBlock, infuraBlock);
   }
@@ -89,8 +89,8 @@ export class EventProcessorService implements IEventProcessorService {
     filter: ethers.providers.Filter,
   ): Promise<ethers.providers.Log[]> {
     const [alchemyLogs, infuraLogs] = await Promise.all([
-      this.alchemyProvider.getLogs(filter),
-      this.infuraProvider.getLogs(filter),
+      this.mainProvider.getLogs(filter),
+      this.altProvider.getLogs(filter),
     ]);
 
     return [...alchemyLogs, ...infuraLogs];
