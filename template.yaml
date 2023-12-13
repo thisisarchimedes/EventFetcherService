@@ -114,11 +114,11 @@ Parameters:
     Description: Environment
     Default: 'local'
 
-  S3TestForkKey: !Ref S3TestForkKey
+  S3TestForkKey:
     Type: String
     Description: S3 Key for test RPC URL
 
-  S3DemoForkKey: !Ref S3DemoForkKey
+  S3DemoForkKey:
   Type: String
   Description: S3 Key for Demo env RPC URL
 
