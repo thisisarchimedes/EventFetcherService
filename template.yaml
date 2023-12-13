@@ -23,11 +23,20 @@ Resources:
             Version: '2012-10-17'
             Statement:
               - Effect: Allow
-                Action: 's3:*'
+                Action: 
+                  - 's3:*'
+                  - 's3-object-lambda:*' 
                 Resource: '*'
               - Effect: Allow
                 Action: 'sqs:*'
                 Resource: '*'
+              - Effect: Allow
+                Action: 
+                  - 'logs:CreateLogStream'
+                  - 'logs:CreateLogGroup'
+                  - 'logs:TagResource'
+                  - 'logs:PutLogEvents'
+                Resource: 'arn:aws:logs:*:*:*'
 
   WBTCEventsFetcher:
     Type: AWS::Serverless::Function
