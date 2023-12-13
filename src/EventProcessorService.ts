@@ -183,7 +183,7 @@ export class EventProcessorService implements IEventProcessorService {
   private async queueEvents(events: any[]): Promise<void> {
     for (const event of events) {
       await this.sqsService.sendMessage(
-        this._context.SQS_QUEUE_URL,
+        this._context.NEW_EVENTS_QUEUE_URL,
         JSON.stringify(event),
       );
     }

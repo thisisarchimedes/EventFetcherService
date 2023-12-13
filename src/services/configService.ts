@@ -1,5 +1,6 @@
 import { S3Service } from './s3Service';
 import { EnviromentContext } from '../types/EnviromentContext';
+import axios from 'axios';
 
 export class ConfigService {
   private readonly s3: S3Service;
@@ -26,17 +27,27 @@ export class ConfigService {
 
     let enviroment = process.env.ENVIRONMENT ?? 'local';
 
+    let rpcJson = '';
+    if (enviroment === 'demo') {
+      rpcJson = await axios.get(process.env.DEMO_FORK_URL_JSON ?? '');
+    } else {
+      rpcJson = await axios.get(process.env.TEST_FORK_URL_JSON ?? '');
+    }
+
+    let rpcAddress = JSON.parse(rpcJson)['rpc'];
+
     let _context: EnviromentContext = {
       positionCloserAddress: positionOpener,
       positionOpenerAddress: positionCloser,
       enviroment: enviroment,
       S3_BUCKET: process.env.S3_BUCKET || '',
       S3_LAST_BLOCK_KEY: process.env.S3_LAST_BLOCK_KEY ?? '',
-      SQS_QUEUE_URL: process.env.SQS_QUEUE_URL ?? '',
       EVENTS_FETCH_PAGE_SIZE: Number(
         process.env.EVENTS_FETCH_PAGE_SIZE ?? '1000',
       ),
       NEW_EVENTS_QUEUE_URL: process.env.NEW_EVENTS_QUEUE_URL ?? '',
+      rpcAddress: rpcAddress,
+      alternateRpcAddress: rpcAddress,
     };
 
     return _context;

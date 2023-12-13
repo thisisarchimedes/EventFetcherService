@@ -7,16 +7,8 @@ import { ConfigService } from './services/configService';
 import { ethers } from 'ethers';
 import { EnviromentContext } from './types/EnviromentContext';
 
-// Moved outside the handler function
-const alchemyProvider = new ethers.providers.JsonRpcProvider(
-  process.env.ALCHEMY_API_URL ?? '',
-);
-const infuraProvider = new ethers.providers.JsonRpcProvider(
-  process.env.INFURA_API_URL ?? '',
-);
 const s3Service = new S3Service();
 const sqsService = new SQSService();
-const logger = new Logger(process.env.ENVIRONMENT);
 let _context: EnviromentContext;
 
 const getEnviromentContext = async () => {
@@ -25,6 +17,15 @@ const getEnviromentContext = async () => {
 };
 export const handler = async (event: any, context: any): Promise<void> => {
   if (_context === undefined) _context = await getEnviromentContext();
+
+  const logger = new Logger(_context.enviroment);
+
+  const alchemyProvider = new ethers.providers.JsonRpcProvider(
+    _context.rpcAddress ?? '',
+  );
+  const infuraProvider = new ethers.providers.JsonRpcProvider(
+    _context.alternateRpcAddress ?? '',
+  );
 
   const eventProcessorService = new EventProcessorService(
     alchemyProvider,
