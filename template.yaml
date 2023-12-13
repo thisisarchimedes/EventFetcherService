@@ -7,6 +7,28 @@ Globals:
     Timeout: 20
 
 Resources:
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: LambdaS3SQSFullAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: 's3:*'
+                Resource: '*'
+              - Effect: Allow
+                Action: 'sqs:*'
+                Resource: '*'
+
   WBTCEventsFetcher:
     Type: AWS::Serverless::Function
     Properties:
@@ -14,6 +36,7 @@ Resources:
       Runtime: nodejs16.x
       CodeUri: ./deploy-package
       FunctionName: !Sub "WBTCEventsFetcher${FunctionNameSuffix}"
+      Role: !GetAtt LambdaExecutionRole.Arn
       Events:
         EveryMinuteEvent:
           Type: Schedule
