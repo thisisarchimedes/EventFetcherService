@@ -28,10 +28,18 @@ export class ConfigService {
     let enviroment = process.env.ENVIRONMENT ?? 'local';
 
     let rpcJson = '';
+
+    //get RPC URL
     if (enviroment === 'demo') {
-      rpcJson = await axios.get(process.env.DEMO_FORK_URL_JSON ?? '');
+      rpcJson = await this.s3.getObject(
+        process.env.S3_BUCKET_CONFIG ?? '',
+        process.env.S3_DEMO_FORK_KEY ?? '',
+      );
     } else {
-      rpcJson = await axios.get(process.env.TEST_FORK_URL_JSON ?? '');
+      rpcJson = await this.s3.getObject(
+        process.env.S3_BUCKET_CONFIG ?? '',
+        process.env.S3_TEST_FORK_KEY ?? '',
+      );
     }
 
     let rpcAddress = JSON.parse(rpcJson)['rpc'];
