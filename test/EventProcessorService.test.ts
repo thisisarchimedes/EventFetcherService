@@ -15,7 +15,8 @@ chai.use(sinonChai);
 chai.use(chaiAsPromised);
 
 describe('Event Processor Service', function () {
-  let mockContract: Contract;
+  let positionOpenerMockContract: Contract;
+  let positionCloserMockContract: Contract;
   let eventProcessorService: EventProcessorService;
   let s3Stub: sinon.SinonStubbedInstance<S3Service>;
   let sqsStub: sinon.SinonStubbedInstance<SQSService>;
@@ -28,11 +29,19 @@ describe('Event Processor Service', function () {
     provider = new ethers.providers.JsonRpcProvider();
 
     // Deploy a mock contract for the tests
-    const MockContractFactory = await ethers.getContractFactory(
-      'LeverageEngine_mock',
+    const PositionOpenerFactory = await ethers.getContractFactory(
+      'PositionOpener_mock',
     );
-    mockContract = await MockContractFactory.deploy();
-    await mockContract.deployed();
+
+    positionOpenerMockContract = await PositionOpenerFactory.deploy();
+    await positionOpenerMockContract.deployed();
+
+    const PositionCloserFactory = await ethers.getContractFactory(
+      'PositionCloser_mock',
+    );
+
+    positionCloserMockContract = await PositionCloserFactory.deploy();
+    await positionCloserMockContract.deployed();
 
     // Stub the S3Service and SQSService and their methods
     s3Stub = sinon.createStubInstance(S3Service);
@@ -52,10 +61,14 @@ describe('Event Processor Service', function () {
       s3Stub,
       sqsStub,
       loggerStub,
-      mockContract.address,
       {
+        enviroment: 'local',
+        positionOpenerAddress: positionOpenerMockContract.address,
+        positionCloserAddress: positionCloserMockContract.address,
+        S3_LAST_BLOCK_KEY: '',
         S3_BUCKET: 'test-bucket',
-        S3_KEY: 'test-key',
+        rpcAddress: '',
+        alternateRpcAddress: '',
         NEW_EVENTS_QUEUE_URL: 'test-queue-url',
         EVENTS_FETCH_PAGE_SIZE: 1000,
       },
@@ -74,7 +87,7 @@ describe('Event Processor Service', function () {
     const sharesReceived = Math.floor(Math.random() * 1000);
 
     // Call the openPosition function on the mock contract with random values
-    const tx = await mockContract.openPosition(
+    const tx = await positionOpenerMockContract.openPosition(
       nftID,
       user,
       strategy,
@@ -121,7 +134,7 @@ describe('Event Processor Service', function () {
     const wbtcDebtAmount = Math.floor(Math.random() * 1000);
     const exitFee = Math.floor(Math.random() * 1000);
 
-    const tx = await mockContract.closePosition(
+    const tx = await positionCloserMockContract.closePosition(
       nftID,
       user,
       strategy,

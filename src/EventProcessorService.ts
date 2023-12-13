@@ -5,52 +5,52 @@ import { SQSService } from './services/sqsService';
 import dotenv from 'dotenv';
 import { IEventProcessorService } from './IEventProcessorService';
 import { Logger } from './logger/logger';
-import { EventDescriptor } from './types/EventDescriptor';
+import { ContractType, EventDescriptor } from './types/EventDescriptor';
+import { EnviromentContext } from './types/EnviromentContext';
 
 dotenv.config();
 
-const EVENT_DESCRIPTORS: EventDescriptor[] = rawEventDescriptors.map(event => ({
-  ...event,
-  signature: ethers.utils.id(
-    `${event.name}(${event.decodeData.map(param => param.type).join(',')})`,
-  ),
-}));
+const EVENT_DESCRIPTORS: EventDescriptor[] = rawEventDescriptors.map(event => {
+  let contractType =
+    event.name === 'PositionOpened'
+      ? 0
+      : event.name == 'PositionCloser'
+      ? 1
+      : 1; //for other future types like liquidation
+  let obj = {
+    ...event,
+    signature: ethers.utils.id(
+      `${event.name}(${event.decodeData.map(param => param.type).join(',')})`,
+    ),
+    contractType: contractType,
+  };
+
+  return obj;
+});
 
 export class EventProcessorService implements IEventProcessorService {
-  private readonly alchemyProvider: ethers.providers.Provider;
-  private readonly infuraProvider: ethers.providers.Provider;
+  private readonly mainProvider: ethers.providers.Provider;
+  private readonly altProvider: ethers.providers.Provider;
   private readonly s3Service: S3Service;
   private readonly sqsService: SQSService;
-  private readonly LEVERAGE_ENGINE_ADDRESS: string;
   private readonly EVENT_DESCRIPTORS = EVENT_DESCRIPTORS;
-  private readonly S3_BUCKET: string;
-  private readonly S3_LAST_BLOCK_KEY: string;
-  private readonly SQS_QUEUE_URL: string;
-  private readonly EVENTS_FETCH_PAGE_SIZE: number;
   private readonly logger: Logger;
+  private readonly _context: EnviromentContext;
 
   constructor(
-    alchemyProvider: ethers.providers.Provider,
-    infuraProvider: ethers.providers.Provider,
+    mainProvider: ethers.providers.Provider,
+    altProvider: ethers.providers.Provider,
     s3Service: S3Service,
     sqsService: SQSService,
     logger: Logger,
-    leverageEngineAddress: string,
-    config: { [key: string]: any } = process.env,
+    context: EnviromentContext,
   ) {
-    this.alchemyProvider = alchemyProvider;
-    this.infuraProvider = infuraProvider;
+    this.mainProvider = mainProvider;
+    this.altProvider = altProvider;
     this.s3Service = s3Service;
     this.sqsService = sqsService;
     this.logger = logger;
-
-    // Ensure these environment variables are set in your .env file
-    this.S3_BUCKET = config.S3_BUCKET ?? '';
-    this.S3_LAST_BLOCK_KEY = config.S3_LAST_BLOCK_KEY ?? '';
-    this.SQS_QUEUE_URL = config.NEW_EVENTS_QUEUE_URL ?? '';
-    this.EVENTS_FETCH_PAGE_SIZE = Number(config.EVENTS_FETCH_PAGE_SIZE) || 1000;
-
-    this.LEVERAGE_ENGINE_ADDRESS = leverageEngineAddress ?? '';
+    this._context = context;
   }
 
   public async execute(): Promise<void> {
@@ -79,8 +79,8 @@ export class EventProcessorService implements IEventProcessorService {
 
   private async getCurrentBlockNumber(): Promise<number> {
     const [alchemyBlock, infuraBlock] = await Promise.all([
-      this.alchemyProvider.getBlockNumber(),
-      this.infuraProvider.getBlockNumber(),
+      this.mainProvider.getBlockNumber(),
+      this.altProvider.getBlockNumber(),
     ]);
     return Math.min(alchemyBlock, infuraBlock);
   }
@@ -89,8 +89,8 @@ export class EventProcessorService implements IEventProcessorService {
     filter: ethers.providers.Filter,
   ): Promise<ethers.providers.Log[]> {
     const [alchemyLogs, infuraLogs] = await Promise.all([
-      this.alchemyProvider.getLogs(filter),
-      this.infuraProvider.getLogs(filter),
+      this.mainProvider.getLogs(filter),
+      this.altProvider.getLogs(filter),
     ]);
 
     return [...alchemyLogs, ...infuraLogs];
@@ -166,15 +166,22 @@ export class EventProcessorService implements IEventProcessorService {
     for (
       let startBlock = fromBlock + 1;
       startBlock <= toBlock;
-      startBlock += this.EVENTS_FETCH_PAGE_SIZE
+      startBlock += this._context.EVENTS_FETCH_PAGE_SIZE
     ) {
       const endBlock = Math.min(
-        startBlock + this.EVENTS_FETCH_PAGE_SIZE - 1,
+        startBlock + this._context.EVENTS_FETCH_PAGE_SIZE - 1,
         toBlock,
       );
       for (const descriptor of this.EVENT_DESCRIPTORS) {
-        const filter = {
-          address: this.LEVERAGE_ENGINE_ADDRESS,
+        let filter = {};
+
+        const contractAddress =
+          descriptor.contractType == ContractType.Opener
+            ? this._context.positionOpenerAddress
+            : this._context.positionCloserAddress;
+
+        filter = {
+          address: contractAddress,
           topics: [descriptor.signature],
           fromBlock: startBlock,
           toBlock: endBlock + 5,
@@ -194,7 +201,7 @@ export class EventProcessorService implements IEventProcessorService {
   private async queueEvents(events: any[]): Promise<void> {
     for (const event of events) {
       await this.sqsService.sendMessage(
-        this.SQS_QUEUE_URL,
+        this._context.NEW_EVENTS_QUEUE_URL,
         JSON.stringify(event),
       );
     }
@@ -205,8 +212,8 @@ export class EventProcessorService implements IEventProcessorService {
     if (_default < 0) _default = 0;
     try {
       const data = await this.s3Service.getObject(
-        this.S3_BUCKET,
-        this.S3_LAST_BLOCK_KEY,
+        this._context.S3_BUCKET,
+        this._context.S3_LAST_BLOCK_KEY,
       );
       if (data === undefined) {
         return _default;
@@ -219,8 +226,8 @@ export class EventProcessorService implements IEventProcessorService {
 
   async setLastScannedBlock(blockNumber: number): Promise<void> {
     await this.s3Service.putObject(
-      this.S3_BUCKET,
-      this.S3_LAST_BLOCK_KEY,
+      this._context.S3_BUCKET,
+      this._context.S3_LAST_BLOCK_KEY,
       blockNumber.toString(),
     );
   }
