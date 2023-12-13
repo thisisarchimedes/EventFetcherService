@@ -1,29 +1,31 @@
 [
-    {
-        "name": "PositionOpened",
-        "decodeData": [
-            { "name": "nftID", "type": "uint256", "indexed": true },
-            { "name": "user", "type": "address", "indexed": true },
-            { "name": "strategy", "type": "address", "indexed": true },
-            { "name": "collateralAmount", "type": "uint256", "indexed": false },
-            { "name": "wbtcToBorrow", "type": "uint256", "indexed": false },
-            {
-                "name": "positionExpireBlock",
-                "type": "uint256",
-                "indexed": false
-            },
-            { "name": "sharesReceived", "type": "uint256", "indexed": false }
-        ]
-    },
-    {
-        "name": "PositionClosed",
-        "decodeData": [
-            { "name": "nftID", "type": "uint256", "indexed": true },
-            { "name": "user", "type": "address", "indexed": true },
-            { "name": "strategy", "type": "address", "indexed": true },
-            { "name": "receivedAmount", "type": "uint256", "indexed": false },
-            { "name": "wbtcDebtAmount", "type": "uint256", "indexed": false },
-            { "name": "exitFee", "type": "uint256", "indexed": false }
-        ]
-    }
+  {
+    "name": "PositionOpened",
+    "contractType": 0,
+    "decodeData": [
+      { "name": "nftID", "type": "uint256", "indexed": true },
+      { "name": "user", "type": "address", "indexed": true },
+      { "name": "strategy", "type": "address", "indexed": true },
+      { "name": "collateralAmount", "type": "uint256", "indexed": false },
+      { "name": "wbtcToBorrow", "type": "uint256", "indexed": false },
+      {
+        "name": "positionExpireBlock",
+        "type": "uint256",
+        "indexed": false
+      },
+      { "name": "sharesReceived", "type": "uint256", "indexed": false }
+    ]
+  },
+  {
+    "name": "PositionClosed",
+    "contractType": 1,
+    "decodeData": [
+      { "name": "nftID", "type": "uint256", "indexed": true },
+      { "name": "user", "type": "address", "indexed": true },
+      { "name": "strategy", "type": "address", "indexed": true },
+      { "name": "receivedAmount", "type": "uint256", "indexed": false },
+      { "name": "wbtcDebtAmount", "type": "uint256", "indexed": false },
+      { "name": "exitFee", "type": "uint256", "indexed": false }
+    ]
+  }
 ]

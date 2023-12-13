@@ -5,17 +5,28 @@ import { SQSService } from './services/sqsService';
 import dotenv from 'dotenv';
 import { IEventProcessorService } from './IEventProcessorService';
 import { Logger } from './logger/logger';
-import { EventDescriptor } from './types/EventDescriptor';
+import { ContractType, EventDescriptor } from './types/EventDescriptor';
 import { EnviromentContext } from './types/EnviromentContext';
 
 dotenv.config();
 
-const EVENT_DESCRIPTORS: EventDescriptor[] = rawEventDescriptors.map(event => ({
-  ...event,
-  signature: ethers.utils.id(
-    `${event.name}(${event.decodeData.map(param => param.type).join(',')})`,
-  ),
-}));
+const EVENT_DESCRIPTORS: EventDescriptor[] = rawEventDescriptors.map(event => {
+  let contractType =
+    event.name === 'PositionOpened'
+      ? 0
+      : event.name == 'PositionCloser'
+      ? 1
+      : 1; //for other future types like liquidation
+  let obj = {
+    ...event,
+    signature: ethers.utils.id(
+      `${event.name}(${event.decodeData.map(param => param.type).join(',')})`,
+    ),
+    contractType: contractType,
+  };
+
+  return obj;
+});
 
 export class EventProcessorService implements IEventProcessorService {
   private readonly alchemyProvider: ethers.providers.Provider;
@@ -162,8 +173,15 @@ export class EventProcessorService implements IEventProcessorService {
         toBlock,
       );
       for (const descriptor of this.EVENT_DESCRIPTORS) {
-        const filter = {
-          address: this._context.positionOpenerAddress,
+        let filter = {};
+
+        const contractAddress =
+          descriptor.contractType == ContractType.Opener
+            ? this._context.positionOpenerAddress
+            : this._context.positionCloserAddress;
+
+        filter = {
+          address: contractAddress,
           topics: [descriptor.signature],
           fromBlock: startBlock,
           toBlock: endBlock + 5,

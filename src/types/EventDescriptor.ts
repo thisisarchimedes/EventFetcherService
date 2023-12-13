@@ -1,9 +1,15 @@
+export enum ContractType {
+  Opener = 0,
+  Closer = 1,
+}
+
 export type EventDescriptor = {
+  name: string;
+  signature: string;
+  contractType: ContractType;
+  decodeData: {
     name: string;
-    signature: string;
-    decodeData: {
-        name: string;
-        type: string;
-        indexed: boolean;
-    }[];
+    type: string;
+    indexed: boolean;
+  }[];
 };
