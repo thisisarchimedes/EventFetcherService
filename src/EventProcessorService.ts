@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import rawEventDescriptors from './events.json';
-import { S3Service } from './services/s3Service';
-import { SQSService } from './services/sqsService';
+import { S3Service } from '@thisisarchimedes/backend-sdk/dist/index';
+import { SQSService } from '@thisisarchimedes/backend-sdk/dist/index';
 import dotenv from 'dotenv';
 import { IEventProcessorService } from './IEventProcessorService';
 import { Logger } from './logger/logger';

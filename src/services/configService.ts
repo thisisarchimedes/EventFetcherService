@@ -1,6 +1,5 @@
-import { S3Service } from './s3Service';
+import { S3Service } from '@thisisarchimedes/backend-sdk';
 import { EnviromentContext } from '../types/EnviromentContext';
-import axios from 'axios';
 
 export class ConfigService {
   private readonly s3: S3Service;

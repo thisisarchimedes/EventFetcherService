@@ -15,7 +15,8 @@
     "dotenv": "^16.3.1",
     "ethers": "^5.7.2",
     "winston": "^3.11.0",
-    "winston-newrelic-logs-transport": "^1.3.1"
+    "winston-newrelic-logs-transport": "^1.3.1",
+    "@thisisarchimedes/backend-sdk": "1.0.5"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.2.3",
