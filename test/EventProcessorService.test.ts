@@ -1,3 +1,6 @@
+import { S3Service } from '@thisisarchimedes/backend-sdk';
+import { SQSService } from '@thisisarchimedes/backend-sdk';
+
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
 import { Contract } from 'ethers';
@@ -5,8 +8,7 @@ import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
 import chai from 'chai';
-import { SQSService } from '../src/services/sqsService';
-import { S3Service } from '../src/services/s3Service';
+
 import { Logger } from '../src/logger/logger';
 import { EventProcessorService } from '../src/EventProcessorService';
 
