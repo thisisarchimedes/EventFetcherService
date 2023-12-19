@@ -1,5 +1,4 @@
-import { S3Service } from '@thisisarchimedes/backend-sdk';
-import { SQSService } from '@thisisarchimedes/backend-sdk';
+import { S3Service, SQSService, Logger } from '@thisisarchimedes/backend-sdk';
 
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
@@ -9,7 +8,6 @@ import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
 import chai from 'chai';
 
-import { Logger } from '../src/logger/logger';
 import { EventProcessorService } from '../src/EventProcessorService';
 
 // Set up Chai to use the sinonChai and chaiAsPromised plugins
