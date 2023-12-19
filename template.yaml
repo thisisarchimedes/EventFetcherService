@@ -109,8 +109,8 @@ Parameters:
     Description: S3 Key for test RPC URL
 
   S3DemoForkKey:
-  Type: String
-  Description: S3 Key for Demo env RPC URL
+    Type: String
+    Description: S3 Key for Demo env RPC URL
 
   FunctionNameSuffix:
     Type: String
