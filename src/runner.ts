@@ -1,10 +1,6 @@
 // require('newrelic');
-import { S3Service } from '@thisisarchimedes/backend-sdk';
-import { SQSService } from '@thisisarchimedes/backend-sdk';
-
+import { S3Service, SQSService, Logger } from '@thisisarchimedes/backend-sdk';
 import { EventProcessorService } from './EventProcessorService';
-import { Logger } from './logger/logger';
-
 import { ConfigService } from './services/configService';
 import { ethers } from 'ethers';
 import { EnviromentContext } from './types/EnviromentContext';
