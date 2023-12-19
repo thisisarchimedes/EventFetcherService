@@ -56,8 +56,6 @@ Resources:
           NEW_EVENTS_QUEUE_URL: !Ref NewEventsQueueUrl
           S3_LAST_BLOCK_KEY: !Ref S3LastBlockKey
           S3_DEPLOYMENT_ADDRESS_KEY: !Ref S3DeploymentAddressKey
-          ALCHEMY_API_URL: !Ref AlchemyApiUrl
-          INFURA_API_URL: !Ref InfuraApiUrl
           EVENTS_FETCH_PAGE_SIZE: !Ref EventsFetchPageSize
           NEW_RELIC_LICENSE_KEY: !Ref NewRelicLicenseKey
           NEW_RELIC_API_URL: !Ref NewRelicApiUrl
@@ -79,14 +77,6 @@ Parameters:
   S3DeploymentAddressKey:
     Type: String
     Description: S3 Key for Deployment Address
-
-  AlchemyApiUrl:
-    Type: String
-    Description: Alchemy API URL
-
-  InfuraApiUrl:
-    Type: String
-    Description: Infura API URL
 
   EventsFetchPageSize:
     Type: Number
