@@ -36,5 +36,3 @@ export const handler = async (event: any, context: any): Promise<void> => {
 
   await eventProcessorService.execute();
 };
-
-handler({}, {}).then(r => console.log(r));
