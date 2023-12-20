@@ -116,9 +116,7 @@ export class EventProcessorService implements IEventProcessorService {
     return [...alchemyLogs, ...infuraLogs];
   }
 
-  private deduplicateLogs(
-    logs: ethers.providers.Log[],
-  ): ethers.providers.Log[] {
+  public deduplicateLogs(logs: ethers.providers.Log[]): ethers.providers.Log[] {
     const uniqueLogs = new Map<string, ethers.providers.Log>();
 
     for (const log of logs) {
@@ -131,7 +129,7 @@ export class EventProcessorService implements IEventProcessorService {
     return Array.from(uniqueLogs.values());
   }
 
-  private decodeAndProcessLogs(
+  public decodeAndProcessLogs(
     logs: ethers.providers.Log[],
     descriptor: EventDescriptor,
   ): ProcessedEvent[] {
