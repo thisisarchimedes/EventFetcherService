@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import { IEventProcessorService } from './IEventProcessorService';
 import { ContractType, EventDescriptor } from './types/EventDescriptor';
 import { EnviromentContext } from './types/EnviromentContext';
+import { ProcessedEvent } from './types/ProcessedEvent';
 
 dotenv.config();
 
@@ -52,21 +53,48 @@ export class EventProcessorService implements IEventProcessorService {
       const currentBlock = await this.getCurrentBlockNumber();
       const events = await this.fetchAndProcessEvents(lastBlock, currentBlock);
 
+      this.logLiquidationEvents(events);
+
       if (events.length > 0) {
         this.logger.info(
-          `fetched ${events.length} events from blocks ${lastBlock} to ${currentBlock}`,
+          `Fetched ${events.length} events from blocks ${lastBlock} to ${currentBlock}`,
         );
         await this.queueEvents(events);
       } else {
         this.logger.info(
-          `no new events found on blocks ${lastBlock} to ${currentBlock}`,
+          `No new events found on blocks ${lastBlock} to ${currentBlock}`,
         );
       }
+
       await this.setLastScannedBlock(currentBlock);
       this.logger.info('Event fetcher workflow completed.');
     } catch (error) {
-      console.log(error);
+      this.logger.error(`Error in event fetcher workflow: ${error}`);
     }
+  }
+
+  private logLiquidationEvents(events: ProcessedEvent[]): void {
+    events
+      .filter(event => event.contractType === ContractType.Liquidator)
+      .forEach(event => {
+        const {
+          nftId,
+          strategy,
+          wbtcDebtPaid,
+          claimableAmount,
+          liquidationFee,
+        } = event.data;
+        this.logger.info(
+          `Liquidation Event:
+            - NFT ID: ${nftId}
+            - Strategy Address: ${strategy}
+            - WBTC Debt Paid: ${wbtcDebtPaid}
+            - Claimable Amount: ${claimableAmount}
+            - Liquidation Fee: ${liquidationFee}
+            - Transaction Hash: ${event.txHash}
+            - Block Number: ${event.blockNumber}`,
+        );
+      });
   }
 
   private async getCurrentBlockNumber(): Promise<number> {
@@ -91,21 +119,23 @@ export class EventProcessorService implements IEventProcessorService {
   private deduplicateLogs(
     logs: ethers.providers.Log[],
   ): ethers.providers.Log[] {
-    return Array.from(
-      logs
-        .map(log => ({ hash: log.transactionHash + log.logIndex, log }))
-        .reduce(
-          (acc, { hash, log }) => acc.set(hash, log),
-          new Map<string, ethers.providers.Log>(),
-        )
-        .values(),
-    );
+    const uniqueLogs = new Map<string, ethers.providers.Log>();
+
+    for (const log of logs) {
+      const uniqueKey = log.transactionHash + log.logIndex;
+      if (!uniqueLogs.has(uniqueKey)) {
+        uniqueLogs.set(uniqueKey, log);
+      }
+    }
+
+    return Array.from(uniqueLogs.values());
   }
+
   private decodeAndProcessLogs(
     logs: ethers.providers.Log[],
     descriptor: EventDescriptor,
-  ): any[] {
-    return logs
+  ): ProcessedEvent[] {
+    let logRes = logs
       .map(log => {
         const indexedTypes = descriptor.decodeData
           .filter((param: any) => param.indexed)
@@ -136,25 +166,30 @@ export class EventProcessorService implements IEventProcessorService {
             eventData[param.name] = allData[index].toString();
           });
 
-          return {
+          let retObj: ProcessedEvent = {
             name: descriptor.name,
+            contractType: descriptor.contractType,
             txHash: log.transactionHash,
             blockNumber: log.blockNumber,
             data: eventData,
           };
+
+          return retObj;
         } catch (error) {
           this.logger.error(`Failed to decode log: ${JSON.stringify(error)}`);
           return null;
         }
       })
-      .filter(event => event !== null); // Filter out failed decodings
+      .filter((event): event is ProcessedEvent => event !== null);
+
+    return logRes;
   }
 
   private async fetchAndProcessEvents(
     fromBlock: number,
     toBlock: number,
-  ): Promise<any[]> {
-    const processedEvents: any[] = [];
+  ): Promise<ProcessedEvent[]> {
+    const processedEvents: ProcessedEvent[] = [];
     for (
       let startBlock = fromBlock + 1;
       startBlock <= toBlock;

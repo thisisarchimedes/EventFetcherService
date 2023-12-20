@@ -116,6 +116,7 @@ describe('Event Processor Service', function () {
     // Define the expected message that should be sent to SQS
     const expectedMessage = {
       name: 'PositionOpened',
+      contractType: 0,
       txHash: tx.hash,
       blockNumber: tx.blockNumber,
       data: {
@@ -155,6 +156,7 @@ describe('Event Processor Service', function () {
 
     const expectedMessage = {
       name: 'PositionClosed',
+      contractType: 1,
       txHash: tx.hash,
       blockNumber: tx.blockNumber,
       data: {
@@ -198,6 +200,7 @@ describe('Event Processor Service', function () {
     // Define the expected message that should be sent to SQS
     const expectedMessage = {
       name: 'PositionLiquidated',
+      contractType: 2,
       txHash: tx.hash,
       blockNumber: tx.blockNumber,
       data: {
@@ -213,6 +216,50 @@ describe('Event Processor Service', function () {
     expect(sqsStub.sendMessage).to.have.been.calledOnceWith(
       'test-queue-url',
       JSON.stringify(expectedMessage),
+    );
+  });
+
+  it('should log liquidation events correctly', async function () {
+    // Generate random data to simulate a real-world scenario
+    const nftId = Math.floor(Math.random() * 1000);
+    const strategy = ethers.Wallet.createRandom().address;
+    const wbtcDebtPaid = Math.floor(Math.random() * 1000);
+    const claimableAmount = Math.floor(Math.random() * 1000);
+    const liquidationFee = Math.floor(Math.random() * 1000);
+
+    // Call the liquidatePosition function on the mock contract with random values
+    const tx = await positionLiquidatorMockContract.liquidatePosition(
+      nftId,
+      strategy,
+      wbtcDebtPaid,
+      claimableAmount,
+      liquidationFee,
+    );
+
+    // Wait for the transaction to be mined
+    await tx.wait();
+
+    // Execute the event processor function
+    await eventProcessorService.execute();
+
+    // Define the expected log message format
+    const expectedLogMessage =
+      `Liquidation Event:\n` +
+      `  - NFT ID: ${nftId}\n` +
+      `  - Strategy Address: ${strategy}\n` +
+      `  - WBTC Debt Paid: ${wbtcDebtPaid}\n` +
+      `  - Claimable Amount: ${claimableAmount}\n` +
+      `  - Liquidation Fee: ${liquidationFee}\n` +
+      `  - Transaction Hash: ${tx.hash}\n` +
+      `  - Block Number: ${tx.blockNumber}`;
+
+    // Assert that the logger.info function was called with the expected log message
+    expect(loggerStub.info).to.have.been.calledWithMatch(
+      sinon.match(
+        new RegExp(
+          `Liquidation Event:\\s*- NFT ID: ${nftId}\\s*- Strategy Address: ${strategy}`,
+        ),
+      ),
     );
   });
 
