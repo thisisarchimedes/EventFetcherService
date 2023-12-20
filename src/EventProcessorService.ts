@@ -9,21 +9,12 @@ import { EnviromentContext } from './types/EnviromentContext';
 dotenv.config();
 
 const EVENT_DESCRIPTORS: EventDescriptor[] = rawEventDescriptors.map(event => {
-  let contractType: ContractType =
-    event.name === 'PositionOpened'
-      ? ContractType.Opener
-      : event.name == 'PositionCloser'
-      ? ContractType.Opener
-      : event.name == 'PositionLiquidated'
-      ? ContractType.Liquidator
-      : 0; // default
-
   let obj: EventDescriptor = {
     ...event,
     signature: ethers.utils.id(
       `${event.name}(${event.decodeData.map(param => param.type).join(',')})`,
     ),
-    contractType: contractType,
+    contractType: event.contractType,
   };
 
   return obj;
