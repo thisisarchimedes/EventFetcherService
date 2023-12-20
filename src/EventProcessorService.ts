@@ -9,13 +9,16 @@ import { EnviromentContext } from './types/EnviromentContext';
 dotenv.config();
 
 const EVENT_DESCRIPTORS: EventDescriptor[] = rawEventDescriptors.map(event => {
-  let contractType =
+  let contractType: ContractType =
     event.name === 'PositionOpened'
-      ? 0
+      ? ContractType.Opener
       : event.name == 'PositionCloser'
-      ? 1
-      : 1; //for other future types like liquidation
-  let obj = {
+      ? ContractType.Opener
+      : event.name == 'PositionLiquidated'
+      ? ContractType.Liquidator
+      : 0; // default
+
+  let obj: EventDescriptor = {
     ...event,
     signature: ethers.utils.id(
       `${event.name}(${event.decodeData.map(param => param.type).join(',')})`,
@@ -176,7 +179,13 @@ export class EventProcessorService implements IEventProcessorService {
         const contractAddress =
           descriptor.contractType == ContractType.Opener
             ? this._context.positionOpenerAddress
-            : this._context.positionCloserAddress;
+            : descriptor.contractType == ContractType.Closer
+            ? this._context.positionCloserAddress
+            : descriptor.contractType == ContractType.Liquidator
+            ? this._context.positionLiquidatorAddress
+            : '';
+
+        if (contractAddress.length == 0) continue;
 
         filter = {
           address: contractAddress,

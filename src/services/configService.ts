@@ -24,6 +24,10 @@ export class ConfigService {
       (f: any) => f.name == 'PositionCloser',
     )[0].address;
 
+    let positionLiquidator = contracts.filter(
+      (f: any) => f.name == 'PositionLiquidator',
+    )[0].address;
+
     let enviroment = process.env.ENVIRONMENT ?? 'local';
 
     let rpcJson = '';
@@ -46,6 +50,7 @@ export class ConfigService {
     let _context: EnviromentContext = {
       positionCloserAddress: positionOpener,
       positionOpenerAddress: positionCloser,
+      positionLiquidatorAddress: positionLiquidator,
       enviroment: enviroment,
       S3_BUCKET: process.env.S3_BUCKET || '',
       S3_LAST_BLOCK_KEY: process.env.S3_LAST_BLOCK_KEY ?? '',
