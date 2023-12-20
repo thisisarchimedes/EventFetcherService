@@ -27,5 +27,16 @@
       { "name": "wbtcDebtAmount", "type": "uint256", "indexed": false },
       { "name": "exitFee", "type": "uint256", "indexed": false }
     ]
+  },
+  {
+    "name": "PositionLiquidated",
+    "contractType": 2,
+    "decodeData": [
+      { "name": "nftId", "type": "uint256", "indexed": true },
+      { "name": "strategy", "type": "address", "indexed": true },
+      { "name": "wbtcDebtPaid", "type": "uint256", "indexed": false },
+      { "name": "claimableAmount", "type": "uint256", "indexed": false },
+      { "name": "liquidationFee", "type": "uint256", "indexed": false }
+    ]
   }
 ]
