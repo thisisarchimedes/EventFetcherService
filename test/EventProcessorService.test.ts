@@ -17,6 +17,8 @@ chai.use(chaiAsPromised);
 describe('Event Processor Service', function () {
   let positionOpenerMockContract: Contract;
   let positionCloserMockContract: Contract;
+  let positionLiquidatorMockContract: Contract;
+
   let eventProcessorService: EventProcessorService;
   let s3Stub: sinon.SinonStubbedInstance<S3Service>;
   let sqsStub: sinon.SinonStubbedInstance<SQSService>;
@@ -43,6 +45,13 @@ describe('Event Processor Service', function () {
     positionCloserMockContract = await PositionCloserFactory.deploy();
     await positionCloserMockContract.deployed();
 
+    const PositionLiquidatorFactory = await ethers.getContractFactory(
+      'PositionLiquidator_mock',
+    );
+
+    positionLiquidatorMockContract = await PositionLiquidatorFactory.deploy();
+    await positionLiquidatorMockContract.deployed();
+
     // Stub the S3Service and SQSService and their methods
     s3Stub = sinon.createStubInstance(S3Service);
     s3Stub.getObject.resolves();
@@ -65,6 +74,7 @@ describe('Event Processor Service', function () {
         enviroment: 'local',
         positionOpenerAddress: positionOpenerMockContract.address,
         positionCloserAddress: positionCloserMockContract.address,
+        positionLiquidatorAddress: positionLiquidatorMockContract.address,
         S3_LAST_BLOCK_KEY: '',
         S3_BUCKET: 'test-bucket',
         rpcAddress: '',
@@ -78,7 +88,7 @@ describe('Event Processor Service', function () {
   // Test case for processing the openPosition event
   it('should process openPosition event and push messages to SQS', async function () {
     // Generate random data to simulate a real-world scenario
-    const nftID = Math.floor(Math.random() * 1000);
+    const nftId = Math.floor(Math.random() * 1000);
     const user = ethers.Wallet.createRandom().address;
     const strategy = ethers.Wallet.createRandom().address;
     const collateralAmount = Math.floor(Math.random() * 1000);
@@ -88,7 +98,7 @@ describe('Event Processor Service', function () {
 
     // Call the openPosition function on the mock contract with random values
     const tx = await positionOpenerMockContract.openPosition(
-      nftID,
+      nftId,
       user,
       strategy,
       collateralAmount,
@@ -109,7 +119,7 @@ describe('Event Processor Service', function () {
       txHash: tx.hash,
       blockNumber: tx.blockNumber,
       data: {
-        nftID: nftID.toString(),
+        nftId: nftId.toString(),
         user: user,
         strategy: strategy,
         collateralAmount: collateralAmount.toString(),
@@ -129,18 +139,14 @@ describe('Event Processor Service', function () {
   it('should process closePosition event and push messages to SQS', async function () {
     const nftID = Math.floor(Math.random() * 1000);
     const user = ethers.Wallet.createRandom().address;
-    const strategy = ethers.Wallet.createRandom().address;
     const receivedAmount = Math.floor(Math.random() * 1000);
     const wbtcDebtAmount = Math.floor(Math.random() * 1000);
-    const exitFee = Math.floor(Math.random() * 1000);
 
     const tx = await positionCloserMockContract.closePosition(
       nftID,
       user,
-      strategy,
       receivedAmount,
       wbtcDebtAmount,
-      exitFee,
     );
 
     await tx.wait();
@@ -152,15 +158,58 @@ describe('Event Processor Service', function () {
       txHash: tx.hash,
       blockNumber: tx.blockNumber,
       data: {
-        nftID: nftID.toString(),
+        nftId: nftID.toString(),
         user: user,
-        strategy: strategy,
         receivedAmount: receivedAmount.toString(),
         wbtcDebtAmount: wbtcDebtAmount.toString(),
-        exitFee: exitFee.toString(),
       },
     };
 
+    expect(sqsStub.sendMessage).to.have.been.calledOnceWith(
+      'test-queue-url',
+      JSON.stringify(expectedMessage),
+    );
+  });
+
+  // Test case for processing the openPosition event
+  it('should process liquidatePosition event and push messages to SQS', async function () {
+    // Generate random data to simulate a real-world scenario
+    const nftId = Math.floor(Math.random() * 1000);
+    const strategy = ethers.Wallet.createRandom().address;
+    const _wbtcDebtPaid = Math.floor(Math.random() * 1000);
+    const _claimableAmount = Math.floor(Math.random() * 1000);
+    const _liquidationFee = Math.floor(Math.random() * 1000);
+
+    // Call the openPosition function on the mock contract with random values
+    const tx = await positionLiquidatorMockContract.liquidatePosition(
+      nftId,
+      strategy,
+      _wbtcDebtPaid,
+      _claimableAmount,
+      _liquidationFee,
+    );
+
+    // Wait for the transaction to be mined
+    await tx.wait();
+
+    // Execute the event processor function
+    await eventProcessorService.execute();
+
+    // Define the expected message that should be sent to SQS
+    const expectedMessage = {
+      name: 'PositionLiquidated',
+      txHash: tx.hash,
+      blockNumber: tx.blockNumber,
+      data: {
+        nftId: nftId.toString(),
+        strategy: strategy,
+        wbtcDebtPaid: _wbtcDebtPaid.toString(),
+        claimableAmount: _claimableAmount.toString(),
+        liquidationFee: _liquidationFee.toString(),
+      },
+    };
+
+    // Assert that the SQS service's sendMessage function was called correctly
     expect(sqsStub.sendMessage).to.have.been.calledOnceWith(
       'test-queue-url',
       JSON.stringify(expectedMessage),

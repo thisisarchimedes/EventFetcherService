@@ -1,6 +1,7 @@
 export type EnviromentContext = {
   enviroment: string;
   positionOpenerAddress: string;
+  positionLiquidatorAddress: string;
   positionCloserAddress: string;
   S3_BUCKET: string;
   S3_LAST_BLOCK_KEY: string;
