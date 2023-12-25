@@ -53,7 +53,7 @@ jobs:
           ParameterKey=S3LastBlockKey,ParameterValue="${{ secrets.S3_LAST_BLOCK_KEY }}" \
           ParameterKey=S3DeploymentAddressKey,ParameterValue="${{ secrets.S3_DEPLOYMENT_ADDRESS_KEY }}" \
           ParameterKey=EventsFetchPageSize,ParameterValue="${{ secrets.EVENTS_FETCH_PAGE_SIZE }}" \
-          ParameterKey=NewRelicLicenseKey,ParameterValue="${{ secrets.NEW_RELIC_LICENSE_KEY }}" \
+          ParameterKey=NewRelicAPIKey,ParameterValue="${{ secrets.NEW_RELIC_API_KEY }}" \
           ParameterKey=NewRelicApiUrl,ParameterValue="${{ secrets.NEW_RELIC_API_URL }}" \
           ParameterKey=S3TestForkKey,ParameterValue="${{ secrets.S3_TEST_FORK_KEY }}" \
           ParameterKey=S3DemoForkKey,ParameterValue="${{ secrets.S3_DEMO_FORK_KEY }}" \
@@ -102,7 +102,7 @@ jobs:
           ParameterKey=S3LastBlockKey,ParameterValue="${{ secrets.S3_LAST_BLOCK_KEY }}" \
           ParameterKey=S3DeploymentAddressKey,ParameterValue="${{ secrets.S3_DEPLOYMENT_ADDRESS_KEY }}" \
           ParameterKey=EventsFetchPageSize,ParameterValue="${{ secrets.EVENTS_FETCH_PAGE_SIZE }}" \
-          ParameterKey=NewRelicLicenseKey,ParameterValue="${{ secrets.NEW_RELIC_LICENSE_KEY }}" \
+          ParameterKey=NewRelicAPIKey,ParameterValue="${{ secrets.NEW_RELIC_API_KEY }}" \
           ParameterKey=NewRelicApiUrl,ParameterValue="${{ secrets.NEW_RELIC_API_URL }}" \
           ParameterKey=S3TestForkKey,ParameterValue="${{ secrets.S3_TEST_FORK_KEY }}" \
           ParameterKey=S3DemoForkKey,ParameterValue="${{ secrets.S3_DEMO_FORK_KEY }}" \

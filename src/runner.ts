@@ -16,7 +16,11 @@ const getEnviromentContext = async () => {
 export const handler = async (event: any, context: any): Promise<void> => {
   if (_context === undefined) _context = await getEnviromentContext();
 
-  const logger = new Logger(_context.enviroment);
+  const logger = new Logger(
+    process.env.NEW_RELIC_API_KEY,
+    process.env.NEW_RELIC_API_URL,
+    _context.enviroment,
+  );
 
   const mainrovider = new ethers.providers.JsonRpcProvider(
     _context.rpcAddress ?? '',
@@ -36,5 +40,3 @@ export const handler = async (event: any, context: any): Promise<void> => {
 
   await eventProcessorService.execute();
 };
-
-handler({}, {}).then(r => console.log(r));
