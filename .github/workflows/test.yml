@@ -8,6 +8,7 @@ on:
 env:
   AWS_REGION: us-east-1
   PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
+  NEW_RELIC_API_KEY: ${{ secrets.NEW_RELIC_API_KEY }}  # Ensure this is set in your repository's secrets
 
 jobs:
   test:
@@ -15,11 +16,32 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'  # Specify the Python version you need
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests python-dotenv  # Install the necessary packages
+
       - name: Use Node.js
         uses: actions/setup-node@v2
         with:
           node-version: '16'
+
       - name: Install dependencies
         run: npm install
-      - name: Run npm Tests
-        run: npm test
+
+      - name: Run npm Tests and Measure Time
+        run: |
+          START_TIME=$SECONDS
+          npm test
+          DURATION=$((SECONDS - START_TIME))
+          echo "DURATION=$DURATION" >> $GITHUB_ENV
+
+      - name: "Report DevOps Metrics"
+        run: |
+          python report_new_relic.py ${{ github.repository }} "PR Test" "true" ${{ env.DURATION }}
