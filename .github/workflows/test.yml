@@ -44,4 +44,4 @@ jobs:
 
       - name: 'Report DevOps Metrics'
         run: |
-          python devops/report_new_relic.py ${{ github.repository }} "PR Test" "true" ${{ env.DURATION }}
+          python report_new_relic.py ${{ github.repository }} "PR Test" "true" ${{ env.DURATION }}
