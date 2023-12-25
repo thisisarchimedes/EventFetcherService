@@ -8,7 +8,7 @@ on:
 env:
   AWS_REGION: us-east-1
   PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
-  NEW_RELIC_API_KEY: ${{ secrets.NEW_RELIC_API_KEY }}  # Ensure this is set in your repository's secrets
+  NEW_RELIC_API_KEY: ${{ secrets.NEW_RELIC_API_KEY }} # Ensure this is set in your repository's secrets
 
 jobs:
   test:
@@ -20,7 +20,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.x'  # Specify the Python version you need
+          python-version: '3.x' # Specify the Python version you need
 
       - name: Install Python dependencies
         run: |
@@ -42,6 +42,6 @@ jobs:
           DURATION=$((SECONDS - START_TIME))
           echo "DURATION=$DURATION" >> $GITHUB_ENV
 
-      - name: "Report DevOps Metrics"
+      - name: 'Report DevOps Metrics'
         run: |
-          python report_new_relic.py ${{ github.repository }} "PR Test" "true" ${{ env.DURATION }}
+          python ./devops/report_new_relic.py ${{ github.repository }} "PR Test" "true" ${{ env.DURATION }}
