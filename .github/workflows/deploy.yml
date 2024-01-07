@@ -95,7 +95,7 @@ jobs:
       - name: Deploy the SAM application
         id: deploy
         run: |
-          sam deploy --debug --template-file packaged.yaml --stack-name EventProcessorStack --capabilities CAPABILITY_IAM --parameter-overrides \
+          sam deploy --debug --template-file packaged.yaml --stack-name EventProcessorStackDemo --capabilities CAPABILITY_IAM --parameter-overrides \
           ParameterKey=NewEventsQueueUrl,ParameterValue="${{ secrets.NEW_EVENTS_QUEUE_URL }}" \
           ParameterKey=S3Bucket,ParameterValue="${{ secrets.S3_BUCKET }}" \
           ParameterKey=S3BucketConfig,ParameterValue="${{ secrets.S3_BUCKET_CONFIG }}" \
