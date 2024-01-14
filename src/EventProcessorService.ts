@@ -70,6 +70,8 @@ export class EventProcessorService implements IEventProcessorService {
       this.logger.info('Event fetcher workflow completed.');
     } catch (error) {
       this.logger.error(`Error in event fetcher workflow: ${error}`);
+    } finally {
+      await this.logger.flush();
     }
   }
 
