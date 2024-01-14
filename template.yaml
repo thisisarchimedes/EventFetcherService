@@ -58,7 +58,6 @@ Resources:
           S3_DEPLOYMENT_ADDRESS_KEY: !Ref S3DeploymentAddressKey
           EVENTS_FETCH_PAGE_SIZE: !Ref EventsFetchPageSize
           NEW_RELIC_API_KEY: !Ref NewRelicAPIKey
-          NEW_RELIC_API_URL: !Ref NewRelicApiUrl
           S3_BUCKET: !Ref S3Bucket
           S3_BUCKET_CONFIG: !Ref S3BucketConfig
           ENVIRONMENT: !Ref Environment
