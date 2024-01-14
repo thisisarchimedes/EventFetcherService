@@ -86,10 +86,6 @@ Parameters:
     Type: String
     Description: New Relic License Key
 
-  NewRelicApiUrl:
-    Type: String
-    Description: New Relic API URL
-
   S3Bucket:
     Type: String
     Description: S3 Bucket Name
