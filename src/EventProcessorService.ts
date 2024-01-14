@@ -38,6 +38,7 @@ export class EventProcessorService implements IEventProcessorService {
     logger: Logger,
     context: EnviromentContext,
   ) {
+    Logger.initialize('Events Fetcher');
     this.mainProvider = mainProvider;
     this.altProvider = altProvider;
     this.s3Service = s3Service;
