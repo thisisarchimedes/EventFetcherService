@@ -15,7 +15,7 @@ const getEnviromentContext = async () => {
 };
 export const handler = async (event: any, context: any): Promise<void> => {
   if (_context === undefined) _context = await getEnviromentContext();
-
+  Logger.initialize('Events fetcher');
   const logger = Logger.getInstance();
 
   const mainrovider = new ethers.providers.JsonRpcProvider(
