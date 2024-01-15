@@ -9,13 +9,36 @@ export class ConfigService {
   }
 
   async getEnviromentContext(): Promise<EnviromentContext> {
-    //get leverage engine address from config bucket
-    let obj = await this.s3.getObject(
-      process.env.S3_BUCKET_CONFIG ?? '',
-      process.env.S3_DEPLOYMENT_ADDRESS_KEY ?? '',
-    );
+    let rpcJson = '';
+    let enviroment = process.env.ENVIRONMENT ?? 'local';
+    let contractAddressesJson = '';
 
-    let contracts = JSON.parse(obj);
+    //get RPC URL
+    if (enviroment.toLowerCase() === 'demo') {
+      rpcJson = await this.s3.getObject(
+        process.env.S3_BUCKET_CONFIG ?? '',
+        process.env.S3_DEMO_FORK_KEY ?? '',
+      );
+
+      //get leverage engine address from config bucket
+      contractAddressesJson = await this.s3.getObject(
+        process.env.S3_BUCKET_CONFIG ?? '',
+        process.env.S3_DEPLOYMENT_ADDRESS_KEY_DEMO ?? '',
+      );
+    } else {
+      rpcJson = await this.s3.getObject(
+        process.env.S3_BUCKET_CONFIG ?? '',
+        process.env.S3_TEST_FORK_KEY ?? '',
+      );
+
+      //get leverage engine address from config bucket
+      contractAddressesJson = await this.s3.getObject(
+        process.env.S3_BUCKET_CONFIG ?? '',
+        process.env.S3_DEPLOYMENT_ADDRESS_KEY ?? '',
+      );
+    }
+
+    let contracts = JSON.parse(contractAddressesJson);
     let positionOpener = contracts.filter(
       (f: any) => f.name == 'PositionOpener',
     )[0].address;
@@ -31,23 +54,6 @@ export class ConfigService {
     console.log('*** addresses positionOpener', positionOpener);
     console.log('*** addresses positionCloser', positionCloser);
     console.log('*** addresses positionLiquidator', positionLiquidator);
-
-    let enviroment = process.env.ENVIRONMENT ?? 'local';
-
-    let rpcJson = '';
-
-    //get RPC URL
-    if (enviroment === 'demo') {
-      rpcJson = await this.s3.getObject(
-        process.env.S3_BUCKET_CONFIG ?? '',
-        process.env.S3_DEMO_FORK_KEY ?? '',
-      );
-    } else {
-      rpcJson = await this.s3.getObject(
-        process.env.S3_BUCKET_CONFIG ?? '',
-        process.env.S3_TEST_FORK_KEY ?? '',
-      );
-    }
 
     let rpcAddress = JSON.parse(rpcJson)['rpc'];
 
