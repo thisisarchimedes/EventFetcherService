@@ -4,7 +4,7 @@ import { S3Service, SQSService, Logger } from '@thisisarchimedes/backend-sdk';
 import dotenv from 'dotenv';
 import { IEventProcessorService } from './IEventProcessorService';
 import { ContractType, EventDescriptor } from './types/EventDescriptor';
-import { EnviromentContext } from './types/EnviromentContext';
+import { EnvironmentContext } from './types/EnvironmentContext';
 import { ProcessedEvent } from './types/ProcessedEvent';
 
 dotenv.config();
@@ -28,7 +28,7 @@ export class EventProcessorService implements IEventProcessorService {
   private readonly sqsService: SQSService;
   private readonly EVENT_DESCRIPTORS = EVENT_DESCRIPTORS;
   private readonly logger: Logger;
-  private readonly _context: EnviromentContext;
+  private readonly _context: EnvironmentContext;
 
   constructor(
     mainProvider: ethers.providers.Provider,
@@ -36,7 +36,7 @@ export class EventProcessorService implements IEventProcessorService {
     s3Service: S3Service,
     sqsService: SQSService,
     logger: Logger,
-    context: EnviromentContext,
+    context: EnvironmentContext,
   ) {
     this.mainProvider = mainProvider;
     this.altProvider = altProvider;
@@ -241,25 +241,21 @@ export class EventProcessorService implements IEventProcessorService {
   }
 
   async getLastScannedBlock(): Promise<number> {
-    let _default = (await this.getCurrentBlockNumber()) - 1000;
-    if (_default < 0) _default = 0;
-    try {
-      const data = await this.s3Service.getObject(
-        this._context.S3_BUCKET,
-        this._context.S3_LAST_BLOCK_KEY,
-      );
-      if (data === undefined) {
-        return _default;
-      }
-      return parseInt(data);
-    } catch (e) {
-      return _default; // Default to 1000 blocks ago
-    }
+    const currentBlockNumber = await this.getCurrentBlockNumber();
+    const defaultBlockNumber = Math.max(currentBlockNumber - 1000, 0);
+    return this._context.lastBlockScanned > 0
+      ? this._context.lastBlockScanned
+      : defaultBlockNumber;
   }
 
   async setLastScannedBlock(blockNumber: number): Promise<void> {
+    const bucket =
+      this._context.environment === 'demo'
+        ? this._context.S3_BUCKET_DEMO
+        : this._context.S3_BUCKET;
+
     await this.s3Service.putObject(
-      this._context.S3_BUCKET,
+      bucket,
       this._context.S3_LAST_BLOCK_KEY,
       blockNumber.toString(),
     );

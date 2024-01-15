@@ -60,6 +60,7 @@ Resources:
           EVENTS_FETCH_PAGE_SIZE: !Ref EventsFetchPageSize
           NEW_RELIC_API_KEY: !Ref NewRelicAPIKey
           S3_BUCKET: !Ref S3Bucket
+          S3_BUCKET_DEMO: !Ref S3BucketDemo
           S3_BUCKET_CONFIG: !Ref S3BucketConfig
           ENVIRONMENT: !Ref Environment
           S3_TEST_FORK_KEY: !Ref S3TestForkKey
@@ -94,6 +95,10 @@ Parameters:
   S3Bucket:
     Type: String
     Description: S3 Bucket Name
+
+  S3BucketDemo:
+    Type: String
+    Description: S3 Bucket Name Demo enviroment
 
   S3BucketConfig:
     Type: String
