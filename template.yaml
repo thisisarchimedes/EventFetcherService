@@ -56,6 +56,7 @@ Resources:
           NEW_EVENTS_QUEUE_URL: !Ref NewEventsQueueUrl
           S3_LAST_BLOCK_KEY: !Ref S3LastBlockKey
           S3_DEPLOYMENT_ADDRESS_KEY: !Ref S3DeploymentAddressKey
+          S3_DEPLOYMENT_ADDRESS_KEY_DEMO: !Ref S3DeploymentAddressKeyDemo
           EVENTS_FETCH_PAGE_SIZE: !Ref EventsFetchPageSize
           NEW_RELIC_API_KEY: !Ref NewRelicAPIKey
           S3_BUCKET: !Ref S3Bucket
@@ -76,6 +77,10 @@ Parameters:
   S3DeploymentAddressKey:
     Type: String
     Description: S3 Key for Deployment Address
+
+  S3DeploymentAddressKeyDemo:
+    Type: String
+    Description: S3 Key for Deployment DEMO Address
 
   EventsFetchPageSize:
     Type: Number

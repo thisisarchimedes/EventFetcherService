@@ -100,6 +100,7 @@ jobs:
           ParameterKey=S3BucketConfig,ParameterValue="${{ secrets.S3_BUCKET_CONFIG }}" \
           ParameterKey=S3LastBlockKey,ParameterValue="${{ secrets.S3_LAST_BLOCK_KEY }}" \
           ParameterKey=S3DeploymentAddressKey,ParameterValue="${{ secrets.S3_DEPLOYMENT_ADDRESS_KEY }}" \
+          ParameterKey=S3DeploymentAddressKeyDemo,ParameterValue="${{ secrets.S3_DEPLOYMENT_ADDRESS_KEY_DEMO }}" \
           ParameterKey=EventsFetchPageSize,ParameterValue="${{ secrets.EVENTS_FETCH_PAGE_SIZE }}" \
           ParameterKey=NewRelicAPIKey,ParameterValue="${{ secrets.NEW_RELIC_API_KEY }}" \
           ParameterKey=S3TestForkKey,ParameterValue="${{ secrets.S3_TEST_FORK_KEY }}" \
