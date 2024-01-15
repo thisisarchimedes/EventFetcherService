@@ -3,21 +3,17 @@ import { S3Service, SQSService, Logger } from '@thisisarchimedes/backend-sdk';
 import { EventProcessorService } from './EventProcessorService';
 import { ConfigService } from './services/configService';
 import { ethers } from 'ethers';
-import { EnviromentContext } from './types/EnviromentContext';
+import { EnvironmentContext } from './types/EnvironmentContext';
 
 const s3Service = new S3Service();
 const sqsService = new SQSService();
-let _context: EnviromentContext;
 
-const getEnviromentContext = async () => {
-  _context = await new ConfigService().getEnviromentContext();
-  return _context;
-};
 export const handler = async (event: any, context: any): Promise<void> => {
-  if (_context === undefined) _context = await getEnviromentContext();
-
   Logger.initialize('Events fetcher');
 
+  const configService = new ConfigService();
+
+  const _context: EnvironmentContext = await configService.getEnvironmentContext();
   const logger = Logger.getInstance();
 
   const mainrovider = new ethers.providers.JsonRpcProvider(
@@ -38,3 +34,7 @@ export const handler = async (event: any, context: any): Promise<void> => {
 
   await eventProcessorService.execute();
 };
+
+handler(null, null).then(a => {
+  console.log(a);
+});
