@@ -1,4 +1,3 @@
-// require('newrelic');
 import { S3Service, SQSService, Logger } from '@thisisarchimedes/backend-sdk';
 import { EventProcessorService } from './EventProcessorService';
 import { ConfigService } from './services/configService';
