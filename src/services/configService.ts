@@ -76,8 +76,8 @@ export class ConfigService {
     const lastBlockScanned = await this.fetchLastScannedBlock(isDemo);
 
     const newEventsQueueURL = isDemo
-      ? process.env.NEW_EVENTS_QUEUE_URL
-      : process.env.NEW_EVENTS_QUEUE_URL_DEMO;
+      ? process.env.NEW_EVENTS_QUEUE_URL_DEMO
+      : process.env.NEW_EVENTS_QUEUE_URL;
 
     return {
       positionCloserAddress: positionCloser,
