@@ -49,6 +49,10 @@ export class EventProcessorService implements IEventProcessorService {
   public async execute(): Promise<void> {
     try {
       this.logger.info('Executing the event fetcher workflow...');
+      this.logger.info(`RPC: ${this._context.rpcAddress}\n
+                        SQS queue: ${this._context.NEW_EVENTS_QUEUE_URL}\n
+                        Env: ${this._context.environment}`);
+
       const lastBlock = await this.getLastScannedBlock();
       const currentBlock = await this.getCurrentBlockNumber();
       const events = await this.fetchAndProcessEvents(lastBlock, currentBlock);
@@ -233,6 +237,11 @@ export class EventProcessorService implements IEventProcessorService {
 
   private async queueEvents(events: any[]): Promise<void> {
     for (const event of events) {
+      this.logger.info(
+        `Appending message to queue ${
+          this._context.NEW_EVENTS_QUEUE_URL
+        }\n msg ${JSON.stringify(event)}`,
+      );
       await this.sqsService.sendMessage(
         this._context.NEW_EVENTS_QUEUE_URL,
         JSON.stringify(event),
