@@ -75,6 +75,10 @@ export class ConfigService {
 
     const lastBlockScanned = await this.fetchLastScannedBlock(isDemo);
 
+    const newEventsQueueURL = isDemo
+      ? process.env.NEW_EVENTS_QUEUE_URL
+      : process.env.NEW_EVENTS_QUEUE_URL_DEMO;
+
     return {
       positionCloserAddress: positionCloser,
       positionOpenerAddress: positionOpener,
@@ -87,7 +91,7 @@ export class ConfigService {
       EVENTS_FETCH_PAGE_SIZE: Number(
         process.env.EVENTS_FETCH_PAGE_SIZE ?? '1000',
       ),
-      NEW_EVENTS_QUEUE_URL: process.env.NEW_EVENTS_QUEUE_URL ?? '',
+      NEW_EVENTS_QUEUE_URL: newEventsQueueURL ?? '',
       rpcAddress: rpcAddress,
       alternateRpcAddress: rpcAddress,
     };

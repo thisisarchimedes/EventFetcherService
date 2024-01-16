@@ -54,6 +54,7 @@ Resources:
       Environment:
         Variables:
           NEW_EVENTS_QUEUE_URL: !Ref NewEventsQueueUrl
+          NEW_EVENTS_QUEUE_URL_DEMO: !Ref NewEventsQueueUrlDemo
           S3_LAST_BLOCK_KEY: !Ref S3LastBlockKey
           S3_DEPLOYMENT_ADDRESS_KEY: !Ref S3DeploymentAddressKey
           S3_DEPLOYMENT_ADDRESS_KEY_DEMO: !Ref S3DeploymentAddressKeyDemo
@@ -70,6 +71,10 @@ Parameters:
   NewEventsQueueUrl:
     Type: String
     Description: SQS Queue URL
+
+  NewEventsQueueUrlDemo:
+    Type: String
+    Description: SQS Queue URL DEMO
 
   S3LastBlockKey:
     Type: String
