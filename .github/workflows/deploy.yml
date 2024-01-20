@@ -15,34 +15,46 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Use Node.js
-        uses: actions/setup-node@v2
+        uses: actions/checkout@v4
         with:
-          node-version: '16'
+          submodules: "recursive"
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'latest'
+          
       - name: Install dependencies
         run: npm install
+
       - name: Build
         run: npm run build
+
       - name: Remove development dependencies
         run: npm prune --production
+
       - name: Prepare deployment package
         run: |
           mkdir -p deploy-package
           rsync -av --progress ./dist/ ./deploy-package/ --exclude test
           cp -r ./node_modules ./deploy-package/
+
       - name: List contents of deploy-package directory
         run: ls -al ./deploy-package
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
+          
       - name: Install AWS SAM CLI
         run: pip install --user aws-sam-cli
+
       - name: Package the SAM application
         run: sam package --template-file template.yaml --output-template-file packaged.yaml --s3-bucket aws-sam-eventsfetcher
+
       - name: Deploy the SAM application
         id: deploy
         run: |
@@ -63,34 +75,46 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Use Node.js
-        uses: actions/setup-node@v2
+        uses: actions/checkout@v4
         with:
-          node-version: '16'
+          submodules: "recursive"
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'latest'
+
       - name: Install dependencies
         run: npm install
+
       - name: Build
         run: npm run build
+
       - name: Remove development dependencies
         run: npm prune --production
+
       - name: Prepare deployment package
         run: |
           mkdir -p deploy-package
           rsync -av --progress ./dist/ ./deploy-package/ --exclude test
           cp -r ./node_modules ./deploy-package/
+
       - name: List contents of deploy-package directory
         run: ls -al ./deploy-package
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
+
       - name: Install AWS SAM CLI
         run: pip install --user aws-sam-cli
+
       - name: Package the SAM application
         run: sam package --template-file template.yaml --output-template-file packaged.yaml --s3-bucket aws-sam-eventsfetcher
+
       - name: Deploy the SAM application
         id: deploy
         run: |
@@ -108,3 +132,13 @@ jobs:
           ParameterKey=S3TestForkKey,ParameterValue="${{ secrets.S3_TEST_FORK_KEY }}" \
           ParameterKey=S3DemoForkKey,ParameterValue="${{ secrets.S3_DEMO_FORK_KEY }}" \
           ParameterKey=Environment,ParameterValue="demo"
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }}
+
+      - name: Report Deploy DevOps Event
+        run: |
+        npm install axios dotenv
+        node devops/metrics/src/cicd_script/report_devops_event.js ${{ github.repository }} "deploy"
