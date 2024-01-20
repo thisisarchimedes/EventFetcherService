@@ -1,9 +1,11 @@
 name: Deploy
 
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows: ["Test"]
+    branches: [main]
+    types:
+      - completed
 
 env:
   AWS_REGION: us-east-1
@@ -12,6 +14,12 @@ env:
   DEVOPS_EVENTS_SECRET_TOKEN: ${{ secrets.DEVOPS_EVENTS_SECRET_TOKEN }}
 
 jobs:
+  check_previous_workflow:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - run: echo "Previous workflow was successful, proceeding with deployment"
+
   deploy:
     runs-on: ubuntu-latest
     if: >
