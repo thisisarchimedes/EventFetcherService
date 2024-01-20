@@ -142,5 +142,5 @@ jobs:
 
       - name: Report Deploy DevOps Event
         run: |
-        npm install axios dotenv
-        node devops/metrics/src/cicd_script/report_devops_event.js ${{ github.repository }} "deploy"
+          npm install axios dotenv
+          node devops/metrics/src/cicd_script/report_devops_event.js ${{ github.repository }} "deploy"
