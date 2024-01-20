@@ -7,14 +7,15 @@
   "scripts": {
     "start": "node --loader ts-node/esm index.ts",
     "lint": "npx eslint --ext .ts,.tsx --fix --fix-type suggestion --fix-type problem .",
-    "test": "npx hardhat test",
+    "test": "npx nyc --reporter=lcov --reporter=text-summary hardhat test",
     "build": "rm -rf dist && npx tsc && mv dist/src/* dist/ && rm -r dist/src"
   },
   "dependencies": {
+    "@thisisarchimedes/backend-sdk": "1.0.54",
     "aws-sdk": "^2.1483.0",
     "dotenv": "^16.3.1",
     "ethers": "^5.7.2",
-    "@thisisarchimedes/backend-sdk": "1.0.54"
+    "nyc": "^15.1.0"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.2.3",
