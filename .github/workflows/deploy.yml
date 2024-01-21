@@ -67,7 +67,7 @@ jobs:
           ParameterKey=S3DeploymentAddressKey,ParameterValue="${{ secrets.S3_DEPLOYMENT_ADDRESS_KEY }}" \
           ParameterKey=EventsFetchPageSize,ParameterValue="${{ secrets.EVENTS_FETCH_PAGE_SIZE }}" \
           ParameterKey=NewRelicAPIKey,ParameterValue="${{ secrets.NEW_RELIC_API_KEY }}" \
-          ParameterKey=S3ForkKey,ParameterValue="${{ secrets.S3_TEST_FORK_KEY }}" \
+          ParameterKey=S3ForkKey,ParameterValue="${{ secrets.S3_FORK_KEY }}" \
           ParameterKey=Environment,ParameterValue="staging"
 
   deploy_demo:
@@ -125,7 +125,7 @@ jobs:
           ParameterKey=S3DeploymentAddressKey,ParameterValue="${{ secrets.S3_DEPLOYMENT_ADDRESS_KEY_DEMO }}" \
           ParameterKey=EventsFetchPageSize,ParameterValue="${{ secrets.EVENTS_FETCH_PAGE_SIZE }}" \
           ParameterKey=NewRelicAPIKey,ParameterValue="${{ secrets.NEW_RELIC_API_KEY }}" \
-          ParameterKey=S3ForkKey,ParameterValue="${{ secrets.S3_DEMO_FORK_KEY }}" \
+          ParameterKey=S3ForkKey,ParameterValue="${{ secrets.S3_FORK_KEY_DEMO }}" \
           ParameterKey=Environment,ParameterValue="demo"
 
       - name: SonarCloud Scan
