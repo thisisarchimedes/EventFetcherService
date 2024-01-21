@@ -36,6 +36,12 @@ jobs:
           DURATION=$((SECONDS - START_TIME))
           echo "DURATION=$DURATION" >> $GITHUB_ENV
 
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }}
+
       - name: 'Report DevOps Metrics'
         run: |
           echo "Time taken to run the script: ${{ env.DURATION }} seconds"
