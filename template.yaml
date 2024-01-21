@@ -61,7 +61,7 @@ Resources:
           S3_BUCKET: !Ref S3Bucket
           S3_BUCKET_CONFIG: !Ref S3BucketConfig
           ENVIRONMENT: !Ref Environment
-          S3_TEST_FORK_KEY: !Ref S3TestForkKey
+          S3_FORK_KEY: !Ref S3ForkKey
 
 Parameters:
   NewEventsQueueUrl:
@@ -98,7 +98,7 @@ Parameters:
     Description: Environment
     Default: 'local'
 
-  S3TestForkKey:
+  S3ForkKey:
     Type: String
     Description: S3 Key for test RPC URL
 
