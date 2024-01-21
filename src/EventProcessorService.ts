@@ -258,10 +258,7 @@ export class EventProcessorService implements IEventProcessorService {
   }
 
   async setLastScannedBlock(blockNumber: number): Promise<void> {
-    const bucket =
-      this._context.environment === 'demo'
-        ? this._context.S3_BUCKET_DEMO
-        : this._context.S3_BUCKET;
+    const bucket = this._context.S3_BUCKET;
 
     await this.s3Service.putObject(
       bucket,

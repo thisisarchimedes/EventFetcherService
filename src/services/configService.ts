@@ -21,12 +21,10 @@ export class ConfigService {
     return contract?.address || '';
   }
 
-  async fetchLastScannedBlock(isDemo: boolean): Promise<number> {
+  async fetchLastScannedBlock(): Promise<number> {
     const lastBlockKey = process.env.S3_LAST_BLOCK_KEY ?? '';
 
-    const lastBlockBucket = isDemo
-      ? process.env.S3_BUCKET_DEMO
-      : process.env.S3_BUCKET;
+    const lastBlockBucket = process.env.S3_BUCKET;
 
     try {
       const lastBlockScanned = parseInt(
@@ -41,16 +39,11 @@ export class ConfigService {
 
   async getEnvironmentContext(): Promise<EnvironmentContext> {
     const environment = process.env.ENVIRONMENT ?? 'local';
-    const isDemo = environment.toLowerCase() === 'demo';
 
     const configBucket = process.env.S3_BUCKET_CONFIG ?? '';
-    const rpcKey = isDemo
-      ? process.env.S3_DEMO_FORK_KEY
-      : process.env.S3_TEST_FORK_KEY;
+    const rpcKey = process.env.S3_FORK_KEY;
 
-    const contractAddressesKey = isDemo
-      ? process.env.S3_DEPLOYMENT_ADDRESS_KEY_DEMO
-      : process.env.S3_DEPLOYMENT_ADDRESS_KEY;
+    const contractAddressesKey = process.env.S3_DEPLOYMENT_ADDRESS_KEY;
 
     const rpcJson = await this.fetchS3Object(configBucket, rpcKey ?? '');
 
@@ -73,11 +66,9 @@ export class ConfigService {
       contractAddressesJson,
     );
 
-    const lastBlockScanned = await this.fetchLastScannedBlock(isDemo);
+    const lastBlockScanned = await this.fetchLastScannedBlock();
 
-    const newEventsQueueURL = isDemo
-      ? process.env.NEW_EVENTS_QUEUE_URL_DEMO
-      : process.env.NEW_EVENTS_QUEUE_URL;
+    const newEventsQueueURL = process.env.NEW_EVENTS_QUEUE_URL;
 
     return {
       positionCloserAddress: positionCloser,
