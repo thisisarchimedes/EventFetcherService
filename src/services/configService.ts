@@ -66,6 +66,11 @@ export class ConfigService {
       contractAddressesJson,
     );
 
+    const positionExpirator = await this.fetchContractAddress(
+      'PositionExpirator',
+      contractAddressesJson,
+    );
+
     const lastBlockScanned = await this.fetchLastScannedBlock();
 
     const newEventsQueueURL = process.env.NEW_EVENTS_QUEUE_URL;
@@ -74,9 +79,9 @@ export class ConfigService {
       positionCloserAddress: positionCloser,
       positionOpenerAddress: positionOpener,
       positionLiquidatorAddress: positionLiquidator,
+      positionExpiratorAddress: positionExpirator,
       environment: environment,
       S3_BUCKET: process.env.S3_BUCKET ?? '',
-      S3_BUCKET_DEMO: process.env.S3_BUCKET_DEMO ?? '',
       lastBlockScanned: lastBlockScanned,
       S3_LAST_BLOCK_KEY: process.env.S3_LAST_BLOCK_KEY ?? '',
       EVENTS_FETCH_PAGE_SIZE: Number(

@@ -18,6 +18,7 @@ describe('Events Catching and logging', function () {
   let positionOpenerMockContract: Contract;
   let positionCloserMockContract: Contract;
   let positionLiquidatorMockContract: Contract;
+  let positionExpiratorMockContract: Contract;
 
   let eventProcessorService: EventProcessorService;
   let s3Stub: sinon.SinonStubbedInstance<S3Service>;
@@ -52,6 +53,13 @@ describe('Events Catching and logging', function () {
     positionLiquidatorMockContract = await PositionLiquidatorFactory.deploy();
     await positionLiquidatorMockContract.deployed();
 
+    const PositionExpiratorFactory = await ethers.getContractFactory(
+      'PositionExpirator_mock',
+    );
+
+    positionExpiratorMockContract = await PositionExpiratorFactory.deploy();
+    await positionExpiratorMockContract.deployed();
+
     // Stub the S3Service and SQSService and their methods
     s3Stub = sinon.createStubInstance(S3Service);
     s3Stub.getObject.resolves();
@@ -71,10 +79,12 @@ describe('Events Catching and logging', function () {
       sqsStub,
       loggerStub,
       {
-        enviroment: 'local',
+        environment: 'local',
         positionOpenerAddress: positionOpenerMockContract.address,
         positionCloserAddress: positionCloserMockContract.address,
         positionLiquidatorAddress: positionLiquidatorMockContract.address,
+        positionExpiratorAddress: positionExpiratorMockContract.address,
+        lastBlockScanned: 0,
         S3_LAST_BLOCK_KEY: '',
         S3_BUCKET: 'test-bucket',
         rpcAddress: '',
@@ -138,13 +148,13 @@ describe('Events Catching and logging', function () {
   });
 
   it('should process closePosition event and push messages to SQS', async function () {
-    const nftID = Math.floor(Math.random() * 1000);
+    const nftId = Math.floor(Math.random() * 1000);
     const user = ethers.Wallet.createRandom().address;
     const receivedAmount = Math.floor(Math.random() * 1000);
     const wbtcDebtAmount = Math.floor(Math.random() * 1000);
 
     const tx = await positionCloserMockContract.closePosition(
-      nftID,
+      nftId,
       user,
       receivedAmount,
       wbtcDebtAmount,
@@ -160,7 +170,7 @@ describe('Events Catching and logging', function () {
       txHash: tx.hash,
       blockNumber: tx.blockNumber,
       data: {
-        nftId: nftID.toString(),
+        nftId: nftId.toString(),
         user: user,
         receivedAmount: receivedAmount.toString(),
         wbtcDebtAmount: wbtcDebtAmount.toString(),
@@ -219,6 +229,48 @@ describe('Events Catching and logging', function () {
     );
   });
 
+  // Test case for processing the openPosition event
+  it('should process expirePosition event and push messages to SQS', async function () {
+    // Generate random data to simulate a real-world scenario
+    const nftId = Math.floor(Math.random() * 1000);
+    const user = ethers.Wallet.createRandom().address;
+    const receivedAmount = Math.floor(Math.random() * 1000);
+    const wbtcDebtAmount = Math.floor(Math.random() * 1000);
+
+    // Call the openPosition function on the mock contract with random values
+    const tx = await positionExpiratorMockContract.expirePosition(
+      nftId,
+      user,
+      receivedAmount,
+      wbtcDebtAmount,
+    );
+
+    // Wait for the transaction to be mined
+    await tx.wait();
+
+    // Execute the event processor function
+    await eventProcessorService.execute();
+
+    const expectedMessage = {
+      name: 'PositionExpired',
+      contractType: 3,
+      txHash: tx.hash,
+      blockNumber: tx.blockNumber,
+      data: {
+        nftId: nftId.toString(),
+        user: user,
+        receivedAmount: receivedAmount.toString(),
+        wbtcDebtAmount: wbtcDebtAmount.toString(),
+      },
+    };
+
+    // Assert that the SQS service's sendMessage function was called correctly
+    expect(sqsStub.sendMessage).to.have.been.calledOnceWith(
+      'test-queue-url',
+      JSON.stringify(expectedMessage),
+    );
+  });
+
   it('should log liquidation events correctly', async function () {
     // Generate random data to simulate a real-world scenario
     const nftId = Math.floor(Math.random() * 1000);
@@ -242,17 +294,6 @@ describe('Events Catching and logging', function () {
     // Execute the event processor function
     await eventProcessorService.execute();
 
-    // Define the expected log message format
-    const expectedLogMessage =
-      `Liquidation Event:\n` +
-      `  - NFT ID: ${nftId}\n` +
-      `  - Strategy Address: ${strategy}\n` +
-      `  - WBTC Debt Paid: ${wbtcDebtPaid}\n` +
-      `  - Claimable Amount: ${claimableAmount}\n` +
-      `  - Liquidation Fee: ${liquidationFee}\n` +
-      `  - Transaction Hash: ${tx.hash}\n` +
-      `  - Block Number: ${tx.blockNumber}`;
-
     // Assert that the logger.info function was called with the expected log message
     expect(loggerStub.info).to.have.been.calledWithMatch(
       sinon.match(
@@ -272,7 +313,7 @@ describe('Inner logic functions', function () {
   let positionOpenerMockContract: Contract;
   let positionCloserMockContract: Contract;
   let positionLiquidatorMockContract: Contract;
-
+  let positionExpiratorMockContract: Contract;
   let eventProcessorService: EventProcessorService;
   let s3Stub: sinon.SinonStubbedInstance<S3Service>;
   let sqsStub: sinon.SinonStubbedInstance<SQSService>;
@@ -302,6 +343,13 @@ describe('Inner logic functions', function () {
       'PositionLiquidator_mock',
     );
 
+    const PositionExpiratorFactory = await ethers.getContractFactory(
+      'PositionExpirator_mock',
+    );
+
+    positionExpiratorMockContract = await PositionExpiratorFactory.deploy();
+    await positionExpiratorMockContract.deployed();
+
     positionLiquidatorMockContract = await PositionLiquidatorFactory.deploy();
     await positionLiquidatorMockContract.deployed();
 
@@ -324,10 +372,12 @@ describe('Inner logic functions', function () {
       sqsStub,
       loggerStub,
       {
-        enviroment: 'local',
+        environment: 'local',
         positionOpenerAddress: positionOpenerMockContract.address,
         positionCloserAddress: positionCloserMockContract.address,
         positionLiquidatorAddress: positionLiquidatorMockContract.address,
+        positionExpiratorAddress: positionExpiratorMockContract.address,
+        lastBlockScanned: 0,
         S3_LAST_BLOCK_KEY: '',
         S3_BUCKET: 'test-bucket',
         rpcAddress: '',
@@ -337,6 +387,7 @@ describe('Inner logic functions', function () {
       },
     );
   });
+
   // Helper function to create a mock Log object
   const createMockLog = (transactionHash, logIndex) => ({
     transactionHash: transactionHash,
@@ -349,17 +400,6 @@ describe('Inner logic functions', function () {
     data: '0xdata', // Mock value
     topics: ['0xtopic1', '0xtopic2'], // Mock value
   });
-
-  const mockDescriptor = {
-    name: 'MockEvent',
-    decodeData: [
-      { name: 'param1', type: 'uint256', indexed: false },
-      { name: 'param2', type: 'address', indexed: true },
-      // Add more parameters as needed
-    ],
-    contractType: 0, // Add appropriate contract type
-    signature: '0xMockSignature',
-  };
 
   it('should return an empty array for no logs', function () {
     const logs = [];

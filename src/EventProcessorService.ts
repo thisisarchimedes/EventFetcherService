@@ -213,6 +213,8 @@ export class EventProcessorService implements IEventProcessorService {
             ? this._context.positionCloserAddress
             : descriptor.contractType == ContractType.Liquidator
             ? this._context.positionLiquidatorAddress
+            : descriptor.contractType == ContractType.Expirator
+            ? this._context.positionExpiratorAddress
             : '';
 
         if (contractAddress.length == 0) continue;
