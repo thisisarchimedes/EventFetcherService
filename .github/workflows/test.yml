@@ -5,7 +5,6 @@ on:
     branches:
       - main
 
-
 env:
   AWS_REGION: us-east-1
   PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
@@ -19,7 +18,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          submodules: "recursive"
+          submodules: 'recursive'
 
       - name: Use Node.js
         uses: actions/setup-node@v4
@@ -28,6 +27,9 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+
+      - name: Lint Code
+        run: npx eslint . --ext .js,.jsx,.ts,.tsx
 
       - name: Run npm Tests and Measure Time
         run: |
@@ -40,7 +42,7 @@ jobs:
         id: check_changes
         run: |
           echo "::set-output name=src_changed::$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^src/' && echo 'true' || echo 'false')"
-    
+
       - name: SonarCloud Scan
         if: steps.check_changes.outputs.src_changed == 'true'
         uses: SonarSource/sonarcloud-github-action@master
