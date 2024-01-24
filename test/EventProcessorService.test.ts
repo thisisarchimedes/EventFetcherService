@@ -24,13 +24,9 @@ describe('Events Catching and logging', function() {
   let s3Stub: sinon.SinonStubbedInstance<S3Service>;
   let sqsStub: sinon.SinonStubbedInstance<SQSService>;
   let loggerStub: sinon.SinonStubbedInstance<Logger>;
-  let provider: any;
 
   // This runs before each individual test
   beforeEach(async function() {
-    // Create a new JSON RPC provider from ethers
-    provider = new ethers.providers.JsonRpcProvider();
-
     // Deploy a mock contract for the tests
     const PositionOpenerFactory = await ethers.getContractFactory(
         'PositionOpener_mock',
@@ -318,12 +314,8 @@ describe('Inner logic functions', function() {
   let s3Stub: sinon.SinonStubbedInstance<S3Service>;
   let sqsStub: sinon.SinonStubbedInstance<SQSService>;
   let loggerStub: sinon.SinonStubbedInstance<Logger>;
-  let provider: any;
 
   beforeEach(async function() {
-    // Create a new JSON RPC provider from ethers
-    provider = new ethers.providers.JsonRpcProvider();
-
     // Deploy a mock contract for the tests
     const PositionOpenerFactory = await ethers.getContractFactory(
         'PositionOpener_mock',
