@@ -1,5 +1,5 @@
-import { S3Service } from '@thisisarchimedes/backend-sdk';
-import { EnvironmentContext } from '../types/EnvironmentContext';
+import {S3Service} from '@thisisarchimedes/backend-sdk';
+import {EnvironmentContext} from '../types/EnvironmentContext';
 
 export class ConfigService {
   private readonly s3: S3Service;
@@ -13,8 +13,8 @@ export class ConfigService {
   }
 
   private async fetchContractAddress(
-    name: string,
-    contractsJson: string,
+      name: string,
+      contractsJson: string,
   ): Promise<string> {
     const contracts = JSON.parse(contractsJson);
     const contract = contracts.find((f: any) => f.name === name);
@@ -28,8 +28,8 @@ export class ConfigService {
 
     try {
       const lastBlockScanned = parseInt(
-        await this.fetchS3Object(lastBlockBucket ?? '', lastBlockKey),
-        10,
+          await this.fetchS3Object(lastBlockBucket ?? '', lastBlockKey),
+          10,
       );
       return lastBlockScanned;
     } catch {
@@ -48,27 +48,27 @@ export class ConfigService {
     const rpcJson = await this.fetchS3Object(configBucket, rpcKey ?? '');
 
     const contractAddressesJson = await this.fetchS3Object(
-      configBucket,
-      contractAddressesKey ?? '',
+        configBucket,
+        contractAddressesKey ?? '',
     );
 
     const rpcAddress = JSON.parse(rpcJson)['rpc'];
     const positionOpener = await this.fetchContractAddress(
-      'PositionOpener',
-      contractAddressesJson,
+        'PositionOpener',
+        contractAddressesJson,
     );
     const positionCloser = await this.fetchContractAddress(
-      'PositionCloser',
-      contractAddressesJson,
+        'PositionCloser',
+        contractAddressesJson,
     );
     const positionLiquidator = await this.fetchContractAddress(
-      'PositionLiquidator',
-      contractAddressesJson,
+        'PositionLiquidator',
+        contractAddressesJson,
     );
 
     const positionExpirator = await this.fetchContractAddress(
-      'PositionExpirator',
-      contractAddressesJson,
+        'PositionExpirator',
+        contractAddressesJson,
     );
 
     const lastBlockScanned = await this.fetchLastScannedBlock();
@@ -85,7 +85,7 @@ export class ConfigService {
       lastBlockScanned: lastBlockScanned,
       S3_LAST_BLOCK_KEY: process.env.S3_LAST_BLOCK_KEY ?? '',
       EVENTS_FETCH_PAGE_SIZE: Number(
-        process.env.EVENTS_FETCH_PAGE_SIZE ?? '1000',
+          process.env.EVENTS_FETCH_PAGE_SIZE ?? '1000',
       ),
       NEW_EVENTS_QUEUE_URL: newEventsQueueURL ?? '',
       rpcAddress: rpcAddress,

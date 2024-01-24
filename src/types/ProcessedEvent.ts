@@ -1,4 +1,4 @@
-import { ContractType } from './EventDescriptor';
+import {ContractType} from './EventDescriptor';
 
 export type ProcessedEvent = {
   name: string;
