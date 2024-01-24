@@ -1,15 +1,3 @@
-/Users/danieljaffe/Documents/GitHub/LeverageBackend/src/lambda-handler.ts(10,31): error @typescript-eslint/no-unused-vars : 'event' is defined but never used.
-/Users/danieljaffe/Documents/GitHub/LeverageBackend/src/lambda-handler.ts(10,38): error @typescript-eslint/no-explicit-any : Unexpected any. Specify a different type.
-/Users/danieljaffe/Documents/GitHub/LeverageBackend/src/lambda-handler.ts(10,43): error @typescript-eslint/no-unused-vars : 'context' is defined but never used.
-/Users/danieljaffe/Documents/GitHub/LeverageBackend/src/lambda-handler.ts(10,52): error @typescript-eslint/no-explicit-any : Unexpected any. Specify a different type.
-/Users/danieljaffe/Documents/GitHub/LeverageBackend/src/runner.ts(10,31): error @typescript-eslint/no-unused-vars : 'event' is defined but never used.
-/Users/danieljaffe/Documents/GitHub/LeverageBackend/src/runner.ts(10,38): error @typescript-eslint/no-explicit-any : Unexpected any. Specify a different type.
-/Users/danieljaffe/Documents/GitHub/LeverageBackend/src/runner.ts(10,43): error @typescript-eslint/no-unused-vars : 'context' is defined but never used.
-/Users/danieljaffe/Documents/GitHub/LeverageBackend/src/runner.ts(10,52): error @typescript-eslint/no-explicit-any : Unexpected any. Specify a different type.
-/Users/danieljaffe/Documents/GitHub/LeverageBackend/src/services/configService.ts(20,41): error @typescript-eslint/no-explicit-any : Unexpected any. Specify a different type.
-/Users/danieljaffe/Documents/GitHub/LeverageBackend/src/services/configService.ts(40,30): error complexity : Async method 'getEnvironmentContext' has a complexity of 9. Maximum allowed is 8.
-/Users/danieljaffe/Documents/GitHub/LeverageBackend/src/types/EventData.ts(1,11): error no-unused-vars : 'EventData' is defined but never used.
-/Users/danieljaffe/Documents/GitHub/LeverageBackend/src/types/EventData.ts(1,11): error @typescript-eslint/no-unused-vars : 'EventData' is defined but never used.
 /Users/danieljaffe/Documents/GitHub/LeverageBackend/src/types/EventDescriptor.ts(2,3): error no-unused-vars : 'Opener' is defined but never used.
 /Users/danieljaffe/Documents/GitHub/LeverageBackend/src/types/EventDescriptor.ts(3,3): error no-unused-vars : 'Closer' is defined but never used.
 /Users/danieljaffe/Documents/GitHub/LeverageBackend/src/types/EventDescriptor.ts(4,3): error no-unused-vars : 'Liquidator' is defined but never used.
@@ -24,4 +12,4 @@
 /Users/danieljaffe/Documents/GitHub/LeverageBackend/test/services/web3Service.ts(1,7): error no-unused-vars : 'Web3Calls' is defined but never used.
 /Users/danieljaffe/Documents/GitHub/LeverageBackend/test/services/web3Service.ts(1,7): error @typescript-eslint/no-unused-vars : 'Web3Calls' is defined but never used.
 
-25 problems
+13 problems

@@ -1,3 +1,3 @@
-interface EventData {
+export interface EventData {
   [key: string]: string;
 }
