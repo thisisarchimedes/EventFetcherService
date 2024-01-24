@@ -3,7 +3,11 @@ import rawEventDescriptors from './events.json';
 import {S3Service, SQSService, Logger} from '@thisisarchimedes/backend-sdk';
 import dotenv from 'dotenv';
 import {IEventProcessorService} from './IEventProcessorService';
-import {ContractType, EventDescriptor} from './types/EventDescriptor';
+import {
+  ContractType,
+  DecodedData,
+  EventDescriptor,
+} from './types/EventDescriptor';
 import {EnvironmentContext} from './types/EnvironmentContext';
 import {ProcessedEvent} from './types/ProcessedEvent';
 
@@ -142,12 +146,12 @@ export class EventProcessorService implements IEventProcessorService {
     const logRes = logs
         .map((log) => {
           const indexedTypes = descriptor.decodeData
-              .filter((param: any) => param.indexed)
-              .map((param: any) => param.type);
+              .filter((param: DecodedData) => param.indexed)
+              .map((param: DecodedData) => param.type);
 
           const nonIndexedTypes = descriptor.decodeData
-              .filter((param: any) => !param.indexed)
-              .map((param: any) => param.type);
+              .filter((param: DecodedData) => !param.indexed)
+              .map((param: DecodedData) => param.type);
 
           try {
           // Decode non-indexed parameters from log.data
@@ -157,16 +161,21 @@ export class EventProcessorService implements IEventProcessorService {
             );
 
             // Decode indexed parameters from log.topics
-            const indexedData = indexedTypes.map((type: any, index: any) => {
-              const topic = log.topics[index + 1];
-              return ethers.utils.defaultAbiCoder.decode([type], topic)[0];
-            });
+            const indexedData: ethers.utils.Result[] = indexedTypes.map(
+                (type: string, index: number) => {
+                  const topic = log.topics[index + 1];
+                  return ethers.utils.defaultAbiCoder.decode([type], topic)[0];
+                },
+            );
 
             // Merge both indexed and non-indexed data
-            const allData = [...indexedData, ...nonIndexedData];
+            const allData: ethers.utils.Result[] = [
+              ...indexedData,
+              ...nonIndexedData,
+            ];
 
-            const eventData: any = {};
-            descriptor.decodeData.forEach((param: any, index: number) => {
+            const eventData: EventData = {};
+            descriptor.decodeData.forEach((param: DecodedData, index: number) => {
               eventData[param.name] = allData[index].toString();
             });
 
@@ -237,7 +246,7 @@ export class EventProcessorService implements IEventProcessorService {
     return processedEvents;
   }
 
-  private async queueEvents(events: any[]): Promise<void> {
+  private async queueEvents(events: EventData[]): Promise<void> {
     for (const event of events) {
       this.logger.info(
           `Appending message to queue ${

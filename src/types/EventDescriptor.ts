@@ -5,13 +5,15 @@ export enum ContractType {
   Expirator = 3,
 }
 
+export type DecodedData = {
+  name: string;
+  type: string;
+  indexed: boolean;
+};
+
 export type EventDescriptor = {
   name: string;
   signature: string;
   contractType: ContractType;
-  decodeData: {
-    name: string;
-    type: string;
-    indexed: boolean;
-  }[];
+  decodeData: DecodedData[];
 };
