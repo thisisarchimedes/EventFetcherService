@@ -1,5 +1,3 @@
-import { ethers } from 'ethers';
-
 export type IEventProcessorService = {
   execute(): Promise<void>;
   getLastScannedBlock(): Promise<number>;

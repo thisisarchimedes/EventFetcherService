@@ -1,20 +1,20 @@
-import { S3Service, SQSService, Logger } from '@thisisarchimedes/backend-sdk';
+import {S3Service, SQSService, Logger} from '@thisisarchimedes/backend-sdk';
 
-import { expect } from 'chai';
-import { ethers } from 'hardhat';
-import { Contract } from 'ethers';
+import {expect} from 'chai';
+import {ethers} from 'hardhat';
+import {Contract} from 'ethers';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
 import chai from 'chai';
 
-import { EventProcessorService } from '../src/EventProcessorService';
+import {EventProcessorService} from '../src/EventProcessorService';
 
 // Set up Chai to use the sinonChai and chaiAsPromised plugins
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
 
-describe('Events Catching and logging', function () {
+describe('Events Catching and logging', function() {
   let positionOpenerMockContract: Contract;
   let positionCloserMockContract: Contract;
   let positionLiquidatorMockContract: Contract;
@@ -24,37 +24,33 @@ describe('Events Catching and logging', function () {
   let s3Stub: sinon.SinonStubbedInstance<S3Service>;
   let sqsStub: sinon.SinonStubbedInstance<SQSService>;
   let loggerStub: sinon.SinonStubbedInstance<Logger>;
-  let provider: any;
 
   // This runs before each individual test
-  beforeEach(async function () {
-    // Create a new JSON RPC provider from ethers
-    provider = new ethers.providers.JsonRpcProvider();
-
+  beforeEach(async function() {
     // Deploy a mock contract for the tests
     const PositionOpenerFactory = await ethers.getContractFactory(
-      'PositionOpener_mock',
+        'PositionOpener_mock',
     );
 
     positionOpenerMockContract = await PositionOpenerFactory.deploy();
     await positionOpenerMockContract.deployed();
 
     const PositionCloserFactory = await ethers.getContractFactory(
-      'PositionCloser_mock',
+        'PositionCloser_mock',
     );
 
     positionCloserMockContract = await PositionCloserFactory.deploy();
     await positionCloserMockContract.deployed();
 
     const PositionLiquidatorFactory = await ethers.getContractFactory(
-      'PositionLiquidator_mock',
+        'PositionLiquidator_mock',
     );
 
     positionLiquidatorMockContract = await PositionLiquidatorFactory.deploy();
     await positionLiquidatorMockContract.deployed();
 
     const PositionExpiratorFactory = await ethers.getContractFactory(
-      'PositionExpirator_mock',
+        'PositionExpirator_mock',
     );
 
     positionExpiratorMockContract = await PositionExpiratorFactory.deploy();
@@ -73,30 +69,30 @@ describe('Events Catching and logging', function () {
 
     // Initialize the EventProcessorService with the stubs and mock contract
     eventProcessorService = new EventProcessorService(
-      ethers.provider,
-      ethers.provider,
-      s3Stub,
-      sqsStub,
-      loggerStub,
-      {
-        environment: 'local',
-        positionOpenerAddress: positionOpenerMockContract.address,
-        positionCloserAddress: positionCloserMockContract.address,
-        positionLiquidatorAddress: positionLiquidatorMockContract.address,
-        positionExpiratorAddress: positionExpiratorMockContract.address,
-        lastBlockScanned: 0,
-        S3_LAST_BLOCK_KEY: '',
-        S3_BUCKET: 'test-bucket',
-        rpcAddress: '',
-        alternateRpcAddress: '',
-        NEW_EVENTS_QUEUE_URL: 'test-queue-url',
-        EVENTS_FETCH_PAGE_SIZE: 1000,
-      },
+        ethers.provider,
+        ethers.provider,
+        s3Stub,
+        sqsStub,
+        loggerStub,
+        {
+          environment: 'local',
+          positionOpenerAddress: positionOpenerMockContract.address,
+          positionCloserAddress: positionCloserMockContract.address,
+          positionLiquidatorAddress: positionLiquidatorMockContract.address,
+          positionExpiratorAddress: positionExpiratorMockContract.address,
+          lastBlockScanned: 0,
+          S3_LAST_BLOCK_KEY: '',
+          S3_BUCKET: 'test-bucket',
+          rpcAddress: '',
+          alternateRpcAddress: '',
+          NEW_EVENTS_QUEUE_URL: 'test-queue-url',
+          EVENTS_FETCH_PAGE_SIZE: 1000,
+        },
     );
   });
 
   // Test case for processing the openPosition event
-  it('should process openPosition event and push messages to SQS', async function () {
+  it('should process openPosition event and push messages to SQS', async function() {
     // Generate random data to simulate a real-world scenario
     const nftId = Math.floor(Math.random() * 1000);
     const user = ethers.Wallet.createRandom().address;
@@ -108,13 +104,13 @@ describe('Events Catching and logging', function () {
 
     // Call the openPosition function on the mock contract with random values
     const tx = await positionOpenerMockContract.openPosition(
-      nftId,
-      user,
-      strategy,
-      collateralAmount,
-      wbtcToBorrow,
-      positionExpireBlock,
-      sharesReceived,
+        nftId,
+        user,
+        strategy,
+        collateralAmount,
+        wbtcToBorrow,
+        positionExpireBlock,
+        sharesReceived,
     );
 
     // Wait for the transaction to be mined
@@ -142,22 +138,22 @@ describe('Events Catching and logging', function () {
 
     // Assert that the SQS service's sendMessage function was called correctly
     expect(sqsStub.sendMessage).to.have.been.calledOnceWith(
-      'test-queue-url',
-      JSON.stringify(expectedMessage),
+        'test-queue-url',
+        JSON.stringify(expectedMessage),
     );
   });
 
-  it('should process closePosition event and push messages to SQS', async function () {
+  it('should process closePosition event and push messages to SQS', async function() {
     const nftId = Math.floor(Math.random() * 1000);
     const user = ethers.Wallet.createRandom().address;
     const receivedAmount = Math.floor(Math.random() * 1000);
     const wbtcDebtAmount = Math.floor(Math.random() * 1000);
 
     const tx = await positionCloserMockContract.closePosition(
-      nftId,
-      user,
-      receivedAmount,
-      wbtcDebtAmount,
+        nftId,
+        user,
+        receivedAmount,
+        wbtcDebtAmount,
     );
 
     await tx.wait();
@@ -178,13 +174,13 @@ describe('Events Catching and logging', function () {
     };
 
     expect(sqsStub.sendMessage).to.have.been.calledOnceWith(
-      'test-queue-url',
-      JSON.stringify(expectedMessage),
+        'test-queue-url',
+        JSON.stringify(expectedMessage),
     );
   });
 
   // Test case for processing the openPosition event
-  it('should process liquidatePosition event and push messages to SQS', async function () {
+  it('should process liquidatePosition event and push messages to SQS', async function() {
     // Generate random data to simulate a real-world scenario
     const nftId = Math.floor(Math.random() * 1000);
     const strategy = ethers.Wallet.createRandom().address;
@@ -194,11 +190,11 @@ describe('Events Catching and logging', function () {
 
     // Call the openPosition function on the mock contract with random values
     const tx = await positionLiquidatorMockContract.liquidatePosition(
-      nftId,
-      strategy,
-      _wbtcDebtPaid,
-      _claimableAmount,
-      _liquidationFee,
+        nftId,
+        strategy,
+        _wbtcDebtPaid,
+        _claimableAmount,
+        _liquidationFee,
     );
 
     // Wait for the transaction to be mined
@@ -224,13 +220,13 @@ describe('Events Catching and logging', function () {
 
     // Assert that the SQS service's sendMessage function was called correctly
     expect(sqsStub.sendMessage).to.have.been.calledOnceWith(
-      'test-queue-url',
-      JSON.stringify(expectedMessage),
+        'test-queue-url',
+        JSON.stringify(expectedMessage),
     );
   });
 
   // Test case for processing the openPosition event
-  it('should process expirePosition event and push messages to SQS', async function () {
+  it('should process expirePosition event and push messages to SQS', async function() {
     // Generate random data to simulate a real-world scenario
     const nftId = Math.floor(Math.random() * 1000);
     const user = ethers.Wallet.createRandom().address;
@@ -239,10 +235,10 @@ describe('Events Catching and logging', function () {
 
     // Call the openPosition function on the mock contract with random values
     const tx = await positionExpiratorMockContract.expirePosition(
-      nftId,
-      user,
-      receivedAmount,
-      wbtcDebtAmount,
+        nftId,
+        user,
+        receivedAmount,
+        wbtcDebtAmount,
     );
 
     // Wait for the transaction to be mined
@@ -266,12 +262,12 @@ describe('Events Catching and logging', function () {
 
     // Assert that the SQS service's sendMessage function was called correctly
     expect(sqsStub.sendMessage).to.have.been.calledOnceWith(
-      'test-queue-url',
-      JSON.stringify(expectedMessage),
+        'test-queue-url',
+        JSON.stringify(expectedMessage),
     );
   });
 
-  it('should log liquidation events correctly', async function () {
+  it('should log liquidation events correctly', async function() {
     // Generate random data to simulate a real-world scenario
     const nftId = Math.floor(Math.random() * 1000);
     const strategy = ethers.Wallet.createRandom().address;
@@ -281,11 +277,11 @@ describe('Events Catching and logging', function () {
 
     // Call the liquidatePosition function on the mock contract with random values
     const tx = await positionLiquidatorMockContract.liquidatePosition(
-      nftId,
-      strategy,
-      wbtcDebtPaid,
-      claimableAmount,
-      liquidationFee,
+        nftId,
+        strategy,
+        wbtcDebtPaid,
+        claimableAmount,
+        liquidationFee,
     );
 
     // Wait for the transaction to be mined
@@ -296,11 +292,11 @@ describe('Events Catching and logging', function () {
 
     // Assert that the logger.info function was called with the expected log message
     expect(loggerStub.info).to.have.been.calledWithMatch(
-      sinon.match(
-        new RegExp(
-          `Liquidation Event:\\s*- NFT ID: ${nftId}\\s*- Strategy Address: ${strategy}`,
+        sinon.match(
+            new RegExp(
+                `Liquidation Event:\\s*- NFT ID: ${nftId}\\s*- Strategy Address: ${strategy}`,
+            ),
         ),
-      ),
     );
   });
 
@@ -309,7 +305,7 @@ describe('Events Catching and logging', function () {
   });
 });
 
-describe('Inner logic functions', function () {
+describe('Inner logic functions', function() {
   let positionOpenerMockContract: Contract;
   let positionCloserMockContract: Contract;
   let positionLiquidatorMockContract: Contract;
@@ -318,33 +314,29 @@ describe('Inner logic functions', function () {
   let s3Stub: sinon.SinonStubbedInstance<S3Service>;
   let sqsStub: sinon.SinonStubbedInstance<SQSService>;
   let loggerStub: sinon.SinonStubbedInstance<Logger>;
-  let provider: any;
 
-  beforeEach(async function () {
-    // Create a new JSON RPC provider from ethers
-    provider = new ethers.providers.JsonRpcProvider();
-
+  beforeEach(async function() {
     // Deploy a mock contract for the tests
     const PositionOpenerFactory = await ethers.getContractFactory(
-      'PositionOpener_mock',
+        'PositionOpener_mock',
     );
 
     positionOpenerMockContract = await PositionOpenerFactory.deploy();
     await positionOpenerMockContract.deployed();
 
     const PositionCloserFactory = await ethers.getContractFactory(
-      'PositionCloser_mock',
+        'PositionCloser_mock',
     );
 
     positionCloserMockContract = await PositionCloserFactory.deploy();
     await positionCloserMockContract.deployed();
 
     const PositionLiquidatorFactory = await ethers.getContractFactory(
-      'PositionLiquidator_mock',
+        'PositionLiquidator_mock',
     );
 
     const PositionExpiratorFactory = await ethers.getContractFactory(
-      'PositionExpirator_mock',
+        'PositionExpirator_mock',
     );
 
     positionExpiratorMockContract = await PositionExpiratorFactory.deploy();
@@ -366,25 +358,25 @@ describe('Inner logic functions', function () {
 
     // Initialize the EventProcessorService with the stubs and mock contract
     eventProcessorService = new EventProcessorService(
-      ethers.provider,
-      ethers.provider,
-      s3Stub,
-      sqsStub,
-      loggerStub,
-      {
-        environment: 'local',
-        positionOpenerAddress: positionOpenerMockContract.address,
-        positionCloserAddress: positionCloserMockContract.address,
-        positionLiquidatorAddress: positionLiquidatorMockContract.address,
-        positionExpiratorAddress: positionExpiratorMockContract.address,
-        lastBlockScanned: 0,
-        S3_LAST_BLOCK_KEY: '',
-        S3_BUCKET: 'test-bucket',
-        rpcAddress: '',
-        alternateRpcAddress: '',
-        NEW_EVENTS_QUEUE_URL: 'test-queue-url',
-        EVENTS_FETCH_PAGE_SIZE: 1000,
-      },
+        ethers.provider,
+        ethers.provider,
+        s3Stub,
+        sqsStub,
+        loggerStub,
+        {
+          environment: 'local',
+          positionOpenerAddress: positionOpenerMockContract.address,
+          positionCloserAddress: positionCloserMockContract.address,
+          positionLiquidatorAddress: positionLiquidatorMockContract.address,
+          positionExpiratorAddress: positionExpiratorMockContract.address,
+          lastBlockScanned: 0,
+          S3_LAST_BLOCK_KEY: '',
+          S3_BUCKET: 'test-bucket',
+          rpcAddress: '',
+          alternateRpcAddress: '',
+          NEW_EVENTS_QUEUE_URL: 'test-queue-url',
+          EVENTS_FETCH_PAGE_SIZE: 1000,
+        },
     );
   });
 
@@ -401,13 +393,13 @@ describe('Inner logic functions', function () {
     topics: ['0xtopic1', '0xtopic2'], // Mock value
   });
 
-  it('should return an empty array for no logs', function () {
+  it('should return an empty array for no logs', function() {
     const logs = [];
     const result = eventProcessorService.deduplicateLogs(logs);
     expect(result).to.be.an('array').that.is.empty;
   });
 
-  it('should return the same logs if all are unique', function () {
+  it('should return the same logs if all are unique', function() {
     const logs = [
       createMockLog('0x1', 1),
       createMockLog('0x2', 2),
@@ -417,7 +409,7 @@ describe('Inner logic functions', function () {
     expect(result).to.deep.equal(logs);
   });
 
-  it('should remove duplicate logs', function () {
+  it('should remove duplicate logs', function() {
     const logs = [
       createMockLog('0x1', 1),
       createMockLog('0x1', 1),
@@ -430,7 +422,7 @@ describe('Inner logic functions', function () {
     ]);
   });
 
-  it('should handle a mix of unique and duplicate logs correctly', function () {
+  it('should handle a mix of unique and duplicate logs correctly', function() {
     const logs = [
       createMockLog('0x1', 1),
       createMockLog('0x1', 1),
@@ -446,19 +438,19 @@ describe('Inner logic functions', function () {
     ]);
   });
 
-  it('should treat logs with same transactionHash but different logIndex as unique', function () {
+  it('should treat logs with same transactionHash but different logIndex as unique', function() {
     const logs = [createMockLog('0x1', 1), createMockLog('0x1', 2)];
     const result = eventProcessorService.deduplicateLogs(logs);
     expect(result).to.have.lengthOf(2);
   });
 
-  it('should treat logs with different transactionHash but same logIndex as unique', function () {
+  it('should treat logs with different transactionHash but same logIndex as unique', function() {
     const logs = [createMockLog('0x1', 1), createMockLog('0x2', 1)];
     const result = eventProcessorService.deduplicateLogs(logs);
     expect(result).to.have.lengthOf(2);
   });
 
-  it('should correctly deduplicate logs regardless of order', function () {
+  it('should correctly deduplicate logs regardless of order', function() {
     const logs = [
       createMockLog('0x1', 1),
       createMockLog('0x2', 2),
@@ -471,7 +463,7 @@ describe('Inner logic functions', function () {
     ]);
   });
 
-  it('should return a single log when all logs are duplicates', function () {
+  it('should return a single log when all logs are duplicates', function() {
     const logs = [
       createMockLog('0x1', 1),
       createMockLog('0x1', 1),
