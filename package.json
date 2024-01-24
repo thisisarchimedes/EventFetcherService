@@ -20,6 +20,7 @@
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.2.3",
     "@nomiclabs/hardhat-waffle": "^2.0.6",
+    "@stryker-mutator/mocha-runner": "^8.0.0",
     "@types/chai-as-promised": "^7.1.8",
     "@types/mocha": "^10.0.4",
     "@types/node": "^20.8.9",

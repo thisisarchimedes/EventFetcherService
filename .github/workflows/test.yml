@@ -47,4 +47,4 @@ jobs:
           echo "Time taken to run the script: ${{ env.DURATION }} seconds"
 
           npm install axios dotenv
-          node devops/metrics/src/cicd_script/report_devops_event.js ${{ github.repository }} "test_pass" '{"duration": ${{ env.DURATION }}}'
+          node devops/metrics/src/cicd_script/report_devops_event.js ${{ github.repository }} test_run '{"pass": "true", "time": "${{ env.DURATION }}" ,"coverage": {"functions": "NA", stryker_functions: "NA"}}'
