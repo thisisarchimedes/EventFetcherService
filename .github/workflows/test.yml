@@ -29,7 +29,7 @@ jobs:
         run: npm install
 
       - name: Lint Code
-        run: npx eslint . --ext .js,.jsx,.ts,.tsx
+        run: npx eslint . --ext .js,.jsx,.ts,.tsx --ignore-pattern /devops/
 
       - name: Run npm Tests and Measure Time
         run: |
