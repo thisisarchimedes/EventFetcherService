@@ -25,7 +25,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "latest"
+          node-version: "20.x"
 
       - name: Install dependencies
         run: npm install
@@ -46,7 +46,7 @@ jobs:
 
           echo "::set-output name=passed::$?"
 
-          echo "COVERAGE_FUNC=`grep "All files" tmp_coverage.txt | awk '{print $(NF-1)}'`" >> $GITHUB_ENV
+          echo "COVERAGE_FUNC=`grep "Functions" tmp_coverage.txt | awk '{print $(NF-3)}'`" >> $GITHUB_ENV
 
       - name: Set Test Result Env Variable
         run: |
