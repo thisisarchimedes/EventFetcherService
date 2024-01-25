@@ -77,5 +77,5 @@ jobs:
       - name: Report test run time
         run: |
           echo "Time taken to run the tests: ${{ env.DURATION }} seconds"
-          npm install axios dotenv
+          yarn add axios dotenv
           node devops/metrics/src/cicd_script/report_devops_event.js ${{ github.repository }} test_run '{"pass": "${{ env.TEST_PASS }}", "time": "${{ env.DURATION }}" ,"coverage": {"functions": "${{ env.COVERAGE_FUNC }}"}, "functions_stryker": "${{ env.COVERAGE_STRYKER_FUNC }}", "linter_issues": {"tests": "${{ env. LINT_PROBLEMS }}"}}'
