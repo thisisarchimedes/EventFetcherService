@@ -1,18 +1,40 @@
-const { off } = require('process');
-
 module.exports = {
-  extends: [
+  'env': {
+    'es2021': true,
+    'node': true,
+  },
+  'extends': [
     'eslint:recommended',
-    'plugin:@typescript-eslint/recommended',
     'google',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:mocha/recommended',
   ],
-  parser: '@typescript-eslint/parser',
-  plugins: ['@typescript-eslint'],
-  root: true,
-  rules: {
-    complexity: ['error', { max: 8 }],
-    'valid-jsdoc': 'off',
+  'overrides': [
+    {
+      'env': {
+        'node': true,
+      },
+      'files': [
+        '.eslintrc.{js,cjs}',
+      ],
+      'parserOptions': {
+        'sourceType': 'script',
+      },
+    },
+  ],
+  'parser': '@typescript-eslint/parser',
+  'parserOptions': {
+    'ecmaVersion': 'latest',
+    'sourceType': 'module',
+  },
+  'plugins': [
+    '@typescript-eslint',
+    'promise',
+    'mocha',
+  ],
+  'rules': {
+    'require-await': 'error',
+    'max-len': ['error', {'code': 120}],
     'require-jsdoc': 'off',
-    'max-len': ['error', { code: 140 }],
   },
 };

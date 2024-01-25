@@ -13,10 +13,10 @@ export class ConfigService {
     return await this.s3.getObject(bucket, key);
   }
 
-  private async fetchContractAddress(
+  private fetchContractAddress(
       name: string,
       contractsJson: string,
-  ): Promise<string> {
+  ): string {
     const contracts = JSON.parse(contractsJson) as ContractAddress[];
     const contract = contracts.find((contract) => contract.name === name);
     return contract?.address || '';
@@ -62,13 +62,13 @@ export class ConfigService {
     );
   }
 
-  private async getEnvironmentConfig(): Promise<{
+  private getEnvironmentConfig(): {
     environment: string;
     configBucket: string;
     rpcKey: string;
     contractAddressesKey: string;
     newEventsQueueURL: string;
-  }> {
+    } {
     return {
       environment: process.env.ENVIRONMENT ?? 'local',
       configBucket: process.env.S3_BUCKET_CONFIG ?? '',
