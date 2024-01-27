@@ -10,6 +10,7 @@ import {
 } from './types/EventDescriptor';
 import {EnvironmentContext} from './types/EnvironmentContext';
 import {ProcessedEvent} from './types/ProcessedEvent';
+import {EventData} from './types/EventData';
 
 dotenv.config();
 
@@ -59,7 +60,7 @@ export class EventProcessorService implements IEventProcessorService {
 
       const lastBlock = await this.getLastScannedBlock();
       const currentBlock = await this.getCurrentBlockNumber();
-      const events = await this.fetchAndProcessEvents(lastBlock, currentBlock);
+      const events : ProcessedEvent[] = await this.fetchAndProcessEvents(lastBlock, currentBlock);
 
       this.logLiquidationEvents(events);
 
@@ -246,7 +247,7 @@ export class EventProcessorService implements IEventProcessorService {
     return processedEvents;
   }
 
-  private async queueEvents(events: EventData[]): Promise<void> {
+  private async queueEvents(events: ProcessedEvent[]): Promise<void> {
     for (const event of events) {
       this.logger.info(
           `Appending message to queue ${
