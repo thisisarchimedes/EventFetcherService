@@ -85,7 +85,7 @@ export class ConfigService {
       rpcKey,
       contractAddressesKey,
       newEventsQueueURL,
-    } = await this.getEnvironmentConfig();
+    } = this.getEnvironmentConfig();
 
     const [
       rpcAddress,
