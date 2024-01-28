@@ -62,8 +62,6 @@ export class EventProcessorService implements IEventProcessorService {
       const currentBlock = await this.getCurrentBlockNumber();
       const events : ProcessedEvent[] = await this.fetchAndProcessEvents(lastBlock, currentBlock);
 
-      this.logLiquidationEvents(events);
-
       if (events.length > 0) {
         this.logger.info(
             `Fetched ${events.length} events from blocks ${lastBlock} to ${currentBlock}`,
@@ -82,30 +80,6 @@ export class EventProcessorService implements IEventProcessorService {
     } finally {
       await this.logger.flush();
     }
-  }
-
-  private logLiquidationEvents(events: ProcessedEvent[]): void {
-    events
-        .filter((event) => event.contractType === ContractType.Liquidator)
-        .forEach((event) => {
-          const {
-            nftId,
-            strategy,
-            wbtcDebtPaid,
-            claimableAmount,
-            liquidationFee,
-          } = event.data;
-          this.logger.info(
-              `Liquidation Event:
-            - NFT ID: ${nftId}
-            - Strategy Address: ${strategy}
-            - WBTC Debt Paid: ${wbtcDebtPaid}
-            - Claimable Amount: ${claimableAmount}
-            - Liquidation Fee: ${liquidationFee}
-            - Transaction Hash: ${event.txHash}
-            - Block Number: ${event.blockNumber}`,
-          );
-        });
   }
 
   private async getCurrentBlockNumber(): Promise<number> {
