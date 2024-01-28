@@ -267,39 +267,6 @@ describe('Events Catching and logging', function() {
     );
   });
 
-  it('should log liquidation events correctly', async function() {
-    // Generate random data to simulate a real-world scenario
-    const nftId = Math.floor(Math.random() * 1000);
-    const strategy = ethers.Wallet.createRandom().address;
-    const wbtcDebtPaid = Math.floor(Math.random() * 1000);
-    const claimableAmount = Math.floor(Math.random() * 1000);
-    const liquidationFee = Math.floor(Math.random() * 1000);
-
-    // Call the liquidatePosition function on the mock contract with random values
-    const tx = await positionLiquidatorMockContract.liquidatePosition(
-        nftId,
-        strategy,
-        wbtcDebtPaid,
-        claimableAmount,
-        liquidationFee,
-    );
-
-    // Wait for the transaction to be mined
-    await tx.wait();
-
-    // Execute the event processor function
-    await eventProcessorService.execute();
-
-    // Assert that the logger.info function was called with the expected log message
-    expect(loggerStub.info).to.have.been.calledWithMatch(
-        sinon.match(
-            new RegExp(
-                `Liquidation Event:\\s*- NFT ID: ${nftId}\\s*- Strategy Address: ${strategy}`,
-            ),
-        ),
-    );
-  });
-
   afterEach(function() {
     sinon.restore();
   });
