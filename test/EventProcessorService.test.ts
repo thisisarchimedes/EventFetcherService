@@ -230,15 +230,13 @@ describe('Events Catching and logging', function() {
     // Generate random data to simulate a real-world scenario
     const nftId = Math.floor(Math.random() * 1000);
     const user = ethers.Wallet.createRandom().address;
-    const receivedAmount = Math.floor(Math.random() * 1000);
-    const wbtcDebtAmount = Math.floor(Math.random() * 1000);
+    const claimableAmount = Math.floor(Math.random() * 1000);
 
     // Call the openPosition function on the mock contract with random values
     const tx = await positionExpiratorMockContract.expirePosition(
         nftId,
         user,
-        receivedAmount,
-        wbtcDebtAmount,
+        claimableAmount,
     );
 
     // Wait for the transaction to be mined
@@ -255,8 +253,7 @@ describe('Events Catching and logging', function() {
       data: {
         nftId: nftId.toString(),
         user: user,
-        receivedAmount: receivedAmount.toString(),
-        wbtcDebtAmount: wbtcDebtAmount.toString(),
+        claimableAmount: claimableAmount.toString(),
       },
     };
 

@@ -43,8 +43,7 @@
     "decodeData": [
       { "name": "nftId", "type": "uint256", "indexed": true },
       { "name": "user", "type": "address", "indexed": true },
-      { "name": "receivedAmount", "type": "uint256", "indexed": false },
-      { "name": "wbtcDebtAmount", "type": "uint256", "indexed": false }
+      { "name": "claimableAmount", "type": "uint256", "indexed": false }
     ]
   }
 ]
