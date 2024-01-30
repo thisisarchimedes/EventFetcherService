@@ -29,7 +29,6 @@ jobs:
 
       - name: Install dependencies
         run: |
-          npm install
           yarn install
 
       - name: Run Test Suite
@@ -38,7 +37,7 @@ jobs:
         run: |
           start=$(date +%s)
 
-          npm test > tmp_coverage.txt
+          yarn test > tmp_coverage.txt
 
           end=$(date +%s)
           duration=$((end-start))
@@ -48,7 +47,8 @@ jobs:
 
           echo "::set-output name=passed::$?"
 
-          echo "COVERAGE_FUNC=`grep "Functions" tmp_coverage.txt | awk '{print $(NF-3)}'`" >> $GITHUB_ENV
+          cat tmp_coverage.txt
+          echo "COVERAGE_FUNC=`grep "All files" tmp_coverage.txt | awk '{print $(NF-3)}'`" >> $GITHUB_ENV
 
       - name: Set Test Result Env Variable
         run: |
@@ -64,6 +64,7 @@ jobs:
           yarn stryker run > stryker_log.txt
           echo "COVERAGE_STRYKER_FUNC=`awk '/^All files/{print $4}' stryker_log.txt`" >> $GITHUB_ENV
           echo Stryker Mutator score: ${{ env.COVERAGE_STRYKER_FUNC}}
+          cat stryker_log.txt
 
       - name: Run lint on tests
         continue-on-error: true
