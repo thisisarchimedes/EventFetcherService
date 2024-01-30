@@ -1,0 +1,57 @@
+name: Commit Stage
+
+on:
+  push:
+    branches-ignore:
+      - 'main' 
+
+env:
+  AWS_REGION: us-east-1
+  PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
+  NEW_RELIC_API_KEY: ${{ secrets.NEW_RELIC_API_KEY }}
+  API_DEVOPS_EVENT_CATCHER: ${{ vars.API_DEVOPS_EVENT_CATCHER }}
+  DEVOPS_EVENTS_SECRET_TOKEN: ${{ secrets.DEVOPS_EVENTS_SECRET_TOKEN }}
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set env variables
+        run: |
+            echo "TEST_PASS=true" >> $GITHUB_ENV
+            echo "REPORT_URL=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"  >> $GITHUB_ENV
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'latest'
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Lint Code
+        run: yarn eslint src/**/*.ts --ext .js,.jsx,.ts,.tsx --ignore-pattern /devops/
+
+      - name: Run Tests
+        run: |
+          yarn test
+          
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }}
+
+      - name: Update TEST_PASS on failure
+        if: failure()
+        run: echo "TEST_PASS=false" >> $GITHUB_ENV
+
+      - name: 'Report DevOps Metrics'
+        if: always()
+        run: |
+          yarn add axios dotenv
+          node devops/metrics/src/cicd_script/report_devops_event.js ${{ github.repository }} push '{"pass": "${{ env.TEST_PASS }}", "commit_id": "${{ github.sha }}" ,"report_url": "${{ env.REPORT_URL }}"}'

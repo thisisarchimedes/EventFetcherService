@@ -6,8 +6,8 @@
   "private": true,
   "scripts": {
     "start": "node --loader ts-node/esm index.ts",
-    "lint": "npx eslint --ext .ts,.tsx .",
-    "test": "npx nyc --reporter=lcov --reporter=text-summary hardhat test",
+    "lint": "npx eslint --ext .ts,.tsx -c .eslintrc.cjs .",
+    "test": "npx nyc --reporter=lcov --reporter=text hardhat test",
     "build": "rm -rf dist && npx tsc && mv dist/src/* dist/ && rm -r dist/src"
   },
   "dependencies": {
