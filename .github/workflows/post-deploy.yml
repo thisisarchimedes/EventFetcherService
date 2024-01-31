@@ -86,4 +86,11 @@ jobs:
 
           echo "All Commit SHAs as JSON Array: $COMMIT_SHAS_JSON"
 
-          node devops/metrics/src/cicd_script/report_devops_event.js ${{ github.repository }} deploy "{\"commit_ids\": \"$COMMIT_SHAS_JSON\"}"
+          echo "::set-output name=commit_shas::$COMMIT_SHAS_JSON"
+          node devops/metrics/src/cicd_script/report_devops_event.js ${{ github.repository }} deploy '{"commit_ids": "${{ needs.get-commits.outputs.commit_shas }}"}'
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }}
