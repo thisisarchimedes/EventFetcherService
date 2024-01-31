@@ -34,7 +34,7 @@ jobs:
           yarn add axios dotenv
 
       - name: Get PR commits
-        id: pr-commits
+        id: get_pr_commits
         run: |
           # Get the last commit message
           COMMIT_MESSAGE=$(git log -1 --pretty=format:%B)
@@ -87,7 +87,11 @@ jobs:
           echo "All Commit SHAs as JSON Array: $COMMIT_SHAS_JSON"
 
           echo "::set-output name=commit_shas::$COMMIT_SHAS_JSON"
-          node devops/metrics/src/cicd_script/report_devops_event.js ${{ github.repository }} deploy '{"commit_ids": "${{ needs.get-commits.outputs.commit_shas }}"}'
+
+      - name: Report DevOps Event
+        run: |
+          node devops/metrics/src/cicd_script/report_devops_event.js ${{ github.repository }} deploy '{"commit_ids": "${{ steps.get_pr_commits.outputs.commit_shas }}"}'
+
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
