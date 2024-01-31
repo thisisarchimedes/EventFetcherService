@@ -90,7 +90,7 @@ jobs:
 
       - name: Report DevOps Event
         run: |
-          node devops/metrics/src/cicd_script/report_devops_event.js ${{ github.repository }} deploy '{"commit_ids": "${{ steps.get_pr_commits.outputs.commit_shas }}"}'
+          node devops/metrics/src/cicd_script/report_devops_event.js ${{ github.repository }} deploy '{"commit_ids": ${{ steps.get_pr_commits.outputs.commit_shas }}}'
 
 
       - name: SonarCloud Scan

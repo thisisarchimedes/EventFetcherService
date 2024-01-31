@@ -129,7 +129,7 @@ export class EventProcessorService implements IEventProcessorService {
               .map((param: DecodedData) => param.type);
 
           try {
-          // Decode non-indexed parameters from log.data
+          // Decode non-indexed parameters from: log.data
             const nonIndexedData = ethers.utils.defaultAbiCoder.decode(
                 nonIndexedTypes,
                 log.data,
