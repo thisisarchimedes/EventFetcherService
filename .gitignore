@@ -22,4 +22,4 @@ cache
 artifacts
 
 .nyc*
-*.stryker*
+.stryker
