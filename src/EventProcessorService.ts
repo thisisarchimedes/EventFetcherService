@@ -253,4 +253,3 @@ export class EventProcessorService implements IEventProcessorService {
     );
   }
 }
-
