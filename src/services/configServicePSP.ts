@@ -15,7 +15,7 @@ export class ConfigServicePSP {
     this.s3 = new S3Service();
     this.bucketName = bucketName;
     this.fileName = fileName;
-    this.strategies = []; // Initialize the strategies array
+    this.strategies = []; 
   }
 
   async refreshStrategyConfig() {
@@ -25,11 +25,10 @@ export class ConfigServicePSP {
 
       this.strategies = [];
 
-      // Iterate through the JSON array and create a PSPStrategyConfig object for each entry
       jsonObj.forEach((item: any) => {
         this.strategies.push({
           strategyName: item.strategyName,
-          strategyAddress: item.strategyAddress, // Assuming you want the strategyAddress here
+          strategyAddress: item.strategyAddress, 
         });
       });
     } catch (error) {
@@ -38,8 +37,6 @@ export class ConfigServicePSP {
   }
 
   getStrategyConfigByIndex(index: number): PSPStrategyConfig | undefined {
-    // Fix: Return from the strategies array, and change type from 'integer' to 'number'
-    // Also, handle out-of-bounds by returning undefined if index is not valid
     if (index >= 0 && index < this.strategies.length) {
       return this.strategies[index];
     }
