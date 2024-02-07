@@ -33,6 +33,9 @@ export class ConfigServicePSP extends ConfigService {
     return index >= 0 && index < this.strategies.length ? this.strategies[index] : undefined;
   }
 
+  public getStrategyCount(): number {
+    return this.strategies.length;
+  }
 
   private parseStrategyConfigs(data: string): PSPStrategyConfig[] {
     try {

@@ -28,6 +28,17 @@ describe('AWS Interface Test', function() {
 
   });
 
+  it('should be able to strategy count', async function() {
+
+    const pspConfig = new ConfigServicePSP('smart-contract-backend-config', 'strategies-production.json');
+
+    await pspConfig.refreshStrategyConfig();
+    const strategyCount = pspConfig.getStrategyCount();
+
+    expect(strategyCount).to.be.an('number');
+    expect(strategyCount).to.be.greaterThan(0);
+  });
+
   
 });
 
