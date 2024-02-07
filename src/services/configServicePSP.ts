@@ -39,8 +39,8 @@ export class ConfigServicePSP {
 
   private parseStrategyConfigs(data: string): PSPStrategyConfig[] {
     try {
-      const parsedData: any[] = JSON.parse(data);
-      return parsedData.map(item => ({
+      const parsedData = JSON.parse(data) as PSPStrategyConfig[];
+      return parsedData.map((item) => ({
         strategyName: item.strategyName,
         strategyAddress: item.strategyAddress,
       }));
