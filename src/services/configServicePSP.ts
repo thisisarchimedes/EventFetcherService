@@ -1,18 +1,19 @@
-import { S3Service } from '@thisisarchimedes/backend-sdk';
+import {ConfigService} from './ConfigService';
 
 export interface PSPStrategyConfig {
   strategyName: string;
   strategyAddress: string;
 }
 
-export class ConfigServicePSP {
+
+export class ConfigServicePSP extends ConfigService {
   private strategies: PSPStrategyConfig[] = [];
-  private readonly s3Service: S3Service;
   private readonly bucketName: string;
   private readonly fileName: string;
 
+
   constructor(bucketName: string, fileName: string) {
-    this.s3Service = new S3Service();
+    super(); 
     this.bucketName = bucketName;
     this.fileName = fileName;
   }
@@ -32,10 +33,6 @@ export class ConfigServicePSP {
     return index >= 0 && index < this.strategies.length ? this.strategies[index] : undefined;
   }
 
-  private async fetchS3Object(bucket: string, file: string): Promise<string> {
-    const response = await this.s3Service.getObject(bucket, file);
-    return response.toString();
-  }
 
   private parseStrategyConfigs(data: string): PSPStrategyConfig[] {
     try {
