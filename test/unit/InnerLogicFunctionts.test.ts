@@ -1,20 +1,20 @@
-import { S3Service, SQSService, Logger } from '@thisisarchimedes/backend-sdk';
+import {S3Service, SQSService, Logger} from '@thisisarchimedes/backend-sdk';
 
-import { expect } from 'chai';
-import { ethers } from 'hardhat';
-import { Contract } from 'ethers';
+import {expect} from 'chai';
+import {ethers} from 'hardhat';
+import {Contract} from 'ethers';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
 import chai from 'chai';
 
-import { EventProcessorService } from '../../src/EventProcessorService';
+import {EventProcessorService} from '../../src/EventProcessorService';
 
 // Set up Chai to use the sinonChai and chaiAsPromised plugins
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
 
-describe('Inner logic functions', function () {
+describe('Inner logic functions', function() {
   let positionOpenerMockContract: Contract;
   let positionCloserMockContract: Contract;
   let positionLiquidatorMockContract: Contract;
@@ -24,28 +24,28 @@ describe('Inner logic functions', function () {
   let sqsStub: sinon.SinonStubbedInstance<SQSService>;
   let loggerStub: sinon.SinonStubbedInstance<Logger>;
 
-  beforeEach(async function () {
+  beforeEach(async function() {
     // Deploy a mock contract for the tests
     const PositionOpenerFactory = await ethers.getContractFactory(
-      'PositionOpener_mock',
+        'PositionOpener_mock',
     );
 
     positionOpenerMockContract = await PositionOpenerFactory.deploy();
     await positionOpenerMockContract.deployed();
 
     const PositionCloserFactory = await ethers.getContractFactory(
-      'PositionCloser_mock',
+        'PositionCloser_mock',
     );
 
     positionCloserMockContract = await PositionCloserFactory.deploy();
     await positionCloserMockContract.deployed();
 
     const PositionLiquidatorFactory = await ethers.getContractFactory(
-      'PositionLiquidator_mock',
+        'PositionLiquidator_mock',
     );
 
     const PositionExpiratorFactory = await ethers.getContractFactory(
-      'PositionExpirator_mock',
+        'PositionExpirator_mock',
     );
 
     positionExpiratorMockContract = await PositionExpiratorFactory.deploy();
@@ -67,25 +67,25 @@ describe('Inner logic functions', function () {
 
     // Initialize the EventProcessorService with the stubs and mock contract
     eventProcessorService = new EventProcessorService(
-      ethers.provider,
-      ethers.provider,
-      s3Stub,
-      sqsStub,
-      loggerStub,
-      {
-        environment: 'local',
-        positionOpenerAddress: positionOpenerMockContract.address,
-        positionCloserAddress: positionCloserMockContract.address,
-        positionLiquidatorAddress: positionLiquidatorMockContract.address,
-        positionExpiratorAddress: positionExpiratorMockContract.address,
-        lastBlockScanned: 0,
-        S3_LAST_BLOCK_KEY: '',
-        S3_BUCKET: 'test-bucket',
-        rpcAddress: '',
-        alternateRpcAddress: '',
-        NEW_EVENTS_QUEUE_URL: 'test-queue-url',
-        EVENTS_FETCH_PAGE_SIZE: 1000,
-      },
+        ethers.provider,
+        ethers.provider,
+        s3Stub,
+        sqsStub,
+        loggerStub,
+        {
+          environment: 'local',
+          positionOpenerAddress: positionOpenerMockContract.address,
+          positionCloserAddress: positionCloserMockContract.address,
+          positionLiquidatorAddress: positionLiquidatorMockContract.address,
+          positionExpiratorAddress: positionExpiratorMockContract.address,
+          lastBlockScanned: 0,
+          S3_LAST_BLOCK_KEY: '',
+          S3_BUCKET: 'test-bucket',
+          rpcAddress: '',
+          alternateRpcAddress: '',
+          NEW_EVENTS_QUEUE_URL: 'test-queue-url',
+          EVENTS_FETCH_PAGE_SIZE: 1000,
+        },
     );
   });
 
@@ -102,13 +102,13 @@ describe('Inner logic functions', function () {
     topics: ['0xtopic1', '0xtopic2'], // Mock value
   });
 
-  it('should return an empty array for no logs', function () {
+  it('should return an empty array for no logs', function() {
     const logs = [];
     const result = eventProcessorService.deduplicateLogs(logs);
     expect(result).to.be.an('array').that.is.empty;
   });
 
-  it('should return the same logs if all are unique', function () {
+  it('should return the same logs if all are unique', function() {
     const logs = [
       createMockLog('0x1', 1),
       createMockLog('0x2', 2),
@@ -118,7 +118,7 @@ describe('Inner logic functions', function () {
     expect(result).to.deep.equal(logs);
   });
 
-  it('should remove duplicate logs', function () {
+  it('should remove duplicate logs', function() {
     const logs = [
       createMockLog('0x1', 1),
       createMockLog('0x1', 1),
@@ -131,7 +131,7 @@ describe('Inner logic functions', function () {
     ]);
   });
 
-  it('should handle a mix of unique and duplicate logs correctly', function () {
+  it('should handle a mix of unique and duplicate logs correctly', function() {
     const logs = [
       createMockLog('0x1', 1),
       createMockLog('0x1', 1),
@@ -147,19 +147,19 @@ describe('Inner logic functions', function () {
     ]);
   });
 
-  it('should treat logs with same transactionHash but different logIndex as unique', function () {
+  it('should treat logs with same transactionHash but different logIndex as unique', function() {
     const logs = [createMockLog('0x1', 1), createMockLog('0x1', 2)];
     const result = eventProcessorService.deduplicateLogs(logs);
     expect(result).to.have.lengthOf(2);
   });
 
-  it('should treat logs with different transactionHash but same logIndex as unique', function () {
+  it('should treat logs with different transactionHash but same logIndex as unique', function() {
     const logs = [createMockLog('0x1', 1), createMockLog('0x2', 1)];
     const result = eventProcessorService.deduplicateLogs(logs);
     expect(result).to.have.lengthOf(2);
   });
 
-  it('should correctly deduplicate logs regardless of order', function () {
+  it('should correctly deduplicate logs regardless of order', function() {
     const logs = [
       createMockLog('0x1', 1),
       createMockLog('0x2', 2),
@@ -172,7 +172,7 @@ describe('Inner logic functions', function () {
     ]);
   });
 
-  it('should return a single log when all logs are duplicates', function () {
+  it('should return a single log when all logs are duplicates', function() {
     const logs = [
       createMockLog('0x1', 1),
       createMockLog('0x1', 1),

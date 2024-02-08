@@ -13,7 +13,7 @@ export class ConfigServicePSP extends ConfigService {
 
 
   constructor(bucketName: string, fileName: string) {
-    super(); 
+    super();
     this.bucketName = bucketName;
     this.fileName = fileName;
   }
