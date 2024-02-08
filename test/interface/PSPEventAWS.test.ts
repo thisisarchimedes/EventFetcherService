@@ -5,9 +5,6 @@ import chai from 'chai';
 import {ConfigServicePSP} from '../../src/services/ConfigServicePSP';
 
 
-// Set up Chai to use the sinonChai and chaiAsPromised plugins
-chai.use(sinonChai);
-chai.use(chaiAsPromised);
 
 describe('AWS Interface Test', function() {
   it('should be able to read strategy address from the JSON file on AWS S3', async function() {
