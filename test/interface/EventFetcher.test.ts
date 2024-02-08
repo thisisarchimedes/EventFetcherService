@@ -1,12 +1,12 @@
-import { expect } from 'chai';
-import { EventFetcherRPC } from '../../src/services/blockchain/EventFetcherRPC';
+import {expect} from 'chai';
+import {EventFetcherRPC} from '../../src/services/blockchain/EventFetcherRPC';
 import dotenv from 'dotenv';
 import exp from 'constants';
 
 dotenv.config();
 
-describe('Fetch on-chain events from blockchain', function () {
-  it('should fetch on-chain events from RPC provider', async function () {
+describe('Fetch on-chain events from blockchain', function() {
+  it('should fetch on-chain events from RPC provider', async function() {
     const alchemyRPCURL = `https://eth-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`;
     const infuraRPCURL = `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`;
 
@@ -19,7 +19,7 @@ describe('Fetch on-chain events from blockchain', function () {
     expect(onChainEvents).to.be.an('array');
   });
 
-  it('should fetch deposit event of crvUSD/USDT strategy', async function () {
+  it('should fetch deposit event of crvUSD/USDT strategy', async function() {
     const alchemyRPCURL = `https://eth-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`;
     const infuraRPCURL = `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`;
 
@@ -36,5 +36,4 @@ describe('Fetch on-chain events from blockchain', function () {
     expect(depositEvent).to.be.an('object');
     expect(depositEvent.blockHash).to.be.eq('0xb9fae1e0030443598e1d2e924d29c1f691535c8d03990fb95abf808591364986');
   });
-
 });
