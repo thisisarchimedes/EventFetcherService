@@ -1,7 +1,8 @@
 import {expect} from 'chai';
 import {EventFetcherRPC} from '../../src/services/blockchain/EventFetcherRPC';
-require('dotenv').config();
+import dotenv from 'dotenv';
 
+dotenv.config();
 
 describe('Fetch on-chain events from blockchain', function() {
   it('should fetch on-chain events from RPC provider', async function() {
