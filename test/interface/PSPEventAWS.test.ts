@@ -1,9 +1,5 @@
 import {expect} from 'chai';
-import sinonChai from 'sinon-chai';
-import chaiAsPromised from 'chai-as-promised';
-import chai from 'chai';
-import {ConfigServicePSP} from '../../src/services/ConfigServicePSP';
-
+import {ConfigServicePSP} from '../../src/services/config/configServicePSP';
 
 
 describe('AWS Interface Test', function() {

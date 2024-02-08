@@ -13,7 +13,7 @@
   "dependencies": {
     "@thisisarchimedes/backend-sdk": "1.0.59",
     "aws-sdk": "^2.1483.0",
-    "dotenv": "^16.3.1",
+    "dotenv": "^16.4.1",
     "eslint-plugin-promise": "^6.1.1",
     "ethers": "^5.7.2",
     "fp-ts": "^2.16.2",
