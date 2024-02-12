@@ -1,22 +1,13 @@
-import { S3Service, SQSService, Logger } from '@thisisarchimedes/backend-sdk';
+import {Logger} from '@thisisarchimedes/backend-sdk';
 
-import { expect } from 'chai';
-import { ethers } from 'hardhat';
-import { Contract } from 'ethers';
-import sinon from 'sinon';
-import sinonChai from 'sinon-chai';
-import chaiAsPromised from 'chai-as-promised';
-import chai from 'chai';
+import {expect} from 'chai';
 
-import { EventProcessorService } from '../../src/EventProcessorService';
-import { LoggerPort } from '../ports/LoggerPort';
-import { EventFetcherPort } from '../ports/EventFetcherPort';
-import { ConfigServicePSPPort } from '../ports/ConfigServicePSPPort';
-import { config } from 'dotenv';
+import {LoggerPort} from '../ports/LoggerPort';
+import {EventFetcherPort} from '../ports/EventFetcherPort';
+import {ConfigServicePSPPort} from '../ports/ConfigServicePSPPort';
 
-import { EventFactory } from '../../src/onchain_events/EventFactory';
-import { OnChainEvent } from '../../src/onchain_events/OnChainEvent';
-import { cons } from 'fp-ts/lib/ReadonlyNonEmptyArray';
+import {EventFactory} from '../../src/onchain_events/EventFactory';
+import {OnChainEvent} from '../../src/onchain_events/OnChainEvent';
 
 
 describe('PSP Events Logging', function() {
