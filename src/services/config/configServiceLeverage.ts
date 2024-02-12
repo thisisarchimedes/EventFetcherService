@@ -59,22 +59,7 @@ export class ConfigServiceLeverage extends ConfigService {
     );
   }
 
-  private getEnvironmentConfig(): {
-    environment: string;
-    configBucket: string;
-    rpcKey: string;
-    contractAddressesKey: string;
-    newEventsQueueURL: string;
-    } {
-    return {
-      environment: process.env.ENVIRONMENT ?? 'local',
-      configBucket: process.env.S3_BUCKET_CONFIG ?? '',
-      rpcKey: process.env.S3_FORK_KEY ?? '',
-      contractAddressesKey: process.env.S3_DEPLOYMENT_ADDRESS_KEY ?? '',
-      newEventsQueueURL: process.env.NEW_EVENTS_QUEUE_URL ?? '',
-    };
-  }
-
+ 
   async getEnvironmentContext(): Promise<EnvironmentContext> {
     const {
       environment,

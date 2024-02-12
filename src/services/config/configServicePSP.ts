@@ -1,3 +1,4 @@
+import { cons } from 'fp-ts/lib/ReadonlyNonEmptyArray';
 import {ConfigService} from './ConfigService';
 
 export interface PSPStrategyConfig {
@@ -7,9 +8,9 @@ export interface PSPStrategyConfig {
 
 
 export class ConfigServicePSP extends ConfigService {
-  private strategies: PSPStrategyConfig[] = [];
-  private readonly bucketName: string;
-  private readonly fileName: string;
+  protected strategies: PSPStrategyConfig[] = [];
+  protected readonly bucketName: string;
+  protected readonly fileName: string;
 
 
   constructor(bucketName: string, fileName: string) {
@@ -37,7 +38,7 @@ export class ConfigServicePSP extends ConfigService {
     return this.strategies.length;
   }
 
-  private parseStrategyConfigs(data: string): PSPStrategyConfig[] {
+  protected parseStrategyConfigs(data: string): PSPStrategyConfig[] {
     try {
       const parsedData = JSON.parse(data) as PSPStrategyConfig[];
       return parsedData.map((item) => ({
@@ -49,7 +50,7 @@ export class ConfigServicePSP extends ConfigService {
     }
   }
 
-  private updateStrategies(strategies: PSPStrategyConfig[]): void {
+  protected updateStrategies(strategies: PSPStrategyConfig[]): void {
     this.strategies = strategies;
   }
 }

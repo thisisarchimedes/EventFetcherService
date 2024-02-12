@@ -11,7 +11,7 @@ export class EventFetcherRPC implements EventFetcher {
     this.altProvider = new ethers.providers.JsonRpcProvider(altProviderRPCURL);
   }
 
-  public async getOnChainEvents(blockNumberFrom: number, blockNumberTo: number): Promise<any[]> {
+  public async getOnChainEvents(blockNumberFrom: number, blockNumberTo: number): Promise<ethers.providers.Log[]> {
     const filter: ethers.providers.Filter = {
       fromBlock: blockNumberFrom,
       toBlock: blockNumberTo,
