@@ -22,6 +22,7 @@ export class EventFactory {
       case TOPIC_EVENT_PSP_DEPOSIT:
         strategyConfig = this.findStrategyConfigByEventContractAddress(eventLog.address);
         return new OnChainEventPSPDeposit(eventLog, strategyConfig, this.logger);
+
       default:
         errorMessage = `Unhandled event topic: ${eventLog.topics[0]}`;
         this.logger.error(errorMessage);
