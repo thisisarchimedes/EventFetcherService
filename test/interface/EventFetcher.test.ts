@@ -23,17 +23,18 @@ describe('Fetch on-chain events from blockchain', function() {
     const alchemyRPCURL = `https://eth-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`;
     const infuraRPCURL = `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`;
 
-    const msUSDGuardAddress = '0x825cc02ec7B77d4432e82e7bCAf3B89a67a555F1';
-
     const eventFetcher = new EventFetcherRPC(alchemyRPCURL, infuraRPCURL);
 
     const blockNumberFrom = 19178316;
     const blockNumberTo = 19178316;
 
     const onChainEvents = await eventFetcher.getOnChainEvents(blockNumberFrom, blockNumberTo);
+    // eslint-disable-next-line max-len
     const depositEvent = onChainEvents.find((event) => event.topics[0] === '0xdcbc1c05240f31ff3ad067ef1ee35ce4997762752e3a095284754544f4c709d7');
 
     expect(depositEvent).to.be.an('object');
-    expect(depositEvent.blockHash).to.be.eq('0xb9fae1e0030443598e1d2e924d29c1f691535c8d03990fb95abf808591364986');
+    if (depositEvent) {
+      expect(depositEvent.blockHash).to.be.eq('0xb9fae1e0030443598e1d2e924d29c1f691535c8d03990fb95abf808591364986');
+    }
   });
 });
