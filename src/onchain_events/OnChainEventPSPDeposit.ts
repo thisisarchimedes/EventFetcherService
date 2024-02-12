@@ -1,36 +1,45 @@
-import { ethers } from "ethers";
-import { OnChainEvent } from "./OnChainEvent";
-import { PSPStrategyConfig } from "../services/config/configServicePSP";
-import { Logger } from "@thisisarchimedes/backend-sdk";
-
+import {ethers} from 'ethers';
+import {OnChainEvent} from './OnChainEvent';
+import {PSPStrategyConfig} from '../services/config/configServicePSP';
+import {Logger} from '@thisisarchimedes/backend-sdk';
 
 export class OnChainEventPSPDeposit extends OnChainEvent {
-  private amount: bigint;
+  private amount: bigint = BigInt(0);
 
   constructor(eventLog: ethers.providers.Log, strategyConfig: PSPStrategyConfig, logger: Logger) {
     super(strategyConfig, logger);
-
     this.eventName = 'Deposit';
-    this.amount = BigInt(0);
-
     this.parseEventLog(eventLog);
   }
 
   public process(): void {
-    this.logger.info(JSON.stringify({
+    this.logDepositEvent();
+  }
+
+  private logDepositEvent(): void {
+    const eventDetails = JSON.stringify({
       event: this.eventName,
       user: this.userAddress,
       strategy: this.strategyConfig.strategyName,
       amount: this.amount.toString(),
-    }));
+    });
+
+    this.logger.info(eventDetails);
   }
 
   private parseEventLog(eventLog: ethers.providers.Log): void {
-    let address = eventLog.topics[2];
-    address = '0x' + address.slice(26);
-    this.userAddress = ethers.utils.getAddress(address);
+    this.setUserAddressFromEventLog(eventLog);
+    this.setAmountFromEventLog(eventLog);
+  }
 
-    const amount = eventLog.data.slice(-64);
-    this.amount = BigInt('0x' + amount);
+  private setUserAddressFromEventLog(eventLog: ethers.providers.Log): void {
+    const rawAddress = eventLog.topics[2];
+    const trimmedAddress = '0x' + rawAddress.slice(26);
+    this.userAddress = ethers.utils.getAddress(trimmedAddress);
+  }
+
+  private setAmountFromEventLog(eventLog: ethers.providers.Log): void {
+    const rawData = eventLog.data.slice(-64);
+    this.amount = BigInt('0x' + rawData);
   }
 }
