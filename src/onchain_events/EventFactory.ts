@@ -15,12 +15,12 @@ export class EventFactory {
   }
 
   public createEvent(eventLog: ethers.providers.Log): OnChainEventPSPDeposit {
-    let strategyConfig;
     let errorMessage;
+
+    const strategyConfig = this.findStrategyConfigByEventContractAddress(eventLog.address);
 
     switch (eventLog.topics[0]) {
       case TOPIC_EVENT_PSP_DEPOSIT:
-        strategyConfig = this.findStrategyConfigByEventContractAddress(eventLog.address);
         return new OnChainEventPSPDeposit(eventLog, strategyConfig, this.logger);
 
       default:
