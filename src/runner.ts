@@ -28,7 +28,7 @@ export const handler = async (
       _appContext.alternateRpcAddress ?? '',
   );
 
-  const configServicePSP: ConfigServicePSP = new ConfigServicePSP(_appContext.s3Bucket, 'strategies-production.json');
+  const configServicePSP: ConfigServicePSP = new ConfigServicePSP(_appContext.S3_BUCKET, 'strategies-production.json');
   await configServicePSP.refreshStrategyConfig();
 
   const eventProcessorService = new EventProcessorService(
