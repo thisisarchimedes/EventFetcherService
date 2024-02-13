@@ -15,7 +15,7 @@ export class LoggerPort extends Logger {
     const timestamp = new Date().toISOString();
     const logMessage = `[${timestamp}] ${level}: ${message}\n`;
 
-    fs.appendFileSync(this.logFilePath, logMessage, { encoding: 'utf-8' });
+    fs.appendFileSync(this.logFilePath, logMessage, {encoding: 'utf-8'});
   }
 
   public info(message: string): void {
@@ -30,7 +30,7 @@ export class LoggerPort extends Logger {
     this.log('ERROR', message);
   }
 
-  public getLastMessage(): string {
+  public getLastMessageRawString(): string {
     try {
       const fileContent = fs.readFileSync(this.logFilePath, {encoding: 'utf-8'});
       const lines = fileContent.split('\n');

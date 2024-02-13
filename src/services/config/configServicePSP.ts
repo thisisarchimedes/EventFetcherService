@@ -1,4 +1,3 @@
-import { cons } from 'fp-ts/lib/ReadonlyNonEmptyArray';
 import {ConfigService} from './ConfigService';
 
 export interface PSPStrategyConfig {

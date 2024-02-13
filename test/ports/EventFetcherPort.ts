@@ -20,5 +20,5 @@ export class EventFetcherPort implements EventFetcher {
     } catch (err) {
       console.error(`Error reading file from disk: ${err}`);
     }
-}
+  }
 }

@@ -1,7 +1,6 @@
 import {expect} from 'chai';
 import {EventFetcherRPC} from '../../src/services/blockchain/EventFetcherRPC';
 import dotenv from 'dotenv';
-import exp from 'constants';
 
 dotenv.config();
 

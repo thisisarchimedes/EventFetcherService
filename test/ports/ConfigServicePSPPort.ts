@@ -1,7 +1,5 @@
-import { readFile } from 'fs';
-import { ConfigServicePSP } from '../../src/services/config/ConfigServicePSP';
-import { promises as fsPromises } from 'fs';
-
+import {ConfigServicePSP} from '../../src/services/config/ConfigServicePSP';
+import {promises as fsPromises} from 'fs';
 
 export class ConfigServicePSPPort extends ConfigServicePSP {
   constructor(fileName: string) {
@@ -17,5 +15,4 @@ export class ConfigServicePSPPort extends ConfigServicePSP {
       console.error('Error reading file or refreshing strategy config:', error);
     }
   }
-
 }

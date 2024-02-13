@@ -59,7 +59,7 @@ export class ConfigServiceLeverage extends ConfigService {
     );
   }
 
- 
+
   async getEnvironmentContext(): Promise<EnvironmentContext> {
     const {
       environment,

@@ -8,7 +8,7 @@ import {ConfigServicePSPPort} from '../ports/ConfigServicePSPPort';
 
 import {EventFactory} from '../../src/onchain_events/EventFactory';
 import {OnChainEvent} from '../../src/onchain_events/OnChainEvent';
-import { LogMessage } from '../../src/types/LogMessage';
+import {LogMessage} from '../../src/types/LogMessage';
 
 
 describe('PSP Events Logging', function() {
@@ -54,16 +54,15 @@ describe('PSP Events Logging', function() {
       amount: '5000000',
     };
 
-    validateLogMessage(logger.getLastMessage(), expectedLogMessage);
+    const actualLogMessage = JSON.parse(logger.getLastMessageRawString().split('INFO: ')[1]);
+    validateLogMessage(actualLogMessage, expectedLogMessage);
   });
 
-  function validateLogMessage(actualLogMessage: string, expectedLogMessage: LogMessage) {
-    const logMessage = JSON.parse(actualLogMessage.split('INFO: ')[1]);
-
-    expect(logMessage.event).to.equal(expectedLogMessage.event);
-    expect(logMessage.user).to.equal(expectedLogMessage.user);
-    expect(logMessage.strategy).to.equal(expectedLogMessage.strategy);
-    expect(logMessage.amount).to.equal(expectedLogMessage.amount);
+  function validateLogMessage(actualLogMessage: LogMessage, expectedLogMessage: LogMessage) {
+    expect(actualLogMessage.event).to.equal(expectedLogMessage.event);
+    expect(actualLogMessage.user).to.equal(expectedLogMessage.user);
+    expect(actualLogMessage.strategy).to.equal(expectedLogMessage.strategy);
+    expect(actualLogMessage.amount).to.equal(expectedLogMessage.amount);
   }
 });
 
