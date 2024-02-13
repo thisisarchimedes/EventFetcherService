@@ -47,7 +47,7 @@ describe('PSP Events Logging', function() {
 
     onChainEvents[0].process();
 
-    const expectedLogMessage = {
+    const expectedLogMessage: LogMessage = {
       event: 'Deposit',
       user: '0x93B435e55881Ea20cBBAaE00eaEdAf7Ce366BeF2',
       strategy: 'Convex FRAXBP/msUSD Single Pool',
@@ -79,7 +79,7 @@ describe('PSP Events Logging', function() {
 
     onChainEvents[0].process();
 
-    const expectedLogMessage = {
+    const expectedLogMessage: LogMessage = {
       event: 'Withdraw',
       user: '0x5B63D628f307042BF9F28aB5C867f89ee231Ef58',
       strategy: 'Convex ETH+/ETH Single Pool',
