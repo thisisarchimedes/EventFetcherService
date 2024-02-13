@@ -11,6 +11,9 @@ import {
 import {EnvironmentContext} from './types/EnvironmentContext';
 import {ProcessedEvent} from './types/ProcessedEvent';
 import {EventData} from './types/EventData';
+import {ConfigServicePSP} from './services/config/configServicePSP';
+import {EventFactory} from './onchain_events/EventFactory';
+import {EventFetcherRPC} from './services/blockchain/eventFetcherRPC';
 
 dotenv.config();
 
@@ -35,6 +38,9 @@ export class EventProcessorService implements IEventProcessorService {
   private readonly logger: Logger;
   private readonly _context: EnvironmentContext;
 
+  private readonly configServicePSP: ConfigServicePSP;
+  private readonly eventFactory: EventFactory;
+
   constructor(
       mainProvider: ethers.providers.Provider,
       altProvider: ethers.providers.Provider,
@@ -42,6 +48,7 @@ export class EventProcessorService implements IEventProcessorService {
       sqsService: SQSService,
       logger: Logger,
       context: EnvironmentContext,
+      configServicePSP: ConfigServicePSP,
   ) {
     this.mainProvider = mainProvider;
     this.altProvider = altProvider;
@@ -49,6 +56,9 @@ export class EventProcessorService implements IEventProcessorService {
     this.sqsService = sqsService;
     this.logger = logger;
     this._context = context;
+
+    this.configServicePSP = configServicePSP;
+    this.eventFactory = new EventFactory(this.configServicePSP, this.logger);
   }
 
   public async execute(): Promise<void> {
@@ -60,18 +70,9 @@ export class EventProcessorService implements IEventProcessorService {
 
       const lastBlock = await this.getLastScannedBlock();
       const currentBlock = await this.getCurrentBlockNumber();
-      const events : ProcessedEvent[] = await this.fetchAndProcessEvents(lastBlock, currentBlock);
 
-      if (events.length > 0) {
-        this.logger.info(
-            `Fetched ${events.length} events from blocks ${lastBlock} to ${currentBlock}`,
-        );
-        await this.queueEvents(events);
-      } else {
-        this.logger.info(
-            `No new events found on blocks ${lastBlock} to ${currentBlock}`,
-        );
-      }
+      await this.processAndQueueLeverageEvents(lastBlock, currentBlock);
+      await this.processPSPEvents(lastBlock, currentBlock);
 
       await this.setLastScannedBlock(currentBlock);
       this.logger.info('Event fetcher workflow completed.');
@@ -79,6 +80,39 @@ export class EventProcessorService implements IEventProcessorService {
       this.logger.error(`Error in event fetcher workflow: ${error}`);
     } finally {
       await this.logger.flush();
+    }
+  }
+
+  private async processAndQueueLeverageEvents(lastBlock: number, currentBlock: number) {
+    const events: ProcessedEvent[] = await this.fetchAndProcessEvents(lastBlock, currentBlock);
+
+    if (events.length > 0) {
+      this.logger.info(
+          `Fetched ${events.length} events from blocks ${lastBlock} to ${currentBlock}`,
+      );
+
+      await this.queueEvents(events);
+    } else {
+      this.logger.info(
+          `No new events found on blocks ${lastBlock} to ${currentBlock}`,
+      );
+    }
+  }
+
+  private async processPSPEvents(lastBlock: number, currentBlock: number) {
+    const eventFetcher = new EventFetcherRPC(this._context.rpcAddress, this._context.alternateRpcAddress);
+
+    const eventsLog = await eventFetcher.getOnChainEvents(lastBlock, currentBlock);
+
+    for (const event of eventsLog) {
+      try {
+        const evt = this.eventFactory.createEvent(event);
+        evt.process();
+      } catch (e) {
+        if ((e as Error).message === 'Unknown strategy address') {
+          continue;
+        }
+      }
     }
   }
 
@@ -194,12 +228,12 @@ export class EventProcessorService implements IEventProcessorService {
           descriptor.contractType == ContractType.Opener ?
             this._context.positionOpenerAddress :
             descriptor.contractType == ContractType.Closer ?
-            this._context.positionCloserAddress :
-            descriptor.contractType == ContractType.Liquidator ?
-            this._context.positionLiquidatorAddress :
-            descriptor.contractType == ContractType.Expirator ?
-            this._context.positionExpiratorAddress :
-            '';
+              this._context.positionCloserAddress :
+              descriptor.contractType == ContractType.Liquidator ?
+                this._context.positionLiquidatorAddress :
+                descriptor.contractType == ContractType.Expirator ?
+                  this._context.positionExpiratorAddress :
+                  '';
 
         if (contractAddress.length == 0) continue;
 
@@ -224,8 +258,7 @@ export class EventProcessorService implements IEventProcessorService {
   private async queueEvents(events: ProcessedEvent[]): Promise<void> {
     for (const event of events) {
       this.logger.info(
-          `Appending message to queue ${
-            this._context.NEW_EVENTS_QUEUE_URL
+          `Appending message to queue ${this._context.NEW_EVENTS_QUEUE_URL
           }\n msg ${JSON.stringify(event)}`,
       );
       await this.sqsService.sendMessage(

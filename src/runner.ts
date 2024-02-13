@@ -3,6 +3,7 @@ import {EventProcessorService} from './EventProcessorService';
 import {ConfigServiceLeverage} from './services/config/configServiceLeverage';
 import {ethers} from 'ethers';
 import {EnvironmentContext} from './types/EnvironmentContext';
+import {ConfigServicePSP} from './services/config/configServicePSP';
 
 const s3Service = new S3Service();
 const sqsService = new SQSService();
@@ -27,6 +28,9 @@ export const handler = async (
       _appContext.alternateRpcAddress ?? '',
   );
 
+  const configServicePSP: ConfigServicePSP = new ConfigServicePSP(_appContext.s3Bucket, 'strategies-production.json');
+  await configServicePSP.refreshStrategyConfig();
+
   const eventProcessorService = new EventProcessorService(
       mainrovider,
       altProvider,
@@ -34,6 +38,7 @@ export const handler = async (
       sqsService,
       logger,
       _appContext,
+      configServicePSP,
   );
 
   await eventProcessorService.execute();
