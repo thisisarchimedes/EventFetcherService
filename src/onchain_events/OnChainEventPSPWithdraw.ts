@@ -4,10 +4,10 @@ import {OnChainEvent} from './OnChainEvent';
 import {PSPStrategyConfig} from '../services/config/configServicePSP';
 import {Logger} from '@thisisarchimedes/backend-sdk';
 
-export class OnChainEventPSPDeposit extends OnChainEvent {
+export class OnChainEventPSPWithdraw extends OnChainEvent {
   constructor(eventLog: ethers.providers.Log, strategyConfig: PSPStrategyConfig, logger: Logger) {
     super(strategyConfig, logger);
-    this.eventName = 'Deposit';
+    this.eventName = 'Withdraw';
     this.parseEventLog(eventLog);
   }
 
@@ -38,6 +38,6 @@ export class OnChainEventPSPDeposit extends OnChainEvent {
   }
 
   private setAmountFromEventLog(eventLog: ethers.providers.Log): void {
-    this.amount = (ethers.utils.defaultAbiCoder.decode(['uint256', 'uint256'], eventLog.data))[1];
+    this.amount = (ethers.utils.defaultAbiCoder.decode(['uint256', 'uint256'], eventLog.data))[0];
   }
 }

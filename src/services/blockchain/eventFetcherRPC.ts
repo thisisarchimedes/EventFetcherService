@@ -17,6 +17,8 @@ export class EventFetcherRPC implements EventFetcher {
       toBlock: blockNumberTo,
     };
 
+    // TODO: add topics to the filter to only fetch the events we are interested in
+
     const logs = await this.fetchLogsFromBlockchain(filter);
     return logs;
   }

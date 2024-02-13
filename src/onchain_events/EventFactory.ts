@@ -2,8 +2,11 @@ import {ethers} from 'ethers';
 import {ConfigServicePSP, PSPStrategyConfig} from '../services/config/configServicePSP';
 import {Logger} from '@thisisarchimedes/backend-sdk';
 import {OnChainEventPSPDeposit} from './OnChainEventPSPDeposit';
+import {OnChainEventPSPWithdraw} from './OnChainEventPSPWithdraw';
+import {OnChainEvent} from './OnChainEvent';
 
 const TOPIC_EVENT_PSP_DEPOSIT = '0xdcbc1c05240f31ff3ad067ef1ee35ce4997762752e3a095284754544f4c709d7';
+const TOPIC_EVENT_PSP_WITHDRAW = '0xfbde797d201c681b91056529119e0b02407c7bb96a4a2c75c01fc9667232c8db';
 
 export class EventFactory {
   private configService: ConfigServicePSP;
@@ -14,7 +17,7 @@ export class EventFactory {
     this.logger = logger;
   }
 
-  public createEvent(eventLog: ethers.providers.Log): OnChainEventPSPDeposit {
+  public createEvent(eventLog: ethers.providers.Log): OnChainEvent {
     let errorMessage;
 
     const strategyConfig = this.findStrategyConfigByEventContractAddress(eventLog.address);
@@ -22,6 +25,9 @@ export class EventFactory {
     switch (eventLog.topics[0]) {
       case TOPIC_EVENT_PSP_DEPOSIT:
         return new OnChainEventPSPDeposit(eventLog, strategyConfig, this.logger);
+
+      case TOPIC_EVENT_PSP_WITHDRAW:
+        return new OnChainEventPSPWithdraw(eventLog, strategyConfig, this.logger);
 
       default:
         errorMessage = `Unhandled event topic: ${eventLog.topics[0]}`;

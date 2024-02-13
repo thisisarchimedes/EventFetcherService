@@ -6,6 +6,7 @@ export class OnChainEvent {
   protected strategyConfig: PSPStrategyConfig;
   protected logger: Logger;
 
+  protected amount: bigint = BigInt(0);
   protected userAddress: string = '';
 
   constructor(strategyConfig: PSPStrategyConfig, logger: Logger) {
