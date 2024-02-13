@@ -7,7 +7,7 @@ import {EventFetcherPort} from '../ports/EventFetcherPort';
 import {ConfigServicePSPPort} from '../ports/ConfigServicePSPPort';
 
 import {EventFactory} from '../../src/onchain_events/EventFactory';
-import {OnChainEvent} from '../../src/onchain_events/OnChainEvent';
+import {OnChainEventPSP} from '../../src/onchain_events/OnChainEventPSP';
 import {LogMessage} from '../../src/types/LogMessage';
 
 
@@ -30,7 +30,7 @@ describe('PSP Events Logging', function() {
     eventFetcher.setEventArrayFromFile('test/data/depositEvent.json');
     const eventsLog = await eventFetcher.getOnChainEvents(100, 200);
 
-    const onChainEvents: OnChainEvent[] = [];
+    const onChainEvents: OnChainEventPSP[] = [];
 
     for (const event of eventsLog) {
       try {
@@ -62,7 +62,7 @@ describe('PSP Events Logging', function() {
     eventFetcher.setEventArrayFromFile('test/data/withdrawEvent.json');
     const eventsLog = await eventFetcher.getOnChainEvents(100, 200);
 
-    const onChainEvents: OnChainEvent[] = [];
+    const onChainEvents: OnChainEventPSP[] = [];
 
     for (const event of eventsLog) {
       try {
