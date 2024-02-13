@@ -1,4 +1,5 @@
 import {ethers} from 'ethers';
+import {LogMessage} from '../types/LogMessage';
 import {OnChainEvent} from './OnChainEvent';
 import {PSPStrategyConfig} from '../services/config/configServicePSP';
 import {Logger} from '@thisisarchimedes/backend-sdk';
@@ -17,14 +18,14 @@ export class OnChainEventPSPDeposit extends OnChainEvent {
   }
 
   private logDepositEvent(): void {
-    const eventDetails = JSON.stringify({
+    const eventDetails: LogMessage = {
       event: this.eventName,
       user: this.userAddress,
       strategy: this.strategyConfig.strategyName,
       amount: this.amount.toString(),
-    });
+    };
 
-    this.logger.info(eventDetails);
+    this.logger.info(JSON.stringify(eventDetails));
   }
 
   private parseEventLog(eventLog: ethers.providers.Log): void {

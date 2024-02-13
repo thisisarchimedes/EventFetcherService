@@ -8,19 +8,26 @@ import {ConfigServicePSPPort} from '../ports/ConfigServicePSPPort';
 
 import {EventFactory} from '../../src/onchain_events/EventFactory';
 import {OnChainEvent} from '../../src/onchain_events/OnChainEvent';
+import { LogMessage } from '../../src/types/LogMessage';
 
 
 describe('PSP Events Logging', function() {
-  it('should report on Deposit event', async function() {
-    const logger = new LoggerPort('local_logger.txt');
-    const eventFetcher = new EventFetcherPort();
-    eventFetcher.setEventArrayFromFile('test/data/depositEvent.json');
+  let logger: LoggerPort;
+  let eventFetcher: EventFetcherPort;
+  let configService: ConfigServicePSPPort;
+  let eventFactory: EventFactory;
 
-    const configService = new ConfigServicePSPPort('test/data/strategies.json');
+  beforeEach(async function() {
+    logger = new LoggerPort('local_logger.txt');
+    eventFetcher = new EventFetcherPort();
+    configService = new ConfigServicePSPPort('test/data/strategies.json');
     await configService.refreshStrategyConfig();
 
-    const eventFactory = new EventFactory(configService, logger as unknown as Logger);
+    eventFactory = new EventFactory(configService, logger as unknown as Logger);
+  });
 
+  it('should report on Deposit event', async function() {
+    eventFetcher.setEventArrayFromFile('test/data/depositEvent.json');
     const eventsLog = await eventFetcher.getOnChainEvents(100, 200);
 
     const onChainEvents: OnChainEvent[] = [];
@@ -47,13 +54,16 @@ describe('PSP Events Logging', function() {
       amount: '5000000',
     };
 
+    validateLogMessage(logger.getLastMessage(), expectedLogMessage);
+  });
 
-    const logMessage = JSON.parse(logger.getLastMessage().split('INFO: ')[1]);
+  function validateLogMessage(actualLogMessage: string, expectedLogMessage: LogMessage) {
+    const logMessage = JSON.parse(actualLogMessage.split('INFO: ')[1]);
 
     expect(logMessage.event).to.equal(expectedLogMessage.event);
     expect(logMessage.user).to.equal(expectedLogMessage.user);
     expect(logMessage.strategy).to.equal(expectedLogMessage.strategy);
     expect(logMessage.amount).to.equal(expectedLogMessage.amount);
-  });
+  }
 });
 
