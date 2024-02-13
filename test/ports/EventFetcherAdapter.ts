@@ -2,7 +2,7 @@ import {ethers} from 'ethers';
 import {EventFetcher} from '../../src/services/blockchain/eventFetcher';
 import fs from 'fs';
 
-export class EventFetcherPort implements EventFetcher {
+export class EventFetcherAdapter implements EventFetcher {
   private events: ethers.providers.Log[];
 
   constructor() {

@@ -2,8 +2,8 @@ import {Logger} from '@thisisarchimedes/backend-sdk';
 import * as fs from 'fs';
 import * as path from 'path';
 
-export class LoggerPort extends Logger {
-  private static instance: LoggerPort;
+export class LoggerAdapter extends Logger {
+  private static instance: LoggerAdapter;
   private logFilePath: string;
 
   constructor(localFile: string) {

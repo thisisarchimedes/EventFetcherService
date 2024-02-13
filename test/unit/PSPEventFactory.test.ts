@@ -2,9 +2,9 @@ import {Logger} from '@thisisarchimedes/backend-sdk';
 
 import {expect} from 'chai';
 
-import {LoggerPort} from '../ports/LoggerPort';
-import {EventFetcherPort} from '../ports/EventFetcherPort';
-import {ConfigServicePSPPort} from '../ports/ConfigServicePSPPort';
+import {LoggerAdapter} from '../ports/LoggerAdapter';
+import {EventFetcherAdapter} from '../ports/EventFetcherAdapter';
+import {ConfigServicePSPAdapter} from '../ports/ConfigServicePSPAdapter';
 
 import {EventFactory} from '../../src/onchain_events/EventFactory';
 import {OnChainEventPSP} from '../../src/onchain_events/OnChainEventPSP';
@@ -12,15 +12,15 @@ import {LogMessage} from '../../src/types/LogMessage';
 
 
 describe('PSP Events Logging', function() {
-  let logger: LoggerPort;
-  let eventFetcher: EventFetcherPort;
-  let configService: ConfigServicePSPPort;
+  let logger: LoggerAdapter;
+  let eventFetcher: EventFetcherAdapter;
+  let configService: ConfigServicePSPAdapter;
   let eventFactory: EventFactory;
 
   beforeEach(async function() {
-    logger = new LoggerPort('local_logger.txt');
-    eventFetcher = new EventFetcherPort();
-    configService = new ConfigServicePSPPort('test/data/strategies.json');
+    logger = new LoggerAdapter('local_logger.txt');
+    eventFetcher = new EventFetcherAdapter();
+    configService = new ConfigServicePSPAdapter('test/data/strategies.json');
     await configService.refreshStrategyConfig();
 
     eventFactory = new EventFactory(configService, logger as unknown as Logger);

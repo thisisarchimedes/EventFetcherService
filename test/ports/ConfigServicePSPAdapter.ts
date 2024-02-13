@@ -1,7 +1,7 @@
 import {ConfigServicePSP} from '../../src/services/config/ConfigServicePSP';
 import {promises as fsPromises} from 'fs';
 
-export class ConfigServicePSPPort extends ConfigServicePSP {
+export class ConfigServicePSPAdapter extends ConfigServicePSP {
   constructor(fileName: string) {
     super('bucket', fileName);
   }
