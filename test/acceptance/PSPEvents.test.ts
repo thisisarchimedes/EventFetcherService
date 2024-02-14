@@ -1,20 +1,14 @@
-import fs from 'fs';
 import {expect} from 'chai';
 import nock from 'nock';
-import {ethers} from 'ethers';
 import {LoggerAdapter} from '../adapters/LoggerAdapter';
 import {EventFetcherLogEntryMessage, NewRelicLogEntry} from '../../src/types/NewRelicLogEntry';
 import {handler} from '../../src/runner';
 
-interface EthereumRpcRequest {
-  jsonrpc: string;
-  method: string;
-  params: string;
-  id?: number | string;
-}
+import {MockEthereumNode} from './MockEthereumNode';
 
 describe('PSP Events', function() {
   const logger = new LoggerAdapter('local_logger.txt');
+  const mockEthereumNode = new MockEthereumNode('http://ec2-52-4-114-208.compute-1.amazonaws.com:8545');
 
   beforeEach(setupNockInterceptors);
   afterEach(cleanupNock);
@@ -52,13 +46,9 @@ describe('PSP Events', function() {
   }
 
   function mockEthereumNodeResponses() {
-    const dataRaw = fs.readFileSync('test/data/depositEvent.json', 'utf8');
-    const mockData = JSON.parse(dataRaw);
-
-    nock('http://ec2-52-4-114-208.compute-1.amazonaws.com:8545')
-        .persist()
-        .post('/', () => true)
-        .reply(200, createEthereumNodeResponse(mockData));
+    mockEthereumNode.mockChainId();
+    mockEthereumNode.mockBlockNumber();
+    mockEthereumNode.mockEventResponse('test/data/depositEvent.json'); // Specify the event name here
   }
 
   function mockNewRelicLogEndpoint() {
@@ -69,21 +59,6 @@ describe('PSP Events', function() {
           logger.info(JSON.stringify(requestBody));
           return {};
         });
-  }
-
-  function createEthereumNodeResponse(mockData: ethers.providers.Log[]) {
-    return (uri: string, requestBody: EthereumRpcRequest) => {
-      switch (requestBody.method) {
-        case 'eth_chainId':
-          return {jsonrpc: '2.0', id: requestBody.id, result: '0x1'};
-        case 'eth_blockNumber':
-          return {jsonrpc: '2.0', id: requestBody.id, result: '0x5B8D80'};
-        case 'eth_getLogs':
-          return {jsonrpc: '2.0', id: requestBody.id, result: mockData};
-        default:
-          return {message: 'Unhandled method'};
-      }
-    };
   }
 
   function createExpectedLogMessage(): EventFetcherLogEntryMessage {
