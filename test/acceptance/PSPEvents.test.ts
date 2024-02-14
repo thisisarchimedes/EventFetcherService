@@ -19,9 +19,8 @@ describe('PSP Events', function() {
     nock.cleanAll();
     nock('http://ec2-52-4-114-208.compute-1.amazonaws.com:8545')
         .persist()
-        .post('/', (body) => true)
+        .post('/', () => true)
         .reply(200, (uri, requestBody: nock.Body) => {
-        // console.log('Intercepted request to:', uri, ' -> body:', JSON.stringify(requestBody));
 
           // Handle based on the method in requestBody
           switch (requestBody['method']) {
@@ -39,9 +38,8 @@ describe('PSP Events', function() {
 
     nock('https://log-api.newrelic.com')
         .persist()
-        .post('/log/v1', (body) => true) // Match the exact path
+        .post('/log/v1', () => true) // Match the exact path
         .reply(200, (uri, requestBody) => {
-        // console.log('LOG: Intercepted request to New Relic:', uri, ' -> body:', requestBody);
           localLogger.info(JSON.stringify(requestBody));
 
 
@@ -66,28 +64,19 @@ describe('PSP Events', function() {
     const logLines = localLogger.getLastSeveralMessagesRawStrings(3);
     let found: number = 0;
     for (let i = logLines.length - 1; i >= 0; i--) {
-      console.log(`*** ${i} ***`);
-      console.log('logLines[i]', logLines[i].split('INFO: ')[1]);
-      const actualLogMessage: LogEntry = JSON.parse((logLines[i].split('INFO: ')[1]));
-
-      console.log('parsed', actualLogMessage);
-      //    const messageObject = JSON.parse(actualLogMessage.message);
-      const parsedMessage = JSON.parse(actualLogMessage);
-      console.log('parsed 2: ', parsedMessage);
-      console.log('parsed 3:', parsedMessage.message);
-
-      //      console.log('parsed - messageObject', messageObject);
+      const actualLogMessage: LogEntry = JSON.parse(JSON.parse((logLines[i].split('INFO: ')[1])));
 
 
-      console.log(i, ' - actualLogMessage:', parsedMessage.message);
+
+
       try {
-        const ret = JSON.parse(parsedMessage.message) as EventFetcherLogEntryMessage;
+        const ret = JSON.parse(actualLogMessage.message) as EventFetcherLogEntryMessage;
         if (validateLogMessage(ret, expectedLogMessage) == true) {
           found++;
           break;
         }
       } catch (error) {
-        console.error('Error parsing JSON from log:', parsedMessage.message, error);
+         continue;
       }
     }
 
@@ -102,18 +91,6 @@ describe('PSP Events', function() {
       !actualLogMessage.amount) {
       return false;
     }
-
-    console.log('Actual Event:', actualLogMessage.event);
-    console.log('Expected Event:', expectedLogMessage.event);
-
-    console.log('Actual User:', actualLogMessage.user);
-    console.log('Expected User:', expectedLogMessage.user);
-
-    console.log('Actual Strategy:', actualLogMessage.strategy);
-    console.log('Expected Strategy:', expectedLogMessage.strategy);
-
-    console.log('Actual Amount:', actualLogMessage.amount);
-    console.log('Expected Amount:', expectedLogMessage.amount);
 
     const isEventValid = actualLogMessage.event === expectedLogMessage.event;
     const isUserValid = actualLogMessage.user === expectedLogMessage.user;
