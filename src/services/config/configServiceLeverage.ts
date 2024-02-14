@@ -1,4 +1,3 @@
-import {S3Service} from '@thisisarchimedes/backend-sdk';
 import {ContractAddress} from '../../types/ContractAddress';
 import {EnvironmentContext} from '../../types/EnvironmentContext';
 import {ConfigService} from './ConfigService';
@@ -6,9 +5,8 @@ import {ConfigService} from './ConfigService';
 
 export class ConfigServiceLeverage extends ConfigService {
   constructor() {
-    this.s3 = new S3Service();
+    super();
   }
-
 
   private fetchContractAddress(
       name: string,

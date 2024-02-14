@@ -1,8 +1,8 @@
-import {ethers} from 'ethers';
+import { ethers } from 'ethers';
 
-import {Logger} from '@thisisarchimedes/backend-sdk';
-import {PSPStrategyConfig} from '../services/config/configServicePSP';
-import {LogMessage} from '../types/LogMessage';
+import { Logger } from '@thisisarchimedes/backend-sdk';
+import { PSPStrategyConfig } from '../services/config/configServicePSP';
+import { EventFetcherLogEntryMessage } from '../types/NewRelicLogEntry';
 
 export class OnChainEventPSP {
   protected eventName: string = '';
@@ -32,7 +32,7 @@ export class OnChainEventPSP {
   }
 
   private logDepositEvent(): void {
-    const eventDetails: LogMessage = {
+    const eventDetails: EventFetcherLogEntryMessage = {
       event: this.eventName,
       user: this.userAddress,
       strategy: this.strategyConfig.strategyName,

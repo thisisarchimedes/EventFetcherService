@@ -46,7 +46,6 @@ export class EventFactory {
     }
 
     const errorMessage = `Unknown strategy address: ${eventAddress}`;
-    this.logger.error(errorMessage);
     throw new Error(errorMessage);
   }
 }

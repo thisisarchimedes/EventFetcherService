@@ -14,12 +14,13 @@ export const handler = async (
     // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
     _context: any,
 ): Promise<void> => {
+
   Logger.initialize('Events fetcher');
 
   const configService = new ConfigServiceLeverage();
-
   const _appContext: EnvironmentContext = await configService.getEnvironmentContext();
   const logger = Logger.getInstance();
+
 
   const mainrovider = new ethers.providers.JsonRpcProvider(
       _appContext.rpcAddress ?? '',
@@ -28,7 +29,7 @@ export const handler = async (
       _appContext.alternateRpcAddress ?? '',
   );
 
-  const configServicePSP: ConfigServicePSP = new ConfigServicePSP(_appContext.S3_BUCKET, 'strategies-production.json');
+  const configServicePSP: ConfigServicePSP = new ConfigServicePSP('smart-contract-backend-config', 'strategies-production.json');
   await configServicePSP.refreshStrategyConfig();
 
   const eventProcessorService = new EventProcessorService(

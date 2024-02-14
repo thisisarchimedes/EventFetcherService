@@ -1,4 +1,4 @@
-import {Logger} from '@thisisarchimedes/backend-sdk';
+import { Logger } from '@thisisarchimedes/backend-sdk';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -13,9 +13,10 @@ export class LoggerAdapter extends Logger {
 
   private log(level: string, message: string): void {
     const timestamp = new Date().toISOString();
+    message = JSON.stringify(message);
     const logMessage = `[${timestamp}] ${level}: ${message}\n`;
 
-    fs.appendFileSync(this.logFilePath, logMessage, {encoding: 'utf-8'});
+    fs.appendFileSync(this.logFilePath, logMessage, { encoding: 'utf-8' });
   }
 
   public info(message: string): void {
@@ -32,14 +33,25 @@ export class LoggerAdapter extends Logger {
 
   public getLastMessageRawString(): string {
     try {
-      const fileContent = fs.readFileSync(this.logFilePath, {encoding: 'utf-8'});
+      const fileContent = fs.readFileSync(this.logFilePath, { encoding: 'utf-8' });
       const lines = fileContent.split('\n');
-      // Filter out empty lines and return the last line
       const lastLine = lines.filter((line) => line.trim() !== '').pop() || 'No messages logged.';
       return lastLine;
     } catch (error) {
       console.error('Error reading log file:', error);
       return 'Error reading log file.';
+    }
+  }
+
+  public getLastSeveralMessagesRawStrings(numLines: number): string[] {
+    try {
+      const fileContent = fs.readFileSync(this.logFilePath, { encoding: 'utf-8' });
+      const lines = fileContent.split('\n');
+      const lastLines = lines.filter((line) => line.trim() !== '').slice(-numLines);
+      return lastLines.length > 0 ? lastLines : ['No messages logged.'];
+    } catch (error) {
+      console.error('Error reading log file:', error);
+      return ['Error reading log file.'];
     }
   }
 }

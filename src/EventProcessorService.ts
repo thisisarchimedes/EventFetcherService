@@ -101,7 +101,6 @@ export class EventProcessorService implements IEventProcessorService {
 
   private async processPSPEvents(lastBlock: number, currentBlock: number) {
     const eventFetcher = new EventFetcherRPC(this._context.rpcAddress, this._context.alternateRpcAddress);
-
     const eventsLog = await eventFetcher.getOnChainEvents(lastBlock, currentBlock);
 
     for (const event of eventsLog) {
@@ -271,9 +270,15 @@ export class EventProcessorService implements IEventProcessorService {
   async getLastScannedBlock(): Promise<number> {
     const currentBlockNumber = await this.getCurrentBlockNumber();
     const defaultBlockNumber = Math.max(currentBlockNumber - 1000, 0);
-    return this._context.lastBlockScanned > 0 ?
-      this._context.lastBlockScanned :
-      defaultBlockNumber;
+    const lastBlockScanned = this._context.lastBlockScanned;
+
+    if (lastBlockScanned == 0 ||
+        currentBlockNumber - lastBlockScanned > 1000 ||
+        lastBlockScanned > currentBlockNumber) {
+      return defaultBlockNumber;
+    }
+
+    return lastBlockScanned;
   }
 
   async setLastScannedBlock(blockNumber: number): Promise<void> {
