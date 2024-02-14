@@ -6,6 +6,13 @@ import {LoggerAdapter} from '../adapters/LoggerAdapter';
 import {EventFetcherLogEntryMessage, NewRelicLogEntry} from '../../src/types/NewRelicLogEntry';
 import {handler} from '../../src/runner';
 
+interface EthereumRpcRequest {
+  jsonrpc: string;
+  method: string;
+  params: string;
+  id?: number | string;
+}
+
 describe('PSP Events', function() {
   const logger = new LoggerAdapter('local_logger.txt');
 
@@ -16,7 +23,7 @@ describe('PSP Events', function() {
     await handler(0, 0);
 
     const expectedLog = createExpectedLogMessage();
-    const actualLog = findMatchingLogEntry(logger, expectedLog);
+    const actualLog = findMatchingLogEntry(logger);
 
     expect(actualLog).to.not.be.null;
     const res = validateLogMessage(actualLog as EventFetcherLogEntryMessage, expectedLog);
@@ -65,7 +72,7 @@ describe('PSP Events', function() {
   }
 
   function createEthereumNodeResponse(mockData: ethers.providers.Log[]) {
-    return (uri: string, requestBody: any) => {
+    return (uri: string, requestBody: EthereumRpcRequest) => {
       switch (requestBody.method) {
         case 'eth_chainId':
           return {jsonrpc: '2.0', id: requestBody.id, result: '0x1'};
