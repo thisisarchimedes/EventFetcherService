@@ -1,6 +1,7 @@
 import fs from 'fs';
 import nock from 'nock';
 import {ethers} from 'ethers';
+import {Mock} from './Mock';
 
 interface EthereumRpcRequest {
   jsonrpc: string;
@@ -9,10 +10,11 @@ interface EthereumRpcRequest {
   id?: number | string;
 }
 
-export class MockEthereumNode {
+export class MockEthereumNode extends Mock {
   private baseUrl: string;
 
   constructor(baseUrl: string) {
+    super();
     this.baseUrl = baseUrl;
   }
 

@@ -5,10 +5,13 @@ import {EventFetcherLogEntryMessage, NewRelicLogEntry} from '../../src/types/New
 import {handler} from '../../src/runner';
 
 import {MockEthereumNode} from './MockEthereumNode';
+import {MockNewRelic} from './MockNewRelic';
 
 describe('PSP Events', function() {
   const logger = new LoggerAdapter('local_logger.txt');
   const mockEthereumNode = new MockEthereumNode('http://ec2-52-4-114-208.compute-1.amazonaws.com:8545');
+  const mockNewRelic = new MockNewRelic('https://log-api.newrelic.com', logger);
+
 
   beforeEach(setupNockInterceptors);
   afterEach(cleanupNock);
@@ -17,10 +20,10 @@ describe('PSP Events', function() {
     await handler(0, 0);
 
     const expectedLog = createExpectedLogMessage();
-    const actualLog = findMatchingLogEntry(logger);
+    const actualLog = mockNewRelic.findMatchingLogEntry(logger);
 
     expect(actualLog).to.not.be.null;
-    const res = validateLogMessage(actualLog as EventFetcherLogEntryMessage, expectedLog);
+    const res: boolean = validateLogMessage(actualLog as EventFetcherLogEntryMessage, expectedLog);
     expect(res).to.be.true;
   });
 
@@ -42,23 +45,17 @@ describe('PSP Events', function() {
   }
 
   function cleanupNock() {
-    mockEthereumNode.cleanup();
+    nock.cleanAll();
   }
 
   function mockEthereumNodeResponses() {
     mockEthereumNode.mockChainId();
     mockEthereumNode.mockBlockNumber();
-    mockEthereumNode.mockEventResponse('test/data/depositEvent.json'); // Specify the event name here
+    mockEthereumNode.mockEventResponse('test/data/depositEvent.json');
   }
 
   function mockNewRelicLogEndpoint() {
-    nock('https://log-api.newrelic.com')
-        .persist()
-        .post('/log/v1', () => true)
-        .reply(200, (_, requestBody) => {
-          logger.info(JSON.stringify(requestBody));
-          return {};
-        });
+    mockNewRelic.mockLogEndpoint();
   }
 
   function createExpectedLogMessage(): EventFetcherLogEntryMessage {
@@ -68,28 +65,5 @@ describe('PSP Events', function() {
       strategy: 'Convex FRAXBP/msUSD Single Pool',
       amount: '5000000',
     };
-  }
-
-  function findMatchingLogEntry(logger: LoggerAdapter): EventFetcherLogEntryMessage | null {
-    const logLines = logger.getLastSeveralMessagesRawStrings(3);
-
-    for (let i = logLines.length - 1; i >= 0; i--) {
-      const logEntry = parseLogEntry(logLines[i]);
-      if (logEntry == null) {
-        continue;
-      }
-      return logEntry;
-    }
-
-    return null;
-  }
-
-  function parseLogEntry(logLine: string): EventFetcherLogEntryMessage | null {
-    try {
-      const logEntry: NewRelicLogEntry = JSON.parse(JSON.parse(logLine.split('INFO: ')[1]));
-      return JSON.parse(String(logEntry.message));
-    } catch (error) {
-      return null;
-    }
   }
 });
