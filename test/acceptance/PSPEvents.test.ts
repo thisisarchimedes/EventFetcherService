@@ -42,7 +42,7 @@ describe('PSP Events', function() {
   }
 
   function cleanupNock() {
-    nock.cleanAll();
+    mockEthereumNode.cleanup();
   }
 
   function mockEthereumNodeResponses() {
