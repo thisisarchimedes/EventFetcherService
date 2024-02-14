@@ -26,6 +26,15 @@ describe('PSP Events', function() {
     expect(res).to.be.true;
   });
 
+  function createExpectedLogMessage(): EventFetcherLogEntryMessage {
+    return {
+      event: 'Deposit',
+      user: '0x93B435e55881Ea20cBBAaE00eaEdAf7Ce366BeF2',
+      strategy: 'Convex FRAXBP/msUSD Single Pool',
+      amount: '5000000',
+    };
+  }
+
   function validateLogMessage(
       actualLog: EventFetcherLogEntryMessage,
       expectedLog: EventFetcherLogEntryMessage,
@@ -43,10 +52,6 @@ describe('PSP Events', function() {
     mockNewRelicLogEndpoint();
   }
 
-  function cleanupNock() {
-    nock.cleanAll();
-  }
-
   function mockEthereumNodeResponses() {
     mockEthereumNode.mockChainId();
     mockEthereumNode.mockBlockNumber();
@@ -57,12 +62,7 @@ describe('PSP Events', function() {
     mockNewRelic.mockLogEndpoint();
   }
 
-  function createExpectedLogMessage(): EventFetcherLogEntryMessage {
-    return {
-      event: 'Deposit',
-      user: '0x93B435e55881Ea20cBBAaE00eaEdAf7Ce366BeF2',
-      strategy: 'Convex FRAXBP/msUSD Single Pool',
-      amount: '5000000',
-    };
+  function cleanupNock() {
+    nock.cleanAll();
   }
 });
