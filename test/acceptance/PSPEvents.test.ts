@@ -1,108 +1,113 @@
 import fs from 'fs';
 import {expect} from 'chai';
 import nock from 'nock';
-
-import {EventFetcherLogEntryMessage, NewRelicLogEntry} from '../../src/types/NewRelicLogEntry';
-import {handler} from '../../src/runner';
 import {ethers} from 'ethers';
 import {LoggerAdapter} from '../adapters/LoggerAdapter';
-
+import {EventFetcherLogEntryMessage, NewRelicLogEntry} from '../../src/types/NewRelicLogEntry';
+import {handler} from '../../src/runner';
 
 describe('PSP Events', function() {
-  const localLogger: LoggerAdapter = new LoggerAdapter('local_logger.txt');
+  const logger = new LoggerAdapter('local_logger.txt');
 
-  beforeEach(function() {
-    const dataRaw = fs.readFileSync('test/data/depositEvent.json', 'utf8');
-    const data: ethers.providers.Log[] = JSON.parse(dataRaw);
-
-
-    nock.cleanAll();
-    nock('http://ec2-52-4-114-208.compute-1.amazonaws.com:8545')
-        .persist()
-        .post('/', () => true)
-        .reply(200, (uri, requestBody: nock.Body) => {
-          // Handle based on the method in requestBody
-          switch (requestBody['method']) {
-            case 'eth_chainId':
-              return {jsonrpc: '2.0', id: requestBody['id'], result: '0x1'};
-            case 'eth_blockNumber':
-              return {jsonrpc: '2.0', id: requestBody['id'], result: '0x5B8D80'};
-            case 'eth_getLogs':
-            // Provide a mock response specific to eth_getLogs
-              return {jsonrpc: '2.0', id: requestBody['id'], result: data}; // Adjust based on expected result
-            default:
-              return {message: 'Unhandled method'};
-          }
-        });
-
-    nock('https://log-api.newrelic.com')
-        .persist()
-        .post('/log/v1', () => true) // Match the exact path
-        .reply(200, (uri, requestBody) => {
-          localLogger.info(JSON.stringify(requestBody));
-
-
-          return {};
-        });
-  });
-
-  afterEach(function() {
-    nock.cleanAll();
-  });
+  beforeEach(setupNockInterceptors);
+  afterEach(cleanupNock);
 
   it('should catch and report on Deposit event', async function() {
     await handler(0, 0);
 
-    const expectedLogMessage: EventFetcherLogEntryMessage = {
+    const expectedLog = createExpectedLogMessage();
+    const actualLog = findMatchingLogEntry(logger, expectedLog);
+
+    expect(actualLog).to.not.be.null;
+    const res = validateLogMessage(actualLog as EventFetcherLogEntryMessage, expectedLog);
+    expect(res).to.be.true;
+  });
+
+  function validateLogMessage(
+      actualLog: EventFetcherLogEntryMessage,
+      expectedLog: EventFetcherLogEntryMessage,
+  ): boolean {
+    return (
+      actualLog.event === expectedLog.event &&
+    actualLog.user === expectedLog.user &&
+    actualLog.strategy === expectedLog.strategy &&
+    actualLog.amount === expectedLog.amount
+    );
+  }
+
+  function setupNockInterceptors() {
+    mockEthereumNodeResponses();
+    mockNewRelicLogEndpoint();
+  }
+
+  function cleanupNock() {
+    nock.cleanAll();
+  }
+
+  function mockEthereumNodeResponses() {
+    const dataRaw = fs.readFileSync('test/data/depositEvent.json', 'utf8');
+    const mockData = JSON.parse(dataRaw);
+
+    nock('http://ec2-52-4-114-208.compute-1.amazonaws.com:8545')
+        .persist()
+        .post('/', () => true)
+        .reply(200, createEthereumNodeResponse(mockData));
+  }
+
+  function mockNewRelicLogEndpoint() {
+    nock('https://log-api.newrelic.com')
+        .persist()
+        .post('/log/v1', () => true)
+        .reply(200, (_, requestBody) => {
+          logger.info(JSON.stringify(requestBody));
+          return {};
+        });
+  }
+
+  function createEthereumNodeResponse(mockData: ethers.providers.Log[]) {
+    return (uri: string, requestBody: any) => {
+      switch (requestBody.method) {
+        case 'eth_chainId':
+          return {jsonrpc: '2.0', id: requestBody.id, result: '0x1'};
+        case 'eth_blockNumber':
+          return {jsonrpc: '2.0', id: requestBody.id, result: '0x5B8D80'};
+        case 'eth_getLogs':
+          return {jsonrpc: '2.0', id: requestBody.id, result: mockData};
+        default:
+          return {message: 'Unhandled method'};
+      }
+    };
+  }
+
+  function createExpectedLogMessage(): EventFetcherLogEntryMessage {
+    return {
       event: 'Deposit',
       user: '0x93B435e55881Ea20cBBAaE00eaEdAf7Ce366BeF2',
       strategy: 'Convex FRAXBP/msUSD Single Pool',
       amount: '5000000',
     };
+  }
 
-    const logLines = localLogger.getLastSeveralMessagesRawStrings(3);
-    let found: number = 0;
+  function findMatchingLogEntry(logger: LoggerAdapter): EventFetcherLogEntryMessage | null {
+    const logLines = logger.getLastSeveralMessagesRawStrings(3);
+
     for (let i = logLines.length - 1; i >= 0; i--) {
-      const actualLogMessage: NewRelicLogEntry = JSON.parse(JSON.parse((logLines[i].split('INFO: ')[1])));
-
-      try {
-        const ret = JSON.parse(String(actualLogMessage.message)) as EventFetcherLogEntryMessage;
-        if (validateLogMessage(ret, expectedLogMessage) == true) {
-          found++;
-          break;
-        }
-      } catch (error) {
+      const logEntry = parseLogEntry(logLines[i]);
+      if (logEntry == null) {
         continue;
       }
+      return logEntry;
     }
 
-    expect(found).to.eq(1);
-  });
+    return null;
+  }
 
-  function validateLogMessage(actualLogMessage: EventFetcherLogEntryMessage,
-      expectedLogMessage: EventFetcherLogEntryMessage): boolean {
-    if (!isLogMessageValid(actualLogMessage)) {
-      return false;
+  function parseLogEntry(logLine: string): EventFetcherLogEntryMessage | null {
+    try {
+      const logEntry: NewRelicLogEntry = JSON.parse(JSON.parse(logLine.split('INFO: ')[1]));
+      return JSON.parse(String(logEntry.message));
+    } catch (error) {
+      return null;
     }
-
-    const isEventValid = isFieldValid(actualLogMessage.event, expectedLogMessage.event);
-    const isUserValid = isFieldValid(actualLogMessage.user, expectedLogMessage.user);
-    const isStrategyValid = isFieldValid(actualLogMessage.strategy, expectedLogMessage.strategy);
-    const isAmountValid = isFieldValid(actualLogMessage.amount, expectedLogMessage.amount);
-
-    return isEventValid && isUserValid && isStrategyValid && isAmountValid;
-  }
-
-  function isLogMessageValid(logMessage: EventFetcherLogEntryMessage): boolean {
-    return !!logMessage &&
-      !!logMessage.event &&
-      !!logMessage.user &&
-      !!logMessage.strategy &&
-      !!logMessage.amount;
-  }
-
-  function isFieldValid(actualValue: string, expectedValue: string): boolean {
-    return actualValue === expectedValue;
   }
 });
-
