@@ -2,7 +2,7 @@ import fs from 'fs';
 import {expect} from 'chai';
 import nock from 'nock';
 
-import {EventFetcherLogEntryMessage} from '../../src/types/NewRelicLogEntry';
+import {EventFetcherLogEntryMessage, NewRelicLogEntry} from '../../src/types/NewRelicLogEntry';
 import {handler} from '../../src/runner';
 import {ethers} from 'ethers';
 import {LoggerAdapter} from '../adapters/LoggerAdapter';
@@ -21,7 +21,6 @@ describe('PSP Events', function() {
         .persist()
         .post('/', () => true)
         .reply(200, (uri, requestBody: nock.Body) => {
-
           // Handle based on the method in requestBody
           switch (requestBody['method']) {
             case 'eth_chainId':
@@ -64,40 +63,46 @@ describe('PSP Events', function() {
     const logLines = localLogger.getLastSeveralMessagesRawStrings(3);
     let found: number = 0;
     for (let i = logLines.length - 1; i >= 0; i--) {
-      const actualLogMessage: LogEntry = JSON.parse(JSON.parse((logLines[i].split('INFO: ')[1])));
-
-
-
+      const actualLogMessage: NewRelicLogEntry = JSON.parse(JSON.parse((logLines[i].split('INFO: ')[1])));
 
       try {
-        const ret = JSON.parse(actualLogMessage.message) as EventFetcherLogEntryMessage;
+        const ret = JSON.parse(String(actualLogMessage.message)) as EventFetcherLogEntryMessage;
         if (validateLogMessage(ret, expectedLogMessage) == true) {
           found++;
           break;
         }
       } catch (error) {
-         continue;
+        continue;
       }
     }
 
     expect(found).to.eq(1);
   });
 
-  function validateLogMessage(actualLogMessage: EventFetcherLogEntryMessage, expectedLogMessage: EventFetcherLogEntryMessage): boolean {
-    if (!actualLogMessage ||
-      !actualLogMessage.event ||
-      !actualLogMessage.user ||
-      !actualLogMessage.strategy ||
-      !actualLogMessage.amount) {
+  function validateLogMessage(actualLogMessage: EventFetcherLogEntryMessage,
+      expectedLogMessage: EventFetcherLogEntryMessage): boolean {
+    if (!isLogMessageValid(actualLogMessage)) {
       return false;
     }
 
-    const isEventValid = actualLogMessage.event === expectedLogMessage.event;
-    const isUserValid = actualLogMessage.user === expectedLogMessage.user;
-    const isStrategyValid = actualLogMessage.strategy === expectedLogMessage.strategy;
-    const isAmountValid = actualLogMessage.amount === expectedLogMessage.amount;
+    const isEventValid = isFieldValid(actualLogMessage.event, expectedLogMessage.event);
+    const isUserValid = isFieldValid(actualLogMessage.user, expectedLogMessage.user);
+    const isStrategyValid = isFieldValid(actualLogMessage.strategy, expectedLogMessage.strategy);
+    const isAmountValid = isFieldValid(actualLogMessage.amount, expectedLogMessage.amount);
 
     return isEventValid && isUserValid && isStrategyValid && isAmountValid;
+  }
+
+  function isLogMessageValid(logMessage: EventFetcherLogEntryMessage): boolean {
+    return !!logMessage &&
+      !!logMessage.event &&
+      !!logMessage.user &&
+      !!logMessage.strategy &&
+      !!logMessage.amount;
+  }
+
+  function isFieldValid(actualValue: string, expectedValue: string): boolean {
+    return actualValue === expectedValue;
   }
 });
 
