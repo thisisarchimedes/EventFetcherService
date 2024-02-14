@@ -91,7 +91,10 @@ describe('PSP Events Logging', function() {
   });
 
 
-  function validateLogMessage(actualLogMessage: EventFetcherLogEntryMessage, expectedLogMessage: EventFetcherLogEntryMessage) {
+  function validateLogMessage(
+      actualLogMessage: EventFetcherLogEntryMessage,
+      expectedLogMessage: EventFetcherLogEntryMessage,
+  ) {
     expect(actualLogMessage.event).to.equal(expectedLogMessage.event);
     expect(actualLogMessage.user).to.equal(expectedLogMessage.user);
     expect(actualLogMessage.strategy).to.equal(expectedLogMessage.strategy);

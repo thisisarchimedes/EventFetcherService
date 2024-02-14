@@ -28,7 +28,9 @@ export const handler = async (
       _appContext.alternateRpcAddress ?? '',
   );
 
-  const configServicePSP: ConfigServicePSP = new ConfigServicePSP('smart-contract-backend-config', 'strategies-production.json');
+  const pspBucketName = process.env.PSP_STRATEGY_CONFIG_BUCKET as string;
+  const pspFileName = process.env.PSP_STRATEGY_CONFIG_FILE as string;
+  const configServicePSP: ConfigServicePSP = new ConfigServicePSP(pspBucketName, pspFileName);
   await configServicePSP.refreshStrategyConfig();
 
   const eventProcessorService = new EventProcessorService(
