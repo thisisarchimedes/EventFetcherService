@@ -1,7 +1,7 @@
 import {expect} from 'chai';
 import nock from 'nock';
 import {LoggerAdapter} from '../adapters/LoggerAdapter';
-import {EventFetcherLogEntryMessage, NewRelicLogEntry} from '../../src/types/NewRelicLogEntry';
+import {EventFetcherLogEntryMessage} from '../../src/types/NewRelicLogEntry';
 import {handler} from '../../src/runner';
 
 import {MockEthereumNode} from './MockEthereumNode';
@@ -11,7 +11,6 @@ describe('PSP Events', function() {
   const logger = new LoggerAdapter('local_logger.txt');
   const mockEthereumNode = new MockEthereumNode('http://ec2-52-4-114-208.compute-1.amazonaws.com:8545');
   const mockNewRelic = new MockNewRelic('https://log-api.newrelic.com', logger);
-
 
   beforeEach(setupNockInterceptors);
   afterEach(cleanupNock);
@@ -33,9 +32,9 @@ describe('PSP Events', function() {
   ): boolean {
     return (
       actualLog.event === expectedLog.event &&
-    actualLog.user === expectedLog.user &&
-    actualLog.strategy === expectedLog.strategy &&
-    actualLog.amount === expectedLog.amount
+      actualLog.user === expectedLog.user &&
+      actualLog.strategy === expectedLog.strategy &&
+      actualLog.amount === expectedLog.amount
     );
   }
 
