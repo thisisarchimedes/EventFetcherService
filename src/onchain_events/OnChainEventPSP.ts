@@ -1,8 +1,8 @@
-import { ethers } from 'ethers';
+import {ethers} from 'ethers';
 
-import { Logger } from '@thisisarchimedes/backend-sdk';
-import { PSPStrategyConfig } from '../services/config/configServicePSP';
-import { EventFetcherLogEntryMessage } from '../types/NewRelicLogEntry';
+import {Logger} from '@thisisarchimedes/backend-sdk';
+import {PSPStrategyConfig} from '../services/config/configServicePSP';
+import {EventFetcherLogEntryMessage} from '../types/NewRelicLogEntry';
 
 export class OnChainEventPSP {
   protected eventName: string = '';

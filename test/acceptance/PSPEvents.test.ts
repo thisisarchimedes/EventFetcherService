@@ -1,74 +1,59 @@
 import fs from 'fs';
-import { expect } from 'chai';
+import {expect} from 'chai';
 import nock from 'nock';
 
-import { EventFetcherLogEntryMessage } from '../../src/types/NewRelicLogEntry';
-import { handler } from '../../src/runner';
-import { ethers } from 'ethers';
-import { LoggerAdapter } from '../adapters/LoggerAdapter';
-import { local } from 'fp-ts/lib/Reader';
-import { cons } from 'fp-ts/lib/ReadonlyNonEmptyArray';
+import {EventFetcherLogEntryMessage} from '../../src/types/NewRelicLogEntry';
+import {handler} from '../../src/runner';
+import {ethers} from 'ethers';
+import {LoggerAdapter} from '../adapters/LoggerAdapter';
 
-describe('PSP Events', function () {
+
+describe('PSP Events', function() {
   const localLogger: LoggerAdapter = new LoggerAdapter('local_logger.txt');
 
-
-  function parseLogEntries(log: string): LogEntry {
-    try {
-      return JSON.parse(log) as LogEntry;
-    } catch (error) {
-      console.error('Error parsing JSON from log:', log, error);
-      // Find the position of the error in the JSON string
-      const errorPosition = error.message.match(/\d+/)[0];
-      console.error('Error at position:', errorPosition, 'in JSON string:', log.substring(errorPosition - 5, errorPosition + 5));
-      return null;
-    }
-  }
-
-
-  beforeEach(function () {
+  beforeEach(function() {
     const dataRaw = fs.readFileSync('test/data/depositEvent.json', 'utf8');
     const data: ethers.providers.Log[] = JSON.parse(dataRaw);
 
 
     nock.cleanAll();
     nock('http://ec2-52-4-114-208.compute-1.amazonaws.com:8545')
-      .persist()
-      .post('/', (body) => true)
-      .reply(200, (uri, requestBody: nock.Body) => {
+        .persist()
+        .post('/', (body) => true)
+        .reply(200, (uri, requestBody: nock.Body) => {
         // console.log('Intercepted request to:', uri, ' -> body:', JSON.stringify(requestBody));
 
-        // Handle based on the method in requestBody
-        switch (requestBody['method']) {
-          case 'eth_chainId':
-            return { jsonrpc: '2.0', id: requestBody['id'], result: '0x1' };
-          case 'eth_blockNumber':
-            return { jsonrpc: '2.0', id: requestBody['id'], result: '0x5B8D80' };
-          case 'eth_getLogs':
+          // Handle based on the method in requestBody
+          switch (requestBody['method']) {
+            case 'eth_chainId':
+              return {jsonrpc: '2.0', id: requestBody['id'], result: '0x1'};
+            case 'eth_blockNumber':
+              return {jsonrpc: '2.0', id: requestBody['id'], result: '0x5B8D80'};
+            case 'eth_getLogs':
             // Provide a mock response specific to eth_getLogs
-            return { jsonrpc: '2.0', id: requestBody['id'], result: data }; // Adjust based on expected result
-          default:
-            return { message: 'Unhandled method' };
-        }
-      });
+              return {jsonrpc: '2.0', id: requestBody['id'], result: data}; // Adjust based on expected result
+            default:
+              return {message: 'Unhandled method'};
+          }
+        });
 
     nock('https://log-api.newrelic.com')
-      .persist()
-      .post('/log/v1', (body) => true) // Match the exact path
-      .reply(200, (uri, requestBody) => {
+        .persist()
+        .post('/log/v1', (body) => true) // Match the exact path
+        .reply(200, (uri, requestBody) => {
         // console.log('LOG: Intercepted request to New Relic:', uri, ' -> body:', requestBody);
-        localLogger.info(JSON.stringify(requestBody));
+          localLogger.info(JSON.stringify(requestBody));
 
 
-        return {};
-      });
+          return {};
+        });
   });
 
-  afterEach(function () {
+  afterEach(function() {
     nock.cleanAll();
   });
 
-  it('should catch and report on Deposit event', async function () {
+  it('should catch and report on Deposit event', async function() {
     await handler(0, 0);
 
     const expectedLogMessage: EventFetcherLogEntryMessage = {
@@ -83,7 +68,7 @@ describe('PSP Events', function () {
     for (let i = logLines.length - 1; i >= 0; i--) {
       console.log(`*** ${i} ***`);
       console.log('logLines[i]', logLines[i].split('INFO: ')[1]);
-      const actualLogMessage: LogEntry = parseLogEntries((logLines[i].split('INFO: ')[1]));
+      const actualLogMessage: LogEntry = JSON.parse((logLines[i].split('INFO: ')[1]));
 
       console.log('parsed', actualLogMessage);
       //    const messageObject = JSON.parse(actualLogMessage.message);

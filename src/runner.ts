@@ -14,7 +14,6 @@ export const handler = async (
     // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
     _context: any,
 ): Promise<void> => {
-
   Logger.initialize('Events fetcher');
 
   const configService = new ConfigServiceLeverage();

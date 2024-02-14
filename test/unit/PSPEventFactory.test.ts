@@ -1,23 +1,23 @@
-import { Logger } from '@thisisarchimedes/backend-sdk';
+import {Logger} from '@thisisarchimedes/backend-sdk';
 
-import { expect } from 'chai';
+import {expect} from 'chai';
 
-import { LoggerAdapter } from '../adapters/LoggerAdapter';
-import { EventFetcherAdapter } from '../adapters/EventFetcherAdapter';
-import { ConfigServicePSPAdapter } from '../adapters/ConfigServicePSPAdapter';
+import {LoggerAdapter} from '../adapters/LoggerAdapter';
+import {EventFetcherAdapter} from '../adapters/EventFetcherAdapter';
+import {ConfigServicePSPAdapter} from '../adapters/ConfigServicePSPAdapter';
 
-import { EventFactory } from '../../src/onchain_events/EventFactory';
-import { OnChainEventPSP } from '../../src/onchain_events/OnChainEventPSP';
-import { EventFetcherLogEntryMessage } from '../../src/types/NewRelicLogEntry';
+import {EventFactory} from '../../src/onchain_events/EventFactory';
+import {OnChainEventPSP} from '../../src/onchain_events/OnChainEventPSP';
+import {EventFetcherLogEntryMessage} from '../../src/types/NewRelicLogEntry';
 
 
-describe('PSP Events Logging', function () {
+describe('PSP Events Logging', function() {
   let logger: LoggerAdapter;
   let eventFetcher: EventFetcherAdapter;
   let configService: ConfigServicePSPAdapter;
   let eventFactory: EventFactory;
 
-  beforeEach(async function () {
+  beforeEach(async function() {
     logger = new LoggerAdapter('local_logger.txt');
     eventFetcher = new EventFetcherAdapter();
     configService = new ConfigServicePSPAdapter('test/data/strategies.json');
@@ -26,7 +26,7 @@ describe('PSP Events Logging', function () {
     eventFactory = new EventFactory(configService, logger as unknown as Logger);
   });
 
-  it('should report on Deposit event', async function () {
+  it('should report on Deposit event', async function() {
     eventFetcher.setEventArrayFromFile('test/data/depositEvent.json');
     const eventsLog = await eventFetcher.getOnChainEvents(100, 200);
 
@@ -58,7 +58,7 @@ describe('PSP Events Logging', function () {
     validateLogMessage(actualLogMessage, expectedLogMessage);
   });
 
-  it('should report on Withdraw event', async function () {
+  it('should report on Withdraw event', async function() {
     eventFetcher.setEventArrayFromFile('test/data/withdrawEvent.json');
     const eventsLog = await eventFetcher.getOnChainEvents(100, 200);
 
