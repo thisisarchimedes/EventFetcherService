@@ -8,12 +8,18 @@ import {MockEthereumNode} from './MockEthereumNode';
 import {MockNewRelic} from './MockNewRelic';
 
 describe('PSP Events', function() {
-  const logger = new LoggerAdapter('local_logger.txt');
-  const mockEthereumNode = new MockEthereumNode('http://ec2-52-4-114-208.compute-1.amazonaws.com:8545');
-  const mockNewRelic = new MockNewRelic('https://log-api.newrelic.com', logger);
+  let logger: LoggerAdapter;
+  let mockEthereumNode: MockEthereumNode;
+  let mockNewRelic: MockNewRelic;
 
-  beforeEach(setupNockInterceptors);
-  afterEach(cleanupNock);
+  beforeEach(function() {
+    initalizeMocks();
+    setupNockInterceptors();
+  });
+
+  afterEach(function() {
+    cleanupNock();
+  });
 
   it('should catch and report on Deposit event', async function() {
     await handler(0, 0);
@@ -45,6 +51,15 @@ describe('PSP Events', function() {
       actualLog.strategy === expectedLog.strategy &&
       actualLog.amount === expectedLog.amount
     );
+  }
+
+  function initalizeMocks() {
+    logger = new LoggerAdapter('local_logger.txt');
+
+    mockEthereumNode = new MockEthereumNode('http://ec2-52-4-114-208.compute-1.amazonaws.com:8545');
+
+    const newRelicApiUrl: string = process.env.NEW_RELIC_API_URL as string;
+    mockNewRelic = new MockNewRelic(newRelicApiUrl, logger);
   }
 
   function setupNockInterceptors() {
