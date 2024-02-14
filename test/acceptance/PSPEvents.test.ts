@@ -1,5 +1,6 @@
 import {expect} from 'chai';
 import nock from 'nock';
+
 import {LoggerAdapter} from '../adapters/LoggerAdapter';
 import {EventFetcherLogEntryMessage} from '../../src/types/NewRelicLogEntry';
 import {handler} from '../../src/runner';
