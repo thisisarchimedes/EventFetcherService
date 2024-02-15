@@ -1,4 +1,4 @@
-import {ConfigService} from './ConfigService';
+import { ConfigService } from './ConfigServiceAWS';
 
 export interface IPSPStrategyConfig {
   strategyName: string;
@@ -20,7 +20,7 @@ export class ConfigServicePSP extends ConfigService {
 
   public async refreshStrategyConfig(): Promise<void> {
     try {
-      //const objectData = await this.fetchS3Object(this.bucketName, this.fileName);
+      // const objectData = await this.fetchS3Object(this.bucketName, this.fileName);
       const objectData = await this.fetchS3Object('smart-contract-backend-config', 'strategies-production.json');
       const strategies = this.parseStrategyConfigs(objectData);
       this.updateStrategies(strategies);
