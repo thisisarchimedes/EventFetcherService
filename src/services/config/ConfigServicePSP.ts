@@ -20,18 +20,13 @@ export class ConfigServicePSP extends ConfigService {
 
   public async refreshStrategyConfig(): Promise<void> {
     try {
-      console.log('>> 1 - refreshStrategyConfig, buckerName: ', this.bucketName, ' - fileName: ', this.fileName);
       const objectData = await this.fetchS3Object(this.bucketName, this.fileName);
-      console.log('>> 2 - refreshStrategyConfig, objectData: ', objectData);
       const strategies = this.parseStrategyConfigs(objectData);
-      console.log('>> 3 - refreshStrategyConfig, strategies: ', strategies);
       this.updateStrategies(strategies);
-      console.log('>> 4 - refreshStrategyConfig, this.strategies: ', this.strategies);
     } catch (error) {
       // TODO: Log line
       console.error('Error refreshing strategy config:', error);
     }
-    console.log('>> 5 - refreshStrategyConfig');
   }
 
   public getStrategyConfigByIndex(index: number): IPSPStrategyConfig | undefined {

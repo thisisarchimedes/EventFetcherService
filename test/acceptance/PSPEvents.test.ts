@@ -28,7 +28,9 @@ describe('PSP Events', function() {
     console.log('>> 1 - Test');
 
     const expectedLog = createExpectedLogMessage();
+    console.log('>> 2 - Test - expectedLog: ', expectedLog);
     const actualLog = mockNewRelic.findMatchingLogEntry(logger);
+    console.log('>> 3 - Test - actualLog: ', actualLog);
 
     expect(actualLog).to.not.be.null;
     const res: boolean = validateLogMessage(actualLog as EventFetcherLogEntryMessage, expectedLog);
