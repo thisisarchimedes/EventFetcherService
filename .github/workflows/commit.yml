@@ -26,7 +26,10 @@ env:
   PSP_ACCEPTANCE_TEST_NODE: ${{ vars.PSP_ACCEPTANCE_TEST_NODE }}
   PSP_STRATEGY_CONFIG_BUCKET: ${{ vars.PSP_STRATEGY_CONFIG_BUCKET }}
   PSP_STRATEGY_CONFIG_FILE: ${{ vars.PSP_STRATEGY_CONFIG_FILE }}
-
+  
+  ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
+  INFURA_API_KEY: ${{ secrets.INFURA_API_KEY }}
+  
 jobs:
   test:
     runs-on: ubuntu-latest
