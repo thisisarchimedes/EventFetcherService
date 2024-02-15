@@ -15,6 +15,7 @@ env:
 
   PSP_STRATEGY_CONFIG_BUCKET: ${{ vars.PSP_STRATEGY_CONFIG_BUCKET }}
   PSP_STRATEGY_CONFIG_FILE: ${{ vars.PSP_STRATEGY_CONFIG_FILE }}
+  NEW_RELIC_API_URL: ${{ vars.NEW_RELIC_API_URL }}
 
 jobs:
   deploy:
@@ -74,7 +75,8 @@ jobs:
           ParameterKey=S3ForkKey,ParameterValue="${{ secrets.S3_FORK_KEY }}" \
           ParameterKey=Environment,ParameterValue="staging" \
           ParameterKey=PSPStrategyConfigBucket,ParameterValue="${{ vars.PSP_STRATEGY_CONFIG_BUCKET }}" \
-          ParameterKey=PSPStrategyConfigFile,ParameterValue="${{ vars.PSP_STRATEGY_CONFIG_FILE }}"
+          ParameterKey=PSPStrategyConfigFile,ParameterValue="${{ vars.PSP_STRATEGY_CONFIG_FILE }}" \
+          ParameterKey=NewRelicApiUrl,ParameterValue="${{ vars.NEW_RELIC_API_URL }}"
 
   deploy_demo:
     runs-on: ubuntu-latest

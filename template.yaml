@@ -64,6 +64,7 @@ Resources:
           S3_FORK_KEY: !Ref S3ForkKey
           PSP_STRATEGY_CONFIG_BUCKET: !Ref PSPStrategyConfigBucket
           PSP_STRATEGY_CONFIG_FILE: !Ref PSPStrategyConfigFile
+          NEW_RELIC_API_URL: !Ref NewRelicApiUrl
           
 
 Parameters:
