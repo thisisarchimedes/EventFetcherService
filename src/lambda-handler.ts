@@ -23,6 +23,8 @@ export const handler = async (
   console.log('>> 2 - handler');
 
   const _appContext: EnvironmentContext = await configService.getEnvironmentContext();
+  console.log('>> 2.5 - handler ', _appContext);
+
   const logger = Logger.getInstance();
   console.log('>> 3 - handler');
 
