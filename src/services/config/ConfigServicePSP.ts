@@ -1,4 +1,4 @@
-import { ConfigService } from './ConfigServiceAWS';
+import {ConfigService} from './ConfigServiceAWS';
 
 export interface IPSPStrategyConfig {
   strategyName: string;

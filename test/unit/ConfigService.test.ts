@@ -30,7 +30,6 @@ describe('Config Service Test', function() {
     await configService.refreshConfig();
 
     const positionOpenerAddress = leverageContractAddresses.find((contract) => contract.name === 'PositionOpener');
-    console.log(positionOpenerAddress?.address, ' === ', configService.getLeveragePositionOpenerAddress());
     expect(configService.getLeveragePositionOpenerAddress()).to.equal(positionOpenerAddress?.address);
 
     const positionLiquidatorAddress = leverageContractAddresses.find((contract) =>
@@ -39,7 +38,6 @@ describe('Config Service Test', function() {
 
     const positionCloserAddress = leverageContractAddresses.find((contract) => contract.name === 'PositionCloser');
     expect(configService.getLeveragePositionCloserAddress()).to.equal(positionCloserAddress?.address);
-
   });
 });
 

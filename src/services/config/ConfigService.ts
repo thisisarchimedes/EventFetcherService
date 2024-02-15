@@ -1,4 +1,4 @@
-import { S3Service } from "@thisisarchimedes/backend-sdk";
+import {S3Service} from '@thisisarchimedes/backend-sdk';
 
 export interface LeverageContractAddresses {
   positionOpenerAddress: string;
@@ -8,7 +8,6 @@ export interface LeverageContractAddresses {
 }
 
 export abstract class ConfigService {
-
   protected environment: string;
 
   protected leverageContractAddresses: LeverageContractAddresses;
@@ -36,7 +35,7 @@ export abstract class ConfigService {
     return this.leverageContractAddresses.positionExpiratorAddress;
   }
 
-  /*abstract getRPCURL(): string;
+  /* abstract getRPCURL(): string;
   abstract getAlternateRPCURL(): string;
 
   abstract getLastBlockScanned(): number;
@@ -44,7 +43,30 @@ export abstract class ConfigService {
   abstract getEventsFetchPageSize(): number;
   abstract getNewEventsQueueURL(): string;*/
 
-  protected async fetchS3Object(bucket: string, key: string): Promise<string> {
+  protected async refreshLeverageContractAddresses(): Promise<void> {
+    const res = await this.getLeverageContractAddressesFromS3();
+
+    const positionOpenerAddress = res.find((contract: { name: string; }) => contract.name === 'PositionOpener');
+    const positionLiquidatorAddress = res.find((contract: { name: string; }) =>
+      contract.name === 'PositionLiquidator');
+    const positionCloserAddress = res.find((contract: { name: string; }) => contract.name === 'PositionCloser');
+
+    this.leverageContractAddresses = {
+      positionOpenerAddress: positionOpenerAddress?.address || '',
+      positionLiquidatorAddress: positionLiquidatorAddress?.address || '',
+      positionCloserAddress: positionCloserAddress?.address || '',
+      positionExpiratorAddress: '',
+    } as LeverageContractAddresses;
+  }
+
+  private async getLeverageContractAddressesFromS3(): Promise<Array<{ name: string; }>> {
+    const bucket = process.env.S3_BUCKET_CONFIG || '';
+    const key = process.env.S3_DEPLOYMENT_ADDRESS_KEY || '';
+
+    return JSON.parse(await this.fetchS3Object(bucket, key));
+  }
+
+  private async fetchS3Object(bucket: string, key: string): Promise<string> {
     const response = await this.s3Service.getObject(bucket, key);
     return response.toString();
   }
