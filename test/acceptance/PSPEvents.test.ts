@@ -14,8 +14,11 @@ describe('PSP Events', function() {
   let mockNewRelic: MockNewRelic;
 
   beforeEach(function() {
+    console.log('>> 0 - beforeEach');
     initalizeMocks();
+    console.log('>> 1 - beforeEach');
     setupNockInterceptors();
+    console.log('>> 2 - beforeEach');
   });
 
   afterEach(function() {
@@ -23,7 +26,9 @@ describe('PSP Events', function() {
   });
 
   it('should catch and report on Deposit event', async function() {
+    console.log('>> 0 - Test');
     await handler(0, 0);
+    console.log('>> 1 - Test');
 
     const expectedLog = createExpectedLogMessage();
     const actualLog = mockNewRelic.findMatchingLogEntry(logger);
