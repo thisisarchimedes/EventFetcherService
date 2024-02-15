@@ -14,11 +14,8 @@ describe('PSP Events', function() {
   let mockNewRelic: MockNewRelic;
 
   beforeEach(function() {
-    console.log('>> 0 - beforeEach');
     initalizeMocks();
-    console.log('>> 1 - beforeEach');
     setupNockInterceptors();
-    console.log('>> 2 - beforeEach');
   });
 
   afterEach(function() {

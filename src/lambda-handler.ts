@@ -14,12 +14,17 @@ export const handler = async (
     // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
     _context: any,
 ): Promise<void> => {
+  console.log('>> 0 - handler');
+
   Logger.initialize('Events fetcher');
 
+  console.log('>> 1 - handler');
   const configService = new ConfigServiceLeverage();
+  console.log('>> 2 - handler');
 
   const _appContext: EnvironmentContext = await configService.getEnvironmentContext();
   const logger = Logger.getInstance();
+  console.log('>> 3 - handler');
 
   const mainrovider = new ethers.providers.JsonRpcProvider(
       _appContext.rpcAddress ?? '',
@@ -27,6 +32,7 @@ export const handler = async (
   const altProvider = new ethers.providers.JsonRpcProvider(
       _appContext.alternateRpcAddress ?? '',
   );
+  console.log('>> 4 - handler');
 
   const pspBucketName = process.env.PSP_STRATEGY_CONFIG_BUCKET as string;
   const pspFileName = process.env.PSP_STRATEGY_CONFIG_FILE as string;
