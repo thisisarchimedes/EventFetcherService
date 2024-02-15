@@ -14,12 +14,14 @@ export class MockNewRelic extends Mock {
   }
 
   public mockLogEndpoint() {
+    console.log(`>>> Mocking New Relic log endpoint: ${this.baseUrl}`);
+
     nock(this.baseUrl)
         .persist()
-        .post('/log/v1', () => true) // You might want to adjust this to match specific request bodies as needed
+        .post('/log/v1', () => true)
         .reply(200, (_, requestBody) => {
           this.logger.info(JSON.stringify(requestBody));
-          return {}; // Adjust the response as needed for your tests
+          return {};
         });
   }
 
