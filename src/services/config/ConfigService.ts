@@ -25,7 +25,9 @@ export abstract class ConfigService {
 
 
   protected async fetchS3Object(bucket: string, key: string): Promise<string> {
+    console.log(`0 - fetchS3Object: ${bucket}, key: ${key}`);
     const response = await this.s3Service.getObject(bucket, key);
+    console.log(`1 - fetchS3Object: ${response}`);
     return response.toString();
   }
 }
