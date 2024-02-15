@@ -70,7 +70,7 @@ describe('Config Service Test', function() {
 
 /*
 
-[] Test locally: Can retrieve all the leverage contract addresses
+[X] Test locally: Can retrieve all the leverage contract addresses
 [] Test locally: Can retrieve all the PSP contract addresses
 [] Test locally: Can retrieve all the other correct values locally
 
