@@ -63,6 +63,13 @@ export class ConfigServiceLeverage extends ConfigService {
       newEventsQueueURL,
     } = this.getEnvironmentConfig();
 
+    console.log('>> 1 - getEnvironmentContext - environment: ', environment);
+    console.log('>> 1 - getEnvironmentContext - configBucket: ', configBucket);
+    console.log('>> 1 - getEnvironmentContext - rpcKey: ', rpcKey);
+    console.log('>> 1 - getEnvironmentContext - contractAddressesKey: ', contractAddressesKey);
+    console.log('>> 1 - getEnvironmentContext - newEventsQueueURL: ', newEventsQueueURL);
+
+
     const [
       rpcAddress,
       contractAddressesJson,
