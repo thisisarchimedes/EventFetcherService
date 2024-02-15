@@ -1,13 +1,13 @@
 import {ConfigService} from './ConfigService';
 
-export interface PSPStrategyConfig {
+export interface IPSPStrategyConfig {
   strategyName: string;
   strategyAddress: string;
 }
 
 
 export class ConfigServicePSP extends ConfigService {
-  protected strategies: PSPStrategyConfig[] = [];
+  protected strategies: IPSPStrategyConfig[] = [];
   protected readonly bucketName: string;
   protected readonly fileName: string;
 
@@ -29,7 +29,7 @@ export class ConfigServicePSP extends ConfigService {
     }
   }
 
-  public getStrategyConfigByIndex(index: number): PSPStrategyConfig | undefined {
+  public getStrategyConfigByIndex(index: number): IPSPStrategyConfig | undefined {
     return index >= 0 && index < this.strategies.length ? this.strategies[index] : undefined;
   }
 
@@ -37,9 +37,9 @@ export class ConfigServicePSP extends ConfigService {
     return this.strategies.length;
   }
 
-  protected parseStrategyConfigs(data: string): PSPStrategyConfig[] {
+  protected parseStrategyConfigs(data: string): IPSPStrategyConfig[] {
     try {
-      const parsedData = JSON.parse(data) as PSPStrategyConfig[];
+      const parsedData = JSON.parse(data) as IPSPStrategyConfig[];
       return parsedData.map((item) => ({
         strategyName: item.strategyName,
         strategyAddress: item.strategyAddress,
@@ -49,7 +49,7 @@ export class ConfigServicePSP extends ConfigService {
     }
   }
 
-  protected updateStrategies(strategies: PSPStrategyConfig[]): void {
+  protected updateStrategies(strategies: IPSPStrategyConfig[]): void {
     this.strategies = strategies;
   }
 }

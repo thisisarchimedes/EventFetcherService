@@ -1,5 +1,5 @@
 import {ethers} from 'ethers';
-import {ConfigServicePSP, PSPStrategyConfig} from '../services/config/configServicePSP';
+import {ConfigServicePSP, IPSPStrategyConfig} from '../services/config/ConfigServicePSP';
 import {Logger} from '@thisisarchimedes/backend-sdk';
 import {OnChainEventPSPDeposit} from './OnChainEventPSPDeposit';
 import {OnChainEventPSPWithdraw} from './OnChainEventPSPWithdraw';
@@ -36,7 +36,7 @@ export class EventFactory {
     }
   }
 
-  private findStrategyConfigByEventContractAddress(eventAddress: string): PSPStrategyConfig {
+  private findStrategyConfigByEventContractAddress(eventAddress: string): IPSPStrategyConfig {
     const strategyCount = this.configService.getStrategyCount();
     for (let i = 0; i < strategyCount; i++) {
       const strategy = this.configService.getStrategyConfigByIndex(i);

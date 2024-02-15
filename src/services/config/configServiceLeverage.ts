@@ -4,10 +4,6 @@ import {ConfigService} from './ConfigService';
 
 
 export class ConfigServiceLeverage extends ConfigService {
-  constructor() {
-    super();
-  }
-
   private fetchContractAddress(
       name: string,
       contractsJson: string,

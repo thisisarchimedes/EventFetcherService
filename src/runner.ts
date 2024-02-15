@@ -1,9 +1,9 @@
 import {S3Service, SQSService, Logger} from '@thisisarchimedes/backend-sdk';
 import {EventProcessorService} from './EventProcessorService';
-import {ConfigServiceLeverage} from './services/config/configServiceLeverage';
+import {ConfigServiceLeverage} from './services/config/ConfigServiceLeverage';
 import {ethers} from 'ethers';
 import {EnvironmentContext} from './types/EnvironmentContext';
-import {ConfigServicePSP} from './services/config/configServicePSP';
+import {ConfigServicePSP} from './services/config/ConfigServicePSP';
 
 const s3Service = new S3Service();
 const sqsService = new SQSService();

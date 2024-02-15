@@ -11,9 +11,9 @@ import {
 import {EnvironmentContext} from './types/EnvironmentContext';
 import {ProcessedEvent} from './types/ProcessedEvent';
 import {EventData} from './types/EventData';
-import {ConfigServicePSP} from './services/config/configServicePSP';
+import {ConfigServicePSP} from './services/config/ConfigServicePSP';
 import {EventFactory} from './onchain_events/EventFactory';
-import {EventFetcherRPC} from './services/blockchain/eventFetcherRPC';
+import {EventFetcherRPC} from './services/blockchain/EventFetcherRPC';
 
 dotenv.config();
 
@@ -273,8 +273,8 @@ export class EventProcessorService implements IEventProcessorService {
     const lastBlockScanned = this._context.lastBlockScanned;
 
     if (lastBlockScanned == 0 ||
-        currentBlockNumber - lastBlockScanned > 1000 ||
-        lastBlockScanned > currentBlockNumber) {
+      currentBlockNumber - lastBlockScanned > 1000 ||
+      lastBlockScanned > currentBlockNumber) {
       return defaultBlockNumber;
     }
 

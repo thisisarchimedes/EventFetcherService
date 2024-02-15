@@ -1,6 +1,6 @@
 import {ethers} from 'ethers';
 
-export interface EventFetcher {
+export interface IEventFetcher {
 
     getOnChainEvents(blockNumberFrom: number, blockNumberTo: number): Promise<ethers.providers.Log[]>;
 

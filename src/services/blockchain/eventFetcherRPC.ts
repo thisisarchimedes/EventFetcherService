@@ -1,8 +1,8 @@
 import {ethers} from 'ethers';
-import {EventFetcher} from './eventFetcher';
+import {IEventFetcher} from './IEventFetcher';
 
 
-export class EventFetcherRPC implements EventFetcher {
+export class EventFetcherRPC implements IEventFetcher {
   private readonly mainProvider: ethers.providers.Provider;
   private readonly altProvider: ethers.providers.Provider;
 

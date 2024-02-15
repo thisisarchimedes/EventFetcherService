@@ -1,18 +1,18 @@
 import {ethers} from 'ethers';
 
 import {Logger} from '@thisisarchimedes/backend-sdk';
-import {PSPStrategyConfig} from '../services/config/configServicePSP';
+import {IPSPStrategyConfig} from '../services/config/ConfigServicePSP';
 import {EventFetcherLogEntryMessage} from '../types/NewRelicLogEntry';
 
 export class OnChainEventPSP {
   protected eventName: string = '';
-  protected strategyConfig: PSPStrategyConfig;
+  protected strategyConfig: IPSPStrategyConfig;
   protected logger: Logger;
 
   protected amount: bigint = BigInt(0);
   protected userAddress: string = '';
 
-  constructor(strategyConfig: PSPStrategyConfig, logger: Logger) {
+  constructor(strategyConfig: IPSPStrategyConfig, logger: Logger) {
     this.strategyConfig = strategyConfig;
     this.logger = logger;
   }
