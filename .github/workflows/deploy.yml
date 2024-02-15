@@ -13,6 +13,9 @@ env:
   API_DEVOPS_EVENT_CATCHER: ${{ vars.API_DEVOPS_EVENT_CATCHER }}
   DEVOPS_EVENTS_SECRET_TOKEN: ${{ secrets.DEVOPS_EVENTS_SECRET_TOKEN }}
 
+  PSP_STRATEGY_CONFIG_BUCKET: ${{ vars.PSP_STRATEGY_CONFIG_BUCKET }}
+  PSP_STRATEGY_CONFIG_FILE: ${{ vars.PSP_STRATEGY_CONFIG_FILE }}
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -69,7 +72,9 @@ jobs:
           ParameterKey=EventsFetchPageSize,ParameterValue="${{ secrets.EVENTS_FETCH_PAGE_SIZE }}" \
           ParameterKey=NewRelicAPIKey,ParameterValue="${{ secrets.NEW_RELIC_API_KEY }}" \
           ParameterKey=S3ForkKey,ParameterValue="${{ secrets.S3_FORK_KEY }}" \
-          ParameterKey=Environment,ParameterValue="staging"
+          ParameterKey=Environment,ParameterValue="staging" \
+          ParameterKey=PSPStrategyConfigBucket,ParameterValue="${{ vars.PSP_STRATEGY_CONFIG_BUCKET }}" \
+          ParameterKey=PSPStrategyConfigFile,ParameterValue="${{ vars.PSP_STRATEGY_CONFIG_FILE }}"
 
   deploy_demo:
     runs-on: ubuntu-latest
