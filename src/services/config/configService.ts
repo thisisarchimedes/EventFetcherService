@@ -1,5 +1,3 @@
-// ConfigServiceParent.ts
-
 import {S3Service} from '@thisisarchimedes/backend-sdk';
 
 export abstract class ConfigService {
