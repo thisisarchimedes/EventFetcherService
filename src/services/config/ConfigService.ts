@@ -1,4 +1,5 @@
 import {S3Service} from '@thisisarchimedes/backend-sdk';
+import {ContractAddress} from '../../types/ContractAddress';
 
 export interface LeverageContractAddresses {
   positionOpenerAddress: string;
@@ -59,7 +60,7 @@ export abstract class ConfigService {
     } as LeverageContractAddresses;
   }
 
-  private async getLeverageContractAddressesFromS3(): Promise<Array<{ name: string; }>> {
+  private async getLeverageContractAddressesFromS3(): Promise<ContractAddress[]> {
     const bucket = process.env.S3_BUCKET_CONFIG || '';
     const key = process.env.S3_DEPLOYMENT_ADDRESS_KEY || '';
 
