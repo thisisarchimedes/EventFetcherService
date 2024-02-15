@@ -18,7 +18,6 @@ export class MockNewRelic extends Mock {
         .persist()
         .post('/log/v1', () => true)
         .reply(200, (_, requestBody) => {
-          console.log('>> 1 - mockLogEndpoint - requestBody: ', requestBody);
           this.logger.info(JSON.stringify(requestBody));
           return {};
         });

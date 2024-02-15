@@ -23,14 +23,10 @@ describe('PSP Events', function() {
   });
 
   it('should catch and report on Deposit event', async function() {
-    console.log('>> 0 - Test');
     await handler(0, 0);
-    console.log('>> 1 - Test');
 
     const expectedLog = createExpectedLogMessage();
-    console.log('>> 2 - Test - expectedLog: ', expectedLog);
     const actualLog = mockNewRelic.findMatchingLogEntry(logger);
-    console.log('>> 3 - Test - actualLog: ', actualLog);
 
     expect(actualLog).to.not.be.null;
     const res: boolean = validateLogMessage(actualLog as EventFetcherLogEntryMessage, expectedLog);
