@@ -16,6 +16,12 @@ export abstract class ConfigService {
 
   constructor(environment: string) {
     this.environment = environment;
+    this.leverageContractAddresses = {
+      positionOpenerAddress: '',
+      positionLiquidatorAddress: '',
+      positionCloserAddress: '',
+      positionExpiratorAddress: '',
+    } as LeverageContractAddresses;
   }
 
   abstract refreshConfig(): Promise<void>;
