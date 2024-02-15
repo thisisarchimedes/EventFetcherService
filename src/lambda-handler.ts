@@ -38,7 +38,10 @@ export const handler = async (
 
   const pspBucketName = process.env.PSP_STRATEGY_CONFIG_BUCKET as string;
   const pspFileName = process.env.PSP_STRATEGY_CONFIG_FILE as string;
+  console.log('>> 5 - handler', pspBucketName, ' - ', pspFileName);
   const configServicePSP: ConfigServicePSP = new ConfigServicePSP(pspBucketName, pspFileName);
+  console.log('>> 6 - handler');
+
 
   await configServicePSP.refreshStrategyConfig();
 
