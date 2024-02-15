@@ -60,7 +60,6 @@ describe('PSP Events', function() {
     mockEthereumNode = new MockEthereumNode('http://ec2-52-4-114-208.compute-1.amazonaws.com:8545');
 
     const newRelicApiUrl: string = process.env.NEW_RELIC_API_URL as string;
-    console.log(`>>> New Relic API URL: ${newRelicApiUrl}`);
     mockNewRelic = new MockNewRelic(newRelicApiUrl, logger);
   }
 

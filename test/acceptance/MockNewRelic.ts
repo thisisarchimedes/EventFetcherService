@@ -14,8 +14,6 @@ export class MockNewRelic extends Mock {
   }
 
   public mockLogEndpoint() {
-    console.log(`>>> Mocking New Relic log endpoint: ${this.baseUrl}`);
-
     nock(this.baseUrl)
         .persist()
         .post('/log/v1', () => true)
