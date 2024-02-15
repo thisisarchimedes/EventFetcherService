@@ -16,6 +16,9 @@ env:
   PSP_STRATEGY_CONFIG_BUCKET: ${{ vars.PSP_STRATEGY_CONFIG_BUCKET }}
   PSP_STRATEGY_CONFIG_FILE: ${{ vars.PSP_STRATEGY_CONFIG_FILE }}
 
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
 jobs:
   test:
     runs-on: ubuntu-latest
