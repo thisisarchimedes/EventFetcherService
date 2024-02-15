@@ -1,28 +1,28 @@
-import {expect} from 'chai';
+import { expect } from 'chai';
 import nock from 'nock';
 
-import {LoggerAdapter} from '../adapters/LoggerAdapter';
-import {EventFetcherLogEntryMessage} from '../../src/types/NewRelicLogEntry';
-import {handler} from '../../src/runner';
+import { LoggerAdapter } from '../adapters/LoggerAdapter';
+import { EventFetcherLogEntryMessage } from '../../src/types/NewRelicLogEntry';
+import { handler } from '../../src/lambda-handler';
 
-import {MockEthereumNode} from './MockEthereumNode';
-import {MockNewRelic} from './MockNewRelic';
+import { MockEthereumNode } from './MockEthereumNode';
+import { MockNewRelic } from './MockNewRelic';
 
-describe('PSP Events', function() {
+describe('PSP Events', function () {
   let logger: LoggerAdapter;
   let mockEthereumNode: MockEthereumNode;
   let mockNewRelic: MockNewRelic;
 
-  beforeEach(function() {
+  beforeEach(function () {
     initalizeMocks();
     setupNockInterceptors();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     cleanupNock();
   });
 
-  it('should catch and report on Deposit event', async function() {
+  it('should catch and report on Deposit event', async function () {
     await handler(0, 0);
 
     const expectedLog = createExpectedLogMessage();
@@ -43,8 +43,8 @@ describe('PSP Events', function() {
   }
 
   function validateLogMessage(
-      actualLog: EventFetcherLogEntryMessage,
-      expectedLog: EventFetcherLogEntryMessage,
+    actualLog: EventFetcherLogEntryMessage,
+    expectedLog: EventFetcherLogEntryMessage,
   ): boolean {
     return (
       actualLog.event === expectedLog.event &&
