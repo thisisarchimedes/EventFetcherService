@@ -56,7 +56,7 @@ describe('Config Service Test', function() {
   async function fetchLeverageContractAddresses(): Promise<ContractAddress[]> {
     const params = getS3Params();
     const data = await awsS3Client.getObject(params).promise();
-    const configData = data.Body.toString();
+    const configData = data.Body?.toString() ?? '';
     return JSON.parse(configData);
   }
 
