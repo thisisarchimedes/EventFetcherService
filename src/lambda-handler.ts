@@ -44,6 +44,8 @@ export const handler = async (
 
 
   await configServicePSP.refreshStrategyConfig();
+  console.log('>> 7 - handler');
+
 
   const eventProcessorService = new EventProcessorService(
       mainrovider,
