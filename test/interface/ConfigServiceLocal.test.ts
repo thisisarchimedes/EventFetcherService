@@ -1,8 +1,9 @@
 import {expect} from 'chai';
 import AWS from 'aws-sdk';
+import dotenv from 'dotenv';
+
 import {LeverageContractInfo as LeverageContractInfo} from '../../src/types/LeverageContractInfo';
 import {ConfigServiceLocal} from '../../src/services/config/ConfigServiceLocal';
-import dotenv from 'dotenv';
 
 dotenv.config();
 
