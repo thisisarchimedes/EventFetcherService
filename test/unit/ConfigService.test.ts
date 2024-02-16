@@ -52,7 +52,6 @@ describe('Config Service Test', function() {
     expect(actualAddress).to.equal(expectedAddress);
   }
 
-
   it('should get the correct PSP contract addresses when run locally', async function() {
     const ExpectedPSPContractInfo = await fetchPSPContractInfo();
 
@@ -83,7 +82,7 @@ describe('Config Service Test', function() {
 /*
 
 [X] Test locally: Can retrieve all the leverage contract addresses
-[] Test locally: Can retrieve all the PSP contract addresses
+[X] Test locally: Can retrieve all the PSP contract addresses
 [] Test locally: Can retrieve all the other correct values locally
 
 [] Test AWS: Can retrieve all the leverage contract addresses
