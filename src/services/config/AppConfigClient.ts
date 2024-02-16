@@ -4,6 +4,7 @@ export class AppConfigClient {
   private readonly appConfigClient: AppConfig;
   private readonly environment: string;
   private readonly region: string;
+  private readonly clientId: string = 'EventFetcherService';
 
   constructor(environment: string, region: string) {
     this.appConfigClient = new AppConfig({region: region});
@@ -25,7 +26,7 @@ export class AppConfigClient {
       Application: this.environment,
       Configuration: configName,
       Environment: this.environment,
-      ClientId: '1', // currently we are not using this feature
+      ClientId: this.clientId,
     };
 
     const response: GetConfigurationCommandOutput = await this.appConfigClient.getConfiguration(params);
