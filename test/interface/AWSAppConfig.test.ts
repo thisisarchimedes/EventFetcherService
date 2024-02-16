@@ -33,6 +33,15 @@ describe('Config Service - Demo Environment', function() {
     const positionCloser = strategies.find((contract) => contract.name === 'PositionCloser');
     expect(positionCloser).to.not.be.undefined;
   });
+
+  it('should fetch last block scanned', async function() {
+    const lastBlockScannedStr = await appConfigClient.fetchConfig('LastBlockScanned');
+    const lastBlockScanned = parseInt(lastBlockScannedStr, 10);
+
+    expect(lastBlockScanned).to.not.be.undefined;
+    expect(lastBlockScanned).to.be.a('number');
+    expect(lastBlockScanned).to.be.greaterThan(19243000);
+  });
 });
 
 
