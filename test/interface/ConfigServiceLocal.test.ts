@@ -17,7 +17,7 @@ describe('Config Service Test', function() {
   });
 
   it('should get the correct leverage contract addresses when run locally', async function() {
-    const leverageContractAddresses = await fetchLeverageContractAddresses();
+    const leverageContractAddresses = await fetchLeverageContractInfo();
 
     validateLeverageContractAddress(
         leverageContractAddresses,
@@ -37,7 +37,7 @@ describe('Config Service Test', function() {
   });
 
   it('should get the correct PSP contract addresses when run locally', async function() {
-    // const pspContractAddresses = await fetchPspContractAddresses();
+    const pspContractAddresses = await fetchPspContractAddresses();
 
 
   });
@@ -60,7 +60,7 @@ describe('Config Service Test', function() {
     });
   }
 
-  async function fetchLeverageContractAddresses(): Promise<LeverageContractInfo[]> {
+  async function fetchLeverageContractInfo(): Promise<LeverageContractInfo[]> {
     const params = getS3Params();
     const data = await awsS3Client.getObject(params).promise();
     const configData = data.Body?.toString() ?? '';
