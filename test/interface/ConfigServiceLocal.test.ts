@@ -7,44 +7,45 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 describe('Config Service Test', function() {
-  let awsS3Client: AWS.S3;
   let configService: ConfigServiceLocal;
 
   beforeEach(async function() {
-    awsS3Client = createAwsS3Client();
+    await initalizeObjectUnderTest();
+  });
 
+  async function initalizeObjectUnderTest(): Promise<void> {
     const s3ConfigBucket = process.env.S3_BUCKET_CONFIG || '';
     const s3LeverageInfoKey = process.env.S3_DEPLOYMENT_ADDRESS_KEY || '';
     configService = new ConfigServiceLocal(s3ConfigBucket, s3LeverageInfoKey);
     await configService.refreshConfig();
-  });
+  }
 
   it('should get the correct leverage contract addresses when run locally', async function() {
-    const leverageContractAddresses = await fetchLeverageContractInfo();
+    const ExpectedLeverageContractAddresses: LeverageContractInfo[] = await JSON.parse(await fetchStringFromS3(
+        process.env.S3_BUCKET_CONFIG ?? '',
+        process.env.S3_DEPLOYMENT_ADDRESS_KEY ?? '',
+    ));
 
     validateLeverageContractAddress(
-        leverageContractAddresses,
+        ExpectedLeverageContractAddresses,
         'PositionOpener',
         configService.getLeveragePositionOpenerAddress(),
     );
     validateLeverageContractAddress(
-        leverageContractAddresses,
+        ExpectedLeverageContractAddresses,
         'PositionLiquidator',
         configService.getLeveragePositionLiquidatorAddress(),
     );
     validateLeverageContractAddress(
-        leverageContractAddresses,
+        ExpectedLeverageContractAddresses,
         'PositionCloser',
         configService.getLeveragePositionCloserAddress(),
     );
   });
 
   it('should get the correct PSP contract addresses when run locally', async function() {
-    const pspContractAddresses = await fetchPspContractAddresses();
-
-
+    // const pspContractAddresses = await fetchPspContractAddresses();
   });
-
 
   function validateLeverageContractAddress(
       addresses: LeverageContractInfo[],
@@ -55,6 +56,15 @@ describe('Config Service Test', function() {
     expect(actualAddress).to.equal(expectedAddress);
   }
 
+  async function fetchStringFromS3(bucket: string, key: string): Promise<string> {
+    const awsS3Client = createAwsS3Client();
+
+    const params = {Bucket: bucket, Key: key};
+    const data = await awsS3Client.getObject(params).promise();
+    const configData = data.Body?.toString() ?? '';
+    return configData;
+  }
+
   function createAwsS3Client() {
     return new AWS.S3({
       accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -62,18 +72,6 @@ describe('Config Service Test', function() {
       region: process.env.AWS_REGION,
     });
   }
-
-  async function fetchLeverageContractInfo(): Promise<LeverageContractInfo[]> {
-    const params = getS3Params();
-    const data = await awsS3Client.getObject(params).promise();
-    const configData = data.Body?.toString() ?? '';
-    return JSON.parse(configData);
-  }
-
-  function getS3Params() {
-    const bucket = process.env.S3_BUCKET_CONFIG || '';
-    const key = process.env.S3_DEPLOYMENT_ADDRESS_KEY || '';
-    if (!bucket || !key) throw new Error('S3 bucket or key is undefined.');
-    return {Bucket: bucket, Key: key};
-  }
 });
+
+
