@@ -18,7 +18,7 @@ describe('Config Service Test', function() {
   async function initalizeObjectUnderTest(): Promise<void> {
     const s3ConfigBucket = process.env.S3_BUCKET_CONFIG || '';
     const s3LeverageInfoKey = process.env.S3_DEPLOYMENT_ADDRESS_KEY || '';
-    const s3PSPInfoKey =  process.env.PSP_STRATEGY_CONFIG_FILE || '';
+    const s3PSPInfoKey = process.env.PSP_STRATEGY_CONFIG_FILE || '';
 
     configService = new ConfigServiceLocal(s3ConfigBucket, s3LeverageInfoKey, s3PSPInfoKey);
     await configService.refreshConfig();
