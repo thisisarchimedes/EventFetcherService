@@ -67,6 +67,14 @@ describe('Config Service - Demo Environment', function() {
     expect(EventsFetchPageSize).to.be.a('number');
     expect(EventsFetchPageSize).to.be.greaterThan(1);
   });
+
+  it('should fetch NewEventsQueueURL', async function() {
+    const rpcURL = await appConfigClient.fetchConfig('NewEventsQueueURL');
+
+    expect(rpcURL).to.not.be.undefined;
+    expect(rpcURL).to.be.a('string');
+    expect(rpcURL).to.match(/^(http|https|wss):\/\//);
+  });
 });
 
 
