@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 
 import {ContractInfoLeverage as ContractInfoLeverage} from '../../src/types/ContractInfoLeverage';
 import {ConfigServiceLocal} from '../../src/services/config/ConfigServiceLocal';
+import {ContractInfoPSP} from '../../src/types/ContractInfoPSP';
 
 dotenv.config();
 
@@ -17,7 +18,9 @@ describe('Config Service Test', function() {
   async function initalizeObjectUnderTest(): Promise<void> {
     const s3ConfigBucket = process.env.S3_BUCKET_CONFIG || '';
     const s3LeverageInfoKey = process.env.S3_DEPLOYMENT_ADDRESS_KEY || '';
-    configService = new ConfigServiceLocal(s3ConfigBucket, s3LeverageInfoKey);
+    const s3PSPInfoKey =  process.env.PSP_STRATEGY_CONFIG_FILE || '';
+
+    configService = new ConfigServiceLocal(s3ConfigBucket, s3LeverageInfoKey, s3PSPInfoKey);
     await configService.refreshConfig();
   }
 
@@ -44,13 +47,6 @@ describe('Config Service Test', function() {
     );
   });
 
-  it('should get the correct PSP contract addresses when run locally', async function() {
-    /* onst ExpectedPSPContractInfo: ContractInfoLeverage[] = await JSON.parse(await fetchStringFromS3(
-        process.env.S3_BUCKET_CONFIG ?? '',
-        process.env.S3_DEPLOYMENT_ADDRESS_KEY ?? '',
-    ));*/
-  });
-
   function validateLeverageContractAddress(
       addresses: ContractInfoLeverage[],
       contractName: string,
@@ -58,6 +54,26 @@ describe('Config Service Test', function() {
   ) {
     const expectedAddress = addresses.find((contract) => contract.name === contractName)?.address;
     expect(actualAddress).to.equal(expectedAddress);
+  }
+
+  it('should get the correct PSP contract addresses when run locally', async function() {
+    const ExpectedPSPContractInfo: ContractInfoPSP[] = await JSON.parse(await fetchStringFromS3(
+        process.env.S3_BUCKET_CONFIG ?? '',
+        process.env.PSP_STRATEGY_CONFIG_FILE ?? '',
+    ));
+    expect(ExpectedPSPContractInfo.length).to.be.greaterThan(0);
+
+    ExpectedPSPContractInfo.forEach((contract) => {
+      const expectedAddress = getExpectedPSPContractAddress(ExpectedPSPContractInfo, contract.strategyName);
+      expect(expectedAddress).to.equal(configService.getPSPContractAddress(contract.strategyName));
+    });
+  });
+
+  function getExpectedPSPContractAddress(
+      addresses: ContractInfoPSP[],
+      strategyName: string,
+  ): string {
+    return (addresses.find((contract) => contract.strategyName === strategyName)?.strategyAddress) as string;
   }
 
   async function fetchStringFromS3(bucket: string, key: string): Promise<string> {

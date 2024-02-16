@@ -1,5 +1,6 @@
 import {S3Service} from '@thisisarchimedes/backend-sdk';
 import {ContractInfoLeverage} from '../../types/ContractInfoLeverage';
+import {ContractInfoPSP} from '../../types/ContractInfoPSP';
 
 export interface LeverageContractAddresses {
   positionOpenerAddress: string;
@@ -10,14 +11,17 @@ export interface LeverageContractAddresses {
 
 export abstract class ConfigService {
   protected leverageContractAddresses!: LeverageContractAddresses;
+  protected pspContractInfo!: ContractInfoPSP[];
 
   protected readonly s3Service: S3Service = new S3Service();
   protected s3ConfigBucket: string;
   protected s3LeverageInfoKey: string;
+  protected s3PSPInfoKey: string;
 
-  constructor(s3ConfigBucket: string, s3LeverageInfoKey: string) {
+  constructor(s3ConfigBucket: string, s3LeverageInfoKey: string, s3PSPInfoKey: string) {
     this.s3ConfigBucket = s3ConfigBucket;
     this.s3LeverageInfoKey = s3LeverageInfoKey;
+    this.s3PSPInfoKey = s3PSPInfoKey;
   }
   abstract refreshConfig(): Promise<void>;
 
@@ -37,8 +41,16 @@ export abstract class ConfigService {
     return this.leverageContractAddresses.positionExpiratorAddress;
   }
 
+  public getPSPContractAddress(strategyName: string): string {
+    const contract = this.pspContractInfo.find((contract: { strategyName: string; }) =>
+      contract.strategyName === strategyName,
+    );
+
+    return contract?.strategyAddress || '';
+  }
+
   protected async refreshLeverageContractAddresses(): Promise<void> {
-    const res = await this.getLeverageContractAddressesFromS3();
+    const res = await this.getLeverageContractInfoFromS3();
 
     const positionOpenerAddress = res.find((contract: { name: string; }) => contract.name === 'PositionOpener');
     const positionLiquidatorAddress = res.find((contract: { name: string; }) =>
@@ -53,7 +65,11 @@ export abstract class ConfigService {
     } as LeverageContractAddresses;
   }
 
-  private async getLeverageContractAddressesFromS3(): Promise<ContractInfoLeverage[]> {
+  protected async refreshPSPContractInfo(): Promise<void> {
+    this.pspContractInfo = JSON.parse(await this.fetchS3Object(this.s3ConfigBucket, this.s3PSPInfoKey));
+  }
+
+  private async getLeverageContractInfoFromS3(): Promise<ContractInfoLeverage[]> {
     return JSON.parse(await this.fetchS3Object(this.s3ConfigBucket, this.s3LeverageInfoKey));
   }
 
