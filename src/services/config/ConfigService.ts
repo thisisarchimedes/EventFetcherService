@@ -9,20 +9,15 @@ export interface LeverageContractAddresses {
 }
 
 export abstract class ConfigService {
-  protected environment: string;
+  protected leverageContractAddresses!: LeverageContractAddresses;
 
-  protected leverageContractAddresses: LeverageContractAddresses;
   protected readonly s3Service: S3Service = new S3Service();
+  protected s3ConfigBucket: string;
+  protected s3LeverageInfoKey: string;
 
-  constructor(environment: string) {
-    this.environment = environment;
-
-    this.leverageContractAddresses = {
-      positionOpenerAddress: '',
-      positionLiquidatorAddress: '',
-      positionCloserAddress: '',
-      positionExpiratorAddress: '',
-    } as LeverageContractAddresses;
+  constructor(s3ConfigBucket: string, s3LeverageInfoKey: string) {
+    this.s3ConfigBucket = s3ConfigBucket;
+    this.s3LeverageInfoKey = s3LeverageInfoKey;
   }
   abstract refreshConfig(): Promise<void>;
 
@@ -59,10 +54,7 @@ export abstract class ConfigService {
   }
 
   private async getLeverageContractAddressesFromS3(): Promise<LeverageContractInfo[]> {
-    const bucket = process.env.S3_BUCKET_CONFIG || '';
-    const key = process.env.S3_DEPLOYMENT_ADDRESS_KEY || '';
-
-    return JSON.parse(await this.fetchS3Object(bucket, key));
+    return JSON.parse(await this.fetchS3Object(this.s3ConfigBucket, this.s3LeverageInfoKey));
   }
 
   private async fetchS3Object(bucket: string, key: string): Promise<string> {

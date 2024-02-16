@@ -12,7 +12,10 @@ describe('Config Service Test', function() {
 
   beforeEach(async function() {
     awsS3Client = createAwsS3Client();
-    configService = new ConfigServiceLocal('demo');
+
+    const s3ConfigBucket = process.env.S3_BUCKET_CONFIG || '';
+    const s3LeverageInfoKey = process.env.S3_DEPLOYMENT_ADDRESS_KEY || '';
+    configService = new ConfigServiceLocal(s3ConfigBucket, s3LeverageInfoKey);
     await configService.refreshConfig();
   });
 
