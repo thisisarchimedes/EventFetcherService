@@ -3,12 +3,10 @@ import {AppConfig, GetConfigurationCommandOutput} from '@aws-sdk/client-appconfi
 export class AppConfigClient {
   private readonly appConfigClient: AppConfig;
   private readonly environment: string;
-  private readonly region: string;
   private readonly clientId: string = 'EventFetcherService';
 
   constructor(environment: string, region: string) {
     this.appConfigClient = new AppConfig({region: region});
-    this.region = region;
     this.environment = environment;
   }
 
