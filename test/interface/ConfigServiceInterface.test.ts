@@ -1,23 +1,18 @@
 import {expect} from 'chai';
-import fs from 'fs';
-import util from 'util';
-
+import AWS from 'aws-sdk';
 import {ContractAddress} from '../../src/types/ContractAddress';
-import {ConfigServiceAdapter} from '../../test/adapters/ConfigServiceAdapter';
+import {ConfigServiceLocal} from '../../src/services/config/ConfigServiceLocal';
 import dotenv from 'dotenv';
 
 dotenv.config();
-const readFile = util.promisify(fs.readFile);
-
 
 describe('Config Service Test', function() {
-  let configService: ConfigServiceAdapter;
-  const leverageAddressesFile: string = 'test/data/leverageAddresses.json';
-
+  let awsS3Client: AWS.S3;
+  let configService: ConfigServiceLocal;
 
   beforeEach(async function() {
-    configService = new ConfigServiceAdapter('demo');
-    configService.setLeverageAddressesFile(leverageAddressesFile);
+    awsS3Client = createAwsS3Client();
+    configService = new ConfigServiceLocal('demo');
     await configService.refreshConfig();
   });
 
@@ -50,24 +45,25 @@ describe('Config Service Test', function() {
     expect(actualAddress).to.equal(expectedAddress);
   }
 
+  function createAwsS3Client() {
+    return new AWS.S3({
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      region: process.env.AWS_REGION,
+    });
+  }
+
   async function fetchLeverageContractAddresses(): Promise<ContractAddress[]> {
-    const data = await readFile(leverageAddressesFile, 'utf-8');
-    return JSON.parse(data);
+    const params = getS3Params();
+    const data = await awsS3Client.getObject(params).promise();
+    const configData = data.Body?.toString() ?? '';
+    return JSON.parse(configData);
+  }
+
+  function getS3Params() {
+    const bucket = process.env.S3_BUCKET_CONFIG || '';
+    const key = process.env.S3_DEPLOYMENT_ADDRESS_KEY || '';
+    if (!bucket || !key) throw new Error('S3 bucket or key is undefined.');
+    return {Bucket: bucket, Key: key};
   }
 });
-
-/*
-
-[X] Test locally: Can retrieve all the leverage contract addresses
-[] Test locally: Can retrieve all the PSP contract addresses
-[] Test locally: Can retrieve all the other correct values locally
-
-[] Test AWS: Can retrieve all the leverage contract addresses
-[] Test AWS: Can retrieve all the PSP contract addresses
-[] Test AWS: Can retrieve all the other correct values locally
-
-[] Can generate the correct config object (local/AWS)
-[] Loads the correct values for demo/stable/prod
-
-
-*/
