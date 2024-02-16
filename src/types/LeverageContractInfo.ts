@@ -1,4 +1,4 @@
-export type ContractAddress = {
+export type LeverageContractInfo = {
   address: string;
   name: string;
 };

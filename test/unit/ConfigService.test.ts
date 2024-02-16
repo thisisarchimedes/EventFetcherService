@@ -2,7 +2,7 @@ import {expect} from 'chai';
 import fs from 'fs';
 import util from 'util';
 
-import {ContractAddress} from '../../src/types/ContractAddress';
+import {LeverageContractInfo} from '../../src/types/LeverageContractInfo';
 import {ConfigServiceAdapter} from '../../test/adapters/ConfigServiceAdapter';
 import dotenv from 'dotenv';
 
@@ -24,25 +24,25 @@ describe('Config Service Test', function() {
   it('should get the correct leverage contract addresses when run locally', async function() {
     const leverageContractAddresses = await fetchLeverageContractAddresses();
 
-    validateContractAddress(
+    validateLeverageContractAddress(
         leverageContractAddresses,
         'PositionOpener',
         configService.getLeveragePositionOpenerAddress(),
     );
-    validateContractAddress(
+    validateLeverageContractAddress(
         leverageContractAddresses,
         'PositionLiquidator',
         configService.getLeveragePositionLiquidatorAddress(),
     );
-    validateContractAddress(
+    validateLeverageContractAddress(
         leverageContractAddresses,
         'PositionCloser',
         configService.getLeveragePositionCloserAddress(),
     );
   });
 
-  function validateContractAddress(
-      addresses: ContractAddress[],
+  function validateLeverageContractAddress(
+      addresses: LeverageContractInfo[],
       contractName: string,
       actualAddress: string,
   ) {
@@ -50,7 +50,7 @@ describe('Config Service Test', function() {
     expect(actualAddress).to.equal(expectedAddress);
   }
 
-  async function fetchLeverageContractAddresses(): Promise<ContractAddress[]> {
+  async function fetchLeverageContractAddresses(): Promise<LeverageContractInfo[]> {
     const data = await readFile(leverageAddressesFile, 'utf-8');
     return JSON.parse(data);
   }

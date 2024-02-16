@@ -1,5 +1,5 @@
 import {S3Service} from '@thisisarchimedes/backend-sdk';
-import {ContractAddress} from '../../types/ContractAddress';
+import {LeverageContractInfo} from '../../types/LeverageContractInfo';
 
 export interface LeverageContractAddresses {
   positionOpenerAddress: string;
@@ -16,6 +16,7 @@ export abstract class ConfigService {
 
   constructor(environment: string) {
     this.environment = environment;
+
     this.leverageContractAddresses = {
       positionOpenerAddress: '',
       positionLiquidatorAddress: '',
@@ -23,7 +24,6 @@ export abstract class ConfigService {
       positionExpiratorAddress: '',
     } as LeverageContractAddresses;
   }
-
   abstract refreshConfig(): Promise<void>;
 
   public getLeveragePositionOpenerAddress(): string {
@@ -42,14 +42,6 @@ export abstract class ConfigService {
     return this.leverageContractAddresses.positionExpiratorAddress;
   }
 
-  /* abstract getRPCURL(): string;
-  abstract getAlternateRPCURL(): string;
-
-  abstract getLastBlockScanned(): number;
-
-  abstract getEventsFetchPageSize(): number;
-  abstract getNewEventsQueueURL(): string;*/
-
   protected async refreshLeverageContractAddresses(): Promise<void> {
     const res = await this.getLeverageContractAddressesFromS3();
 
@@ -66,7 +58,7 @@ export abstract class ConfigService {
     } as LeverageContractAddresses;
   }
 
-  private async getLeverageContractAddressesFromS3(): Promise<ContractAddress[]> {
+  private async getLeverageContractAddressesFromS3(): Promise<LeverageContractInfo[]> {
     const bucket = process.env.S3_BUCKET_CONFIG || '';
     const key = process.env.S3_DEPLOYMENT_ADDRESS_KEY || '';
 
@@ -78,3 +70,11 @@ export abstract class ConfigService {
     return response.toString();
   }
 }
+
+/* abstract getRPCURL(): string;
+  abstract getAlternateRPCURL(): string;
+
+  abstract getLastBlockScanned(): number;
+
+  abstract getEventsFetchPageSize(): number;
+  abstract getNewEventsQueueURL(): string;*/
