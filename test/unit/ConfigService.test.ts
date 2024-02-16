@@ -2,7 +2,7 @@ import {expect} from 'chai';
 import fs from 'fs';
 import util from 'util';
 
-import {LeverageContractInfo} from '../../src/types/LeverageContractInfo';
+import {ContractInfoLeverage} from '../../src/types/ContractInfoLeverage';
 import {ConfigServiceAdapter} from '../../test/adapters/ConfigServiceAdapter';
 import dotenv from 'dotenv';
 
@@ -42,7 +42,7 @@ describe('Config Service Test', function() {
   });
 
   function validateLeverageContractAddress(
-      addresses: LeverageContractInfo[],
+      addresses: ContractInfoLeverage[],
       contractName: string,
       actualAddress: string,
   ) {
@@ -50,7 +50,7 @@ describe('Config Service Test', function() {
     expect(actualAddress).to.equal(expectedAddress);
   }
 
-  async function fetchLeverageContractAddresses(): Promise<LeverageContractInfo[]> {
+  async function fetchLeverageContractAddresses(): Promise<ContractInfoLeverage[]> {
     const data = await readFile(leverageAddressesFile, 'utf-8');
     return JSON.parse(data);
   }

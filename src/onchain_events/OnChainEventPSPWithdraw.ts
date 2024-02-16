@@ -1,10 +1,10 @@
 import {ethers} from 'ethers';
 import {OnChainEventPSP} from './OnChainEventPSP';
-import {IPSPStrategyConfig} from '../services/config/ConfigServicePSP';
+import {PSPContractInfo} from '../services/config/ConfigServicePSP';
 import {Logger} from '@thisisarchimedes/backend-sdk';
 
 export class OnChainEventPSPWithdraw extends OnChainEventPSP {
-  constructor(eventLog: ethers.providers.Log, strategyConfig: IPSPStrategyConfig, logger: Logger) {
+  constructor(eventLog: ethers.providers.Log, strategyConfig: PSPContractInfo, logger: Logger) {
     super(strategyConfig, logger);
     this.eventName = 'Withdraw';
     this.parseEventLog(eventLog);

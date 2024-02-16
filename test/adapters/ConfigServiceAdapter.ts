@@ -2,7 +2,7 @@ import fs from 'fs';
 import util from 'util';
 
 import {ConfigService, LeverageContractAddresses} from '../../src/services/config/ConfigService';
-import {LeverageContractInfo} from '../../src/types/LeverageContractInfo';
+import {ContractInfoLeverage} from '../../src/types/ContractInfoLeverage';
 
 const readFile = util.promisify(fs.readFile);
 
@@ -33,7 +33,7 @@ export class ConfigServiceAdapter extends ConfigService {
     } as LeverageContractAddresses;
   }
 
-  private async getLeverageContractAddressesFromFile(): Promise<LeverageContractInfo[]> {
+  private async getLeverageContractAddressesFromFile(): Promise<ContractInfoLeverage[]> {
     const data = await readFile(this.leverageAddressesFile, 'utf-8');
     return JSON.parse(data);
   }

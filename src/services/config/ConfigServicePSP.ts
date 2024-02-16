@@ -1,13 +1,8 @@
+import {ContractInfoPSP} from '../../types/ContractInfoPSP';
 import {ConfigService} from './ConfigServiceAWS';
 
-export interface IPSPStrategyConfig {
-  strategyName: string;
-  strategyAddress: string;
-}
-
-
 export class ConfigServicePSP extends ConfigService {
-  protected strategies: IPSPStrategyConfig[] = [];
+  protected strategies: ContractInfoPSP[] = [];
   protected readonly bucketName: string;
   protected readonly fileName: string;
 
@@ -30,7 +25,7 @@ export class ConfigServicePSP extends ConfigService {
     }
   }
 
-  public getStrategyConfigByIndex(index: number): IPSPStrategyConfig | undefined {
+  public getStrategyConfigByIndex(index: number): ContractInfoPSP | undefined {
     return index >= 0 && index < this.strategies.length ? this.strategies[index] : undefined;
   }
 
@@ -38,9 +33,9 @@ export class ConfigServicePSP extends ConfigService {
     return this.strategies.length;
   }
 
-  protected parseStrategyConfigs(data: string): IPSPStrategyConfig[] {
+  protected parseStrategyConfigs(data: string): ContractInfoPSP[] {
     try {
-      const parsedData = JSON.parse(data) as IPSPStrategyConfig[];
+      const parsedData = JSON.parse(data) as ContractInfoPSP[];
       return parsedData.map((item) => ({
         strategyName: item.strategyName,
         strategyAddress: item.strategyAddress,
@@ -50,7 +45,7 @@ export class ConfigServicePSP extends ConfigService {
     }
   }
 
-  protected updateStrategies(strategies: IPSPStrategyConfig[]): void {
+  protected updateStrategies(strategies: ContractInfoPSP[]): void {
     this.strategies = strategies;
   }
 }

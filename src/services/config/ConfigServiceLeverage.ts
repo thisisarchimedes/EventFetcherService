@@ -1,4 +1,4 @@
-import {LeverageContractInfo} from '../../types/LeverageContractInfo';
+import {ContractInfoLeverage} from '../../types/ContractInfoLeverage';
 import {EnvironmentContext} from '../../types/EnvironmentContext';
 import {ConfigService} from './ConfigServiceAWS';
 
@@ -8,7 +8,7 @@ export class ConfigServiceLeverage extends ConfigService {
       name: string,
       contractsJson: string,
   ): string {
-    const contracts = JSON.parse(contractsJson) as LeverageContractInfo[];
+    const contracts = JSON.parse(contractsJson) as ContractInfoLeverage[];
     const contract = contracts.find((contract) => contract.name === name);
     return contract?.address || '';
   }

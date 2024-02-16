@@ -2,7 +2,7 @@ import {expect} from 'chai';
 import AWS from 'aws-sdk';
 import dotenv from 'dotenv';
 
-import {LeverageContractInfo as LeverageContractInfo} from '../../src/types/LeverageContractInfo';
+import {ContractInfoLeverage as ContractInfoLeverage} from '../../src/types/ContractInfoLeverage';
 import {ConfigServiceLocal} from '../../src/services/config/ConfigServiceLocal';
 
 dotenv.config();
@@ -22,7 +22,7 @@ describe('Config Service Test', function() {
   }
 
   it('should get the correct leverage contract addresses when run locally', async function() {
-    const ExpectedLeverageContractAddresses: LeverageContractInfo[] = await JSON.parse(await fetchStringFromS3(
+    const ExpectedLeverageContractAddresses: ContractInfoLeverage[] = await JSON.parse(await fetchStringFromS3(
         process.env.S3_BUCKET_CONFIG ?? '',
         process.env.S3_DEPLOYMENT_ADDRESS_KEY ?? '',
     ));
@@ -45,11 +45,14 @@ describe('Config Service Test', function() {
   });
 
   it('should get the correct PSP contract addresses when run locally', async function() {
-    // const pspContractAddresses = await fetchPspContractAddresses();
+    /* onst ExpectedPSPContractInfo: ContractInfoLeverage[] = await JSON.parse(await fetchStringFromS3(
+        process.env.S3_BUCKET_CONFIG ?? '',
+        process.env.S3_DEPLOYMENT_ADDRESS_KEY ?? '',
+    ));*/
   });
 
   function validateLeverageContractAddress(
-      addresses: LeverageContractInfo[],
+      addresses: ContractInfoLeverage[],
       contractName: string,
       actualAddress: string,
   ) {

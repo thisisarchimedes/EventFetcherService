@@ -1,5 +1,5 @@
 import {S3Service} from '@thisisarchimedes/backend-sdk';
-import {LeverageContractInfo} from '../../types/LeverageContractInfo';
+import {ContractInfoLeverage} from '../../types/ContractInfoLeverage';
 
 export interface LeverageContractAddresses {
   positionOpenerAddress: string;
@@ -53,7 +53,7 @@ export abstract class ConfigService {
     } as LeverageContractAddresses;
   }
 
-  private async getLeverageContractAddressesFromS3(): Promise<LeverageContractInfo[]> {
+  private async getLeverageContractAddressesFromS3(): Promise<ContractInfoLeverage[]> {
     return JSON.parse(await this.fetchS3Object(this.s3ConfigBucket, this.s3LeverageInfoKey));
   }
 
