@@ -5,6 +5,7 @@ import util from 'util';
 import {ContractInfoLeverage} from '../../src/types/ContractInfoLeverage';
 import {ConfigServiceAdapter} from '../../test/adapters/ConfigServiceAdapter';
 import dotenv from 'dotenv';
+import {ContractInfoPSP} from '../../src/types/ContractInfoPSP';
 
 dotenv.config();
 const readFile = util.promisify(fs.readFile);
@@ -13,11 +14,12 @@ const readFile = util.promisify(fs.readFile);
 describe('Config Service Test', function() {
   let configService: ConfigServiceAdapter;
   const leverageAddressesFile: string = 'test/data/leverageAddresses.json';
-
+  const pspInfoFile: string = 'test/data/strategies.json';
 
   beforeEach(async function() {
-    configService = new ConfigServiceAdapter('demo');
+    configService = new ConfigServiceAdapter();
     configService.setLeverageAddressesFile(leverageAddressesFile);
+    configService.setPSPInfoFile(pspInfoFile);
     await configService.refreshConfig();
   });
 
@@ -50,8 +52,30 @@ describe('Config Service Test', function() {
     expect(actualAddress).to.equal(expectedAddress);
   }
 
+
+  it('should get the correct PSP contract addresses when run locally', async function() {
+    const ExpectedPSPContractInfo = await fetchPSPContractInfo();
+
+    ExpectedPSPContractInfo.forEach((contract) => {
+      const expectedAddress = getExpectedPSPContractAddress(ExpectedPSPContractInfo, contract.strategyName);
+      expect(expectedAddress).to.equal(configService.getPSPContractAddress(contract.strategyName));
+    });
+  });
+
+  function getExpectedPSPContractAddress(
+      addresses: ContractInfoPSP[],
+      strategyName: string,
+  ): string {
+    return (addresses.find((contract) => contract.strategyName === strategyName)?.strategyAddress) as string;
+  }
+
   async function fetchLeverageContractAddresses(): Promise<ContractInfoLeverage[]> {
     const data = await readFile(leverageAddressesFile, 'utf-8');
+    return JSON.parse(data);
+  }
+
+  async function fetchPSPContractInfo(): Promise<ContractInfoPSP[]> {
+    const data = await readFile(pspInfoFile, 'utf-8');
     return JSON.parse(data);
   }
 });
