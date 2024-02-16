@@ -42,6 +42,31 @@ describe('Config Service - Demo Environment', function() {
     expect(lastBlockScanned).to.be.a('number');
     expect(lastBlockScanned).to.be.greaterThan(19243000);
   });
+
+  it('should fetch RPC URL', async function() {
+    const rpcURL = await appConfigClient.fetchConfig('RpcUrl');
+
+    expect(rpcURL).to.not.be.undefined;
+    expect(rpcURL).to.be.a('string');
+    expect(rpcURL).to.match(/^(http|https|wss):\/\//);
+  });
+
+  it('should fetch Alt RPC URL', async function() {
+    const rpcURL = await appConfigClient.fetchConfig('AltRpcUrl');
+
+    expect(rpcURL).to.not.be.undefined;
+    expect(rpcURL).to.be.a('string');
+    expect(rpcURL).to.match(/^(http|https|wss):\/\//);
+  });
+
+  it('should fetch Events Fetch Page Size', async function() {
+    const EventsFetchPageSizeStr = await appConfigClient.fetchConfig('EventsFetchPageSize');
+    const EventsFetchPageSize = parseInt(EventsFetchPageSizeStr, 10);
+
+    expect(EventsFetchPageSize).to.not.be.undefined;
+    expect(EventsFetchPageSize).to.be.a('number');
+    expect(EventsFetchPageSize).to.be.greaterThan(1);
+  });
 });
 
 
