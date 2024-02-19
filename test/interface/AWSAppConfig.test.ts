@@ -12,13 +12,13 @@ describe('Config Service - Demo Environment', function() {
   });
 
   it('should fetch PSP strategies via AWS AppConfig', async function() {
-    const strategies = JSON.parse(await appConfigClient.fetchConfig('PSPStrategyInfo')) as ContractInfoPSP[];
+    const strategies = JSON.parse(await appConfigClient.fetchConfigRawString('PSPStrategyInfo')) as ContractInfoPSP[];
     expect(strategies).to.not.be.undefined;
     expect(strategies!.length).to.be.greaterThan(1);
   });
 
   it('should fetch Leverage addresses via AWS AppConfig', async function() {
-    const strategies = JSON.parse(await appConfigClient.fetchConfig('LeverageContractInfo')) as ContractInfoLeverage[];
+    const strategies = JSON.parse(await appConfigClient.fetchConfigRawString('LeverageContractInfo')) as ContractInfoLeverage[];
     expect(strategies).to.not.be.undefined;
 
     expect(strategies).to.not.be.undefined;
@@ -35,7 +35,7 @@ describe('Config Service - Demo Environment', function() {
   });
 
   it('should fetch last block scanned', async function() {
-    const lastBlockScannedStr = await appConfigClient.fetchConfig('LastBlockScanned');
+    const lastBlockScannedStr = await appConfigClient.fetchConfigRawString('LastBlockScanned');
     const lastBlockScanned = parseInt(lastBlockScannedStr, 10);
 
     expect(lastBlockScanned).to.not.be.undefined;
@@ -44,7 +44,7 @@ describe('Config Service - Demo Environment', function() {
   });
 
   it('should fetch RPC URL', async function() {
-    const rpcURL = await appConfigClient.fetchConfig('RpcUrl');
+    const rpcURL = await appConfigClient.fetchConfigRawString('RpcUrl');
 
     expect(rpcURL).to.not.be.undefined;
     expect(rpcURL).to.be.a('string');
@@ -52,7 +52,7 @@ describe('Config Service - Demo Environment', function() {
   });
 
   it('should fetch Alt RPC URL', async function() {
-    const rpcURL = await appConfigClient.fetchConfig('AltRpcUrl');
+    const rpcURL = await appConfigClient.fetchConfigRawString('AltRpcUrl');
 
     expect(rpcURL).to.not.be.undefined;
     expect(rpcURL).to.be.a('string');
@@ -60,7 +60,7 @@ describe('Config Service - Demo Environment', function() {
   });
 
   it('should fetch Events Fetch Page Size', async function() {
-    const EventsFetchPageSizeStr = await appConfigClient.fetchConfig('EventsFetchPageSize');
+    const EventsFetchPageSizeStr = await appConfigClient.fetchConfigRawString('EventsFetchPageSize');
     const EventsFetchPageSize = parseInt(EventsFetchPageSizeStr, 10);
 
     expect(EventsFetchPageSize).to.not.be.undefined;
@@ -69,7 +69,7 @@ describe('Config Service - Demo Environment', function() {
   });
 
   it('should fetch NewEventsQueueURL', async function() {
-    const rpcURL = await appConfigClient.fetchConfig('NewEventsQueueURL');
+    const rpcURL = await appConfigClient.fetchConfigRawString('NewEventsQueueURL');
 
     expect(rpcURL).to.not.be.undefined;
     expect(rpcURL).to.be.a('string');

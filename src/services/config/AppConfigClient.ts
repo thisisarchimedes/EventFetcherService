@@ -10,7 +10,7 @@ export class AppConfigClient {
     this.environment = environment;
   }
 
-  public async fetchConfig(configName: string): Promise<string> {
+  public async fetchConfigRawString(configName: string): Promise<string> {
     try {
       const response = await this.getConfigFromAppConfig(configName);
       return response;
