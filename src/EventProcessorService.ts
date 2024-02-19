@@ -60,7 +60,7 @@ export class EventProcessorService implements IEventProcessorService {
 
       const lastBlock = await this.getLastScannedBlock();
       const currentBlock = await this.getCurrentBlockNumber();
-      const events : ProcessedEvent[] = await this.fetchAndProcessEvents(lastBlock, currentBlock);
+      const events: ProcessedEvent[] = await this.fetchAndProcessEvents(lastBlock, currentBlock);
 
       if (events.length > 0) {
         this.logger.info(
@@ -77,8 +77,6 @@ export class EventProcessorService implements IEventProcessorService {
       this.logger.info('Event fetcher workflow completed.');
     } catch (error) {
       this.logger.error(`Error in event fetcher workflow: ${error}`);
-    } finally {
-      await this.logger.flush();
     }
   }
 
@@ -194,12 +192,12 @@ export class EventProcessorService implements IEventProcessorService {
           descriptor.contractType == ContractType.Opener ?
             this._context.positionOpenerAddress :
             descriptor.contractType == ContractType.Closer ?
-            this._context.positionCloserAddress :
-            descriptor.contractType == ContractType.Liquidator ?
-            this._context.positionLiquidatorAddress :
-            descriptor.contractType == ContractType.Expirator ?
-            this._context.positionExpiratorAddress :
-            '';
+              this._context.positionCloserAddress :
+              descriptor.contractType == ContractType.Liquidator ?
+                this._context.positionLiquidatorAddress :
+                descriptor.contractType == ContractType.Expirator ?
+                  this._context.positionExpiratorAddress :
+                  '';
 
         if (contractAddress.length == 0) continue;
 
@@ -224,8 +222,7 @@ export class EventProcessorService implements IEventProcessorService {
   private async queueEvents(events: ProcessedEvent[]): Promise<void> {
     for (const event of events) {
       this.logger.info(
-          `Appending message to queue ${
-            this._context.NEW_EVENTS_QUEUE_URL
+          `Appending message to queue ${this._context.NEW_EVENTS_QUEUE_URL
           }\n msg ${JSON.stringify(event)}`,
       );
       await this.sqsService.sendMessage(

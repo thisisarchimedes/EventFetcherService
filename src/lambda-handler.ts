@@ -14,27 +14,36 @@ export const handler = async (
     _context: any,
 ): Promise<void> => {
   Logger.initialize('Events fetcher');
-
-  const configService = new ConfigService();
-
-  const _appContext: EnvironmentContext = await configService.getEnvironmentContext();
   const logger = Logger.getInstance();
 
-  const mainrovider = new ethers.providers.JsonRpcProvider(
-      _appContext.rpcAddress ?? '',
-  );
-  const altProvider = new ethers.providers.JsonRpcProvider(
-      _appContext.alternateRpcAddress ?? '',
-  );
+  logger.info('1');
+  try {
+    const configService = new ConfigService();
 
-  const eventProcessorService = new EventProcessorService(
-      mainrovider,
-      altProvider,
-      s3Service,
-      sqsService,
-      logger,
-      _appContext,
-  );
+    const _appContext: EnvironmentContext = await configService.getEnvironmentContext();
+    logger.info('2');
 
-  await eventProcessorService.execute();
+    const mainrovider = new ethers.providers.JsonRpcProvider(
+        _appContext.rpcAddress ?? '',
+    );
+    const altProvider = new ethers.providers.JsonRpcProvider(
+        _appContext.alternateRpcAddress ?? '',
+    );
+    logger.info('3');
+    const eventProcessorService = new EventProcessorService(
+        mainrovider,
+        altProvider,
+        s3Service,
+        sqsService,
+        logger,
+        _appContext,
+    );
+
+    await eventProcessorService.execute();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (ex: any) {
+    console.log('Error:', (ex as Error).message);
+  } finally {
+    await logger.flush();
+  }
 };
