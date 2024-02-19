@@ -59,8 +59,13 @@ export class EventProcessorService implements IEventProcessorService {
                         Env: ${this._context.environment}`);
 
       const lastBlock = await this.getLastScannedBlock();
+      this.logger.info('4');
+
       const currentBlock = await this.getCurrentBlockNumber();
+      this.logger.info('5');
+
       const events: ProcessedEvent[] = await this.fetchAndProcessEvents(lastBlock, currentBlock);
+      this.logger.info('6');
 
       if (events.length > 0) {
         this.logger.info(
@@ -72,6 +77,7 @@ export class EventProcessorService implements IEventProcessorService {
             `No new events found on blocks ${lastBlock} to ${currentBlock}`,
         );
       }
+      this.logger.info('4');
 
       await this.setLastScannedBlock(currentBlock);
       this.logger.info('Event fetcher workflow completed.');
