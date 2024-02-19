@@ -13,6 +13,8 @@ export abstract class ConfigService {
   protected lastBlockScanned: number = 0;
   protected MainRPCURL: string = '';
   protected AltRPCURL: string = '';
+  protected EventFetchPageSize: number = 0;
+  protected EventQueueURL: string = '';
 
   abstract refreshConfig(): Promise<void>;
 
@@ -51,12 +53,12 @@ export abstract class ConfigService {
   public getAlternateRPCURL(): string {
     return this.AltRPCURL;
   }
+
+  public getEventsFetchPageSize(): number {
+    return this.EventFetchPageSize;
+  }
+
+  public getEventQueueURL(): string {
+    return this.EventQueueURL;
+  }
 }
-
-/* abstract getRPCURL(): string;
-  abstract getAlternateRPCURL(): string;
-
-  abstract getLastBlockScanned(): number;
-
-  abstract getEventsFetchPageSize(): number;
-  abstract getNewEventsQueueURL(): string;*/

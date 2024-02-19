@@ -3,7 +3,6 @@ import {ContractInfoPSP} from '../../types/ContractInfoPSP';
 import {ConfigService, LeverageContractAddresses} from './ConfigService';
 import {AppConfigClient} from './AppConfigClient';
 
-
 export class ConfigServiceAWS extends ConfigService {
   private readonly appConfigClient: AppConfigClient;
 
@@ -18,6 +17,8 @@ export class ConfigServiceAWS extends ConfigService {
       this.refreshPSPContractInfo(),
       this.refreshLastScannedBlock(),
       this.refreshRPCURL(),
+      this.refreshEventFetchPageSize(),
+      this.refreshEventQueueURL(),
     ]);
   }
 
@@ -79,5 +80,14 @@ export class ConfigServiceAWS extends ConfigService {
 
     this.MainRPCURL = mainRPCURL;
     this.AltRPCURL = altRPCURL;
+  }
+
+  private async refreshEventFetchPageSize(): Promise<void> {
+    const res = await this.appConfigClient.fetchConfigRawString('EventsFetchPageSize');
+    this.EventFetchPageSize = parseInt(res, 10);
+  }
+
+  private async refreshEventQueueURL(): Promise<void> {
+    this.EventQueueURL = await this.appConfigClient.fetchConfigRawString('NewEventsQueueURL');
   }
 }
