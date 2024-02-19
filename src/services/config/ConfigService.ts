@@ -11,8 +11,8 @@ export interface LeverageContractAddresses {
 
 export abstract class ConfigService {
   protected leverageContractAddresses!: LeverageContractAddresses;
-  protected pspContractInfo!: ContractInfoPSP[];
-  protected lastBlockScanned!: number;
+  protected pspContractInfo: ContractInfoPSP[] = [];
+  protected lastBlockScanned: number = 0;
 
   abstract refreshConfig(): Promise<void>;
 

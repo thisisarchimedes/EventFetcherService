@@ -63,7 +63,8 @@ export class ConfigServiceAWS extends ConfigService {
   }
 
   private async refreshPSPContractInfo(): Promise<void> {
-    this.pspContractInfo = await this.appConfigClient.fetchConfigRawString('PSPStrategyInfo') as unknown as ContractInfoPSP[];
+    const tmp = await this.appConfigClient.fetchConfigRawString('PSPStrategyInfo')
+    this.pspContractInfo = JSON.parse(tmp) as unknown as ContractInfoPSP[];
   }
 
   private async refreshLastScannedBlock(): Promise<void> {
