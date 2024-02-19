@@ -17,6 +17,7 @@ export class ConfigServiceAWS extends ConfigService {
       this.refreshLeverageContractAddresses(),
       this.refreshPSPContractInfo(),
       this.refreshLastScannedBlock(),
+      this.refreshRPCURL(),
     ]);
   }
 
@@ -68,5 +69,15 @@ export class ConfigServiceAWS extends ConfigService {
   private async refreshLastScannedBlock(): Promise<void> {
     const res = await this.appConfigClient.fetchConfigRawString('LastBlockScanned');
     this.lastBlockScanned = parseInt(res, 10);
+  }
+
+  private async refreshRPCURL(): Promise<void> {
+    const [mainRPCURL, altRPCURL] = await Promise.all([
+      this.appConfigClient.fetchConfigRawString('RpcUrl'),
+      this.appConfigClient.fetchConfigRawString('AltRpcUrl'),
+    ]);
+
+    this.MainRPCURL = mainRPCURL;
+    this.AltRPCURL = altRPCURL;
   }
 }

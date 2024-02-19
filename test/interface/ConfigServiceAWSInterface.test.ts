@@ -56,10 +56,19 @@ describe('Config Service Test', function() {
     return (addresses.find((contract) => contract.strategyName === strategyName)?.strategyAddress) as string;
   }
 
-  it('should retrieve last block scanned', function() {
+  it('should retrieve last block scanned from AWS', function() {
     const lastBlockScanned: number = configService.getLastBlockScanned();
     expect(lastBlockScanned).to.be.greaterThan(19242000);
   });
+
+  it('should get main and alt RPC URL from AWS', function() {
+    const mainRpcURL: string = configService.getMainRPCURL();
+    expect(mainRpcURL.startsWith('http')).to.be.true;
+
+    const altRpcURL: string = configService.getAlternateRPCURL();
+    expect(altRpcURL.startsWith('http')).to.be.true;
+  });
+
 
   async function fetchStringFromS3(bucket: string, key: string): Promise<string> {
     const awsS3Client = createAwsS3Client();

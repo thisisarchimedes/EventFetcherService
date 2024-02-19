@@ -11,6 +11,8 @@ export abstract class ConfigService {
   protected leverageContractAddresses!: LeverageContractAddresses;
   protected pspContractInfo: ContractInfoPSP[] = [];
   protected lastBlockScanned: number = 0;
+  protected MainRPCURL: string = '';
+  protected AltRPCURL: string = '';
 
   abstract refreshConfig(): Promise<void>;
 
@@ -40,6 +42,14 @@ export abstract class ConfigService {
 
   public getLastBlockScanned(): number {
     return this.lastBlockScanned;
+  }
+
+  public getMainRPCURL(): string {
+    return this.MainRPCURL;
+  }
+
+  public getAlternateRPCURL(): string {
+    return this.AltRPCURL;
   }
 }
 
