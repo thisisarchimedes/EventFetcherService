@@ -1,65 +1,46 @@
-import { expect } from 'chai';
+import {expect} from 'chai';
 import AWS from 'aws-sdk';
 import dotenv from 'dotenv';
 
-import { ContractInfoLeverage as ContractInfoLeverage } from '../../src/types/ContractInfoLeverage';
-import { ConfigServiceLocal } from '../../src/services/config/ConfigServiceLocal';
-import { ContractInfoPSP } from '../../src/types/ContractInfoPSP';
+import {ContractInfoLeverage as ContractInfoLeverage} from '../../src/types/ContractInfoLeverage';
+import {ConfigServiceAWS} from '../../src/services/config/ConfigServiceAWS';
+import {ContractInfoPSP} from '../../src/types/ContractInfoPSP';
 
 dotenv.config();
 
-describe('Config Service Test', function () {
-  let configService: ConfigServiceLocal;
+describe('Config Service Test', function() {
+  let configService: ConfigServiceAWS;
+  const ADDRESS_LENGTH = 42;
 
-  beforeEach(async function () {
+  beforeEach(async function() {
     await initalizeObjectUnderTest();
   });
 
   async function initalizeObjectUnderTest(): Promise<void> {
-    const s3ConfigBucket = process.env.S3_BUCKET_CONFIG || '';
-    const s3LeverageInfoKey = process.env.S3_DEPLOYMENT_ADDRESS_KEY || '';
-    const s3PSPInfoKey = process.env.PSP_STRATEGY_CONFIG_FILE || '';
-
-    configService = new ConfigServiceLocal(s3ConfigBucket, s3LeverageInfoKey, s3PSPInfoKey);
+    configService = new ConfigServiceAWS('Demo', 'us-east-1');
     await configService.refreshConfig();
   }
 
-  it('should get the correct leverage contract addresses when run locally', async function () {
-    const ExpectedLeverageContractAddresses: ContractInfoLeverage[] = await JSON.parse(await fetchStringFromS3(
-      process.env.S3_BUCKET_CONFIG ?? '',
-      process.env.S3_DEPLOYMENT_ADDRESS_KEY ?? '',
-    ));
+  it('should get the correct leverage contract addresses from AWS', async function() {
+    let address: string;
 
-    validateLeverageContractAddress(
-      ExpectedLeverageContractAddresses,
-      'PositionOpener',
-      configService.getLeveragePositionOpenerAddress(),
-    );
-    validateLeverageContractAddress(
-      ExpectedLeverageContractAddresses,
-      'PositionLiquidator',
-      configService.getLeveragePositionLiquidatorAddress(),
-    );
-    validateLeverageContractAddress(
-      ExpectedLeverageContractAddresses,
-      'PositionCloser',
-      configService.getLeveragePositionCloserAddress(),
-    );
+    address = await configService.getLeveragePositionOpenerAddress();
+    expect(address.startsWith('0x')).to.be.true;
+    expect(address.length).to.equal(ADDRESS_LENGTH);
+
+    address = await configService.getLeveragePositionLiquidatorAddress();
+    expect(address.startsWith('0x')).to.be.true;
+    expect(address.length).to.equal(ADDRESS_LENGTH);
+
+    address = await configService.getLeveragePositionCloserAddress();
+    expect(address.startsWith('0x')).to.be.true;
+    expect(address.length).to.equal(ADDRESS_LENGTH);
   });
 
-  function validateLeverageContractAddress(
-    addresses: ContractInfoLeverage[],
-    contractName: string,
-    actualAddress: string,
-  ) {
-    const expectedAddress = addresses.find((contract) => contract.name === contractName)?.address;
-    expect(actualAddress).to.equal(expectedAddress);
-  }
-
-  it('should get the correct PSP contract addresses when run locally', async function () {
+  it('should get the correct PSP contract addresses from AWS', async function() {
     const ExpectedPSPContractInfo: ContractInfoPSP[] = await JSON.parse(await fetchStringFromS3(
-      process.env.S3_BUCKET_CONFIG ?? '',
-      process.env.PSP_STRATEGY_CONFIG_FILE ?? '',
+        process.env.S3_BUCKET_CONFIG ?? '',
+        process.env.PSP_STRATEGY_CONFIG_FILE ?? '',
     ));
     expect(ExpectedPSPContractInfo.length).to.be.greaterThan(0);
 
@@ -70,8 +51,8 @@ describe('Config Service Test', function () {
   });
 
   function getExpectedPSPContractAddress(
-    addresses: ContractInfoPSP[],
-    strategyName: string,
+      addresses: ContractInfoPSP[],
+      strategyName: string,
   ): string {
     return (addresses.find((contract) => contract.strategyName === strategyName)?.strategyAddress) as string;
   }
@@ -84,7 +65,7 @@ describe('Config Service Test', function () {
   async function fetchStringFromS3(bucket: string, key: string): Promise<string> {
     const awsS3Client = createAwsS3Client();
 
-    const params = { Bucket: bucket, Key: key };
+    const params = {Bucket: bucket, Key: key};
     const data = await awsS3Client.getObject(params).promise();
     const configData = data.Body?.toString() ?? '';
     return configData;
