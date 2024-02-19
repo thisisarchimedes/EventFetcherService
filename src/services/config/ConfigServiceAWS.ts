@@ -22,33 +22,44 @@ export class ConfigServiceAWS extends ConfigService {
     ]);
   }
 
-  private async refreshLeverageContractAddresses(): Promise<void> {
-    let positionOpenerAddress: string = '';
-    let positionLiquidatorAddress: string = '';
-    let positionCloserAddress: string = '';
-
-    const tmp = await this.appConfigClient.fetchConfigRawString('LeverageContractInfo');
-    const res = JSON.parse(tmp) as unknown as ContractInfoLeverage[];
-
-    for (let i = 0; i < res.length; i++) {
-      const contract = res[i];
-      if (contract['name'] === 'PositionOpener') {
-        positionOpenerAddress = contract['address'];
-      } else if (contract['name'] === 'PositionLiquidator') {
-        positionLiquidatorAddress = contract['address'];
-      } else if (contract['name'] === 'PositionCloser') {
-        positionCloserAddress = contract['address'];
-      }
+  public async refreshLeverageContractAddresses(): Promise<void> {
+    try {
+      const leverageContractInfo = await this.fetchLeverageContractInfo();
+      this.leverageContractAddresses = this.extractLeverageContractAddresses(leverageContractInfo);
+    } catch (error) {
+      console.error('Failed to refresh leverage contract addresses:', error);
+      throw error;
     }
+  }
 
-    this.leverageContractAddresses = {
-      positionOpenerAddress: positionOpenerAddress,
-      positionLiquidatorAddress: positionLiquidatorAddress,
-      positionCloserAddress: positionCloserAddress,
+  private async fetchLeverageContractInfo(): Promise<ContractInfoLeverage[]> {
+    const configString = await this.appConfigClient.fetchConfigRawString('LeverageContractInfo');
+    return JSON.parse(configString);
+  }
+
+  private extractLeverageContractAddresses(contracts: ContractInfoLeverage[]): LeverageContractAddresses {
+    const addresses: LeverageContractAddresses = {
+      positionOpenerAddress: '',
+      positionLiquidatorAddress: '',
+      positionCloserAddress: '',
       positionExpiratorAddress: '',
-    } as LeverageContractAddresses;
+    };
 
-    console.log('Leverage contract addresses:', this.leverageContractAddresses);
+    contracts.forEach((contract) => {
+      switch (contract.name) {
+        case 'PositionOpener':
+          addresses.positionOpenerAddress = contract.address;
+          break;
+        case 'PositionLiquidator':
+          addresses.positionLiquidatorAddress = contract.address;
+          break;
+        case 'PositionCloser':
+          addresses.positionCloserAddress = contract.address;
+          break;
+      }
+    });
+
+    return addresses;
   }
 
   private async refreshPSPContractInfo(): Promise<void> {
