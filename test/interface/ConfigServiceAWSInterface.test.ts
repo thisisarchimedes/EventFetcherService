@@ -2,7 +2,6 @@ import {expect} from 'chai';
 import AWS from 'aws-sdk';
 import dotenv from 'dotenv';
 
-import {ContractInfoLeverage as ContractInfoLeverage} from '../../src/types/ContractInfoLeverage';
 import {ConfigServiceAWS} from '../../src/services/config/ConfigServiceAWS';
 import {ContractInfoPSP} from '../../src/types/ContractInfoPSP';
 

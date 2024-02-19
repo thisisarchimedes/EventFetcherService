@@ -1,5 +1,3 @@
-import {S3Service} from '@thisisarchimedes/backend-sdk';
-import {ContractInfoLeverage} from '../../types/ContractInfoLeverage';
 import {ContractInfoPSP} from '../../types/ContractInfoPSP';
 
 export interface LeverageContractAddresses {

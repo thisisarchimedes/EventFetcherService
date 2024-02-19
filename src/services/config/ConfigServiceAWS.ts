@@ -1,5 +1,3 @@
-import AWS from 'aws-sdk';
-
 import {ContractInfoLeverage} from '../../types/ContractInfoLeverage';
 import {ContractInfoPSP} from '../../types/ContractInfoPSP';
 import {ConfigService, LeverageContractAddresses} from './ConfigService';
@@ -63,8 +61,8 @@ export class ConfigServiceAWS extends ConfigService {
   }
 
   private async refreshPSPContractInfo(): Promise<void> {
-    const tmp = await this.appConfigClient.fetchConfigRawString('PSPStrategyInfo')
-    this.pspContractInfo = JSON.parse(tmp) as unknown as ContractInfoPSP[];
+    const res = await this.appConfigClient.fetchConfigRawString('PSPStrategyInfo');
+    this.pspContractInfo = JSON.parse(res) as unknown as ContractInfoPSP[];
   }
 
   private async refreshLastScannedBlock(): Promise<void> {

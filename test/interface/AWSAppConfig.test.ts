@@ -18,7 +18,9 @@ describe('Config Service - Demo Environment', function() {
   });
 
   it('should fetch Leverage addresses via AWS AppConfig', async function() {
-    const strategies = JSON.parse(await appConfigClient.fetchConfigRawString('LeverageContractInfo')) as ContractInfoLeverage[];
+    const res = await appConfigClient.fetchConfigRawString('LeverageContractInfo');
+    const strategies = JSON.parse(res) as ContractInfoLeverage[];
+
     expect(strategies).to.not.be.undefined;
 
     expect(strategies).to.not.be.undefined;
