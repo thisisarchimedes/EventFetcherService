@@ -177,52 +177,59 @@ export class EventProcessorService implements IEventProcessorService {
     return logRes;
   }
 
-  private async fetchAndProcessEvents(
-      fromBlock: number,
-      toBlock: number,
-  ): Promise<ProcessedEvent[]> {
+  private getContractAddressByType(contractType: ContractType): string {
+    switch (contractType) {
+      case ContractType.Opener:
+        return this._context.positionOpenerAddress;
+      case ContractType.Closer:
+        return this._context.positionCloserAddress;
+      case ContractType.Liquidator:
+        return this._context.positionLiquidatorAddress;
+      case ContractType.Expirator:
+        return this._context.positionExpiratorAddress;
+      default:
+        throw new Error(`Unknown contract type: ${contractType}`);
+    }
+  }
+
+
+  private async fetchAndProcessEvents(fromBlock: number, toBlock: number): Promise<ProcessedEvent[]> {
     const processedEvents: ProcessedEvent[] = [];
-    for (
-      let startBlock = fromBlock + 1;
-      startBlock <= toBlock;
-      startBlock += this._context.EVENTS_FETCH_PAGE_SIZE
-    ) {
-      const endBlock = Math.min(
-          startBlock + this._context.EVENTS_FETCH_PAGE_SIZE - 1,
-          toBlock,
-      );
-      for (const descriptor of this.EVENT_DESCRIPTORS) {
-        let filter = {};
 
-        const contractAddress =
-          descriptor.contractType == ContractType.Opener ?
-            this._context.positionOpenerAddress :
-            descriptor.contractType == ContractType.Closer ?
-              this._context.positionCloserAddress :
-              descriptor.contractType == ContractType.Liquidator ?
-                this._context.positionLiquidatorAddress :
-                descriptor.contractType == ContractType.Expirator ?
-                  this._context.positionExpiratorAddress :
-                  '';
+    for (let startBlock = fromBlock + 1; startBlock <= toBlock; startBlock += this._context.EVENTS_FETCH_PAGE_SIZE) {
+      const endBlock = Math.min(startBlock + this._context.EVENTS_FETCH_PAGE_SIZE - 1, toBlock);
 
-        if (contractAddress.length == 0) continue;
-
-        filter = {
-          address: contractAddress,
+      // Create a combined filter for all events
+      const filters = this.EVENT_DESCRIPTORS.map((descriptor) => {
+        return {
+          address: this.getContractAddressByType(descriptor.contractType),
           topics: [descriptor.signature],
           fromBlock: startBlock,
-          toBlock: endBlock + 5,
+          toBlock: endBlock,
         };
+      });
 
-        const fetchedLogs = await this.fetchLogsFromProviders(filter);
-        const uniqueLogs = this.deduplicateLogs(fetchedLogs);
-        const processedLogs = this.decodeAndProcessLogs(uniqueLogs, descriptor);
+      // Fetch logs once for each block range
+      const fetchedLogs = await this.fetchLogsFromCombinedFilters(filters);
 
+      // Process fetched logs for each event descriptor
+      for (const descriptor of this.EVENT_DESCRIPTORS) {
+        const relevantLogs = fetchedLogs.filter((log) => log.topics.includes(descriptor.signature));
+        const processedLogs = this.decodeAndProcessLogs(relevantLogs, descriptor);
         processedEvents.push(...processedLogs);
       }
     }
 
     return processedEvents;
+  }
+
+  private async fetchLogsFromCombinedFilters(filters: ethers.providers.Filter[]): Promise<ethers.providers.Log[]> {
+    const allLogs = [];
+    for (const filter of filters) {
+      const logs = await this.fetchLogsFromProviders(filter);
+      allLogs.push(...logs);
+    }
+    return this.deduplicateLogs(allLogs);
   }
 
   private async queueEvents(events: ProcessedEvent[]): Promise<void> {
