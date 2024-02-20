@@ -9,8 +9,10 @@ import chaiAsPromised from 'chai-as-promised';
 import chai from 'chai';
 
 import {EventProcessorService} from '../../src/EventProcessorService';
+import { ConfigService } from '../../src/services/config/ConfigService';
+import { ConfigServiceAdapter } from '../adapters/ConfigServiceAdapter';
 
-// Set up Chai to use the sinonChai and chaiAsPromised plugins
+
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
 
@@ -23,6 +25,7 @@ describe('Inner logic functions', function() {
   let s3Stub: sinon.SinonStubbedInstance<S3Service>;
   let sqsStub: sinon.SinonStubbedInstance<SQSService>;
   let loggerStub: sinon.SinonStubbedInstance<Logger>;
+  let configSerivce: ConfigService;
 
   beforeEach(async function() {
     // Deploy a mock contract for the tests
@@ -65,8 +68,14 @@ describe('Inner logic functions', function() {
     // Stub the Logger
     loggerStub = sinon.createStubInstance(Logger);
 
+    configSerivce = new ConfigServiceAdapter();
+
     // Initialize the EventProcessorService with the stubs and mock contract
     eventProcessorService = new EventProcessorService(
+      loggerStub,
+      configSerivce);
+
+   /* eventProcessorService = new EventProcessorService(
         ethers.provider,
         ethers.provider,
         s3Stub,
@@ -86,7 +95,7 @@ describe('Inner logic functions', function() {
           NEW_EVENTS_QUEUE_URL: 'test-queue-url',
           EVENTS_FETCH_PAGE_SIZE: 1000,
         },
-    );
+    );*/
   });
 
   // Helper function to create a mock Log object

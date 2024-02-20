@@ -8,6 +8,7 @@ export interface LeverageContractAddresses {
 }
 
 export abstract class ConfigService {
+  protected environment: string = '';
   protected leverageContractAddresses!: LeverageContractAddresses;
   protected pspContractInfo: ContractInfoPSP[] = [];
   protected lastBlockScanned: number = 0;
@@ -15,8 +16,14 @@ export abstract class ConfigService {
   protected AltRPCURL: string = '';
   protected EventFetchPageSize: number = 0;
   protected EventQueueURL: string = '';
+  protected MaxNumberOfBlocksToProess: number = 1000;
 
   abstract refreshConfig(): Promise<void>;
+  abstract setLastScannedBlock(blockNumber: number): Promise<void>;
+
+  public getEnvironment(): string {
+    return this.environment;
+  }
 
   public getLeveragePositionOpenerAddress(): string {
     return this.leverageContractAddresses.positionOpenerAddress;
@@ -34,12 +41,22 @@ export abstract class ConfigService {
     return this.leverageContractAddresses.positionExpiratorAddress;
   }
 
-  public getPSPContractAddress(strategyName: string): string {
+  public getPSPContractAddressByStrategyName(strategyName: string): string {
     const contract = this.pspContractInfo.find((contract: { strategyName: string; }) =>
       contract.strategyName === strategyName,
     );
 
     return contract?.strategyAddress || '';
+  }
+
+  public getPSPStrategyInfoByAddress(strategyAddress: string): ContractInfoPSP | undefined {
+    return this.pspContractInfo.find((contract: { strategyAddress: string; }) =>
+      contract.strategyAddress === strategyAddress,
+    );
+  }
+
+  public getPSPStrategyCount(): number {
+    return this.pspContractInfo.length;
   }
 
   public getLastBlockScanned(): number {
@@ -50,7 +67,7 @@ export abstract class ConfigService {
     return this.MainRPCURL;
   }
 
-  public getAlternateRPCURL(): string {
+  public getAlternativeRPCURL(): string {
     return this.AltRPCURL;
   }
 
@@ -60,5 +77,9 @@ export abstract class ConfigService {
 
   public getEventQueueURL(): string {
     return this.EventQueueURL;
+  }
+
+  public getMaxNumberOfBlocksToProcess(): number {
+    return this.MaxNumberOfBlocksToProess;
   }
 }

@@ -1,18 +1,19 @@
 import {ethers} from 'ethers';
-import {ConfigServicePSP, PSPContractInfo} from '../services/config/ConfigServicePSP';
+import {ConfigService} from '../services/config/ConfigService';
 import {Logger} from '@thisisarchimedes/backend-sdk';
 import {OnChainEventPSPDeposit} from './OnChainEventPSPDeposit';
 import {OnChainEventPSPWithdraw} from './OnChainEventPSPWithdraw';
 import {OnChainEventPSP} from './OnChainEventPSP';
+import {ContractInfoPSP} from '../types/ContractInfoPSP';
 
 const TOPIC_EVENT_PSP_DEPOSIT = '0xdcbc1c05240f31ff3ad067ef1ee35ce4997762752e3a095284754544f4c709d7';
 const TOPIC_EVENT_PSP_WITHDRAW = '0xfbde797d201c681b91056529119e0b02407c7bb96a4a2c75c01fc9667232c8db';
 
 export class EventFactory {
-  private configService: ConfigServicePSP;
+  private configService: ConfigService;
   private logger: Logger;
 
-  constructor(configService: ConfigServicePSP, logger: Logger) {
+  constructor(configService: ConfigService, logger: Logger) {
     this.configService = configService;
     this.logger = logger;
   }
@@ -36,16 +37,12 @@ export class EventFactory {
     }
   }
 
-  private findStrategyConfigByEventContractAddress(eventAddress: string): PSPContractInfo {
-    const strategyCount = this.configService.getStrategyCount();
-    for (let i = 0; i < strategyCount; i++) {
-      const strategy = this.configService.getStrategyConfigByIndex(i);
-      if (strategy?.strategyAddress.toLowerCase() === eventAddress.toLowerCase()) {
-        return strategy;
-      }
+  private findStrategyConfigByEventContractAddress(eventAddress: string): ContractInfoPSP {
+    const res = this.configService.getPSPStrategyInfoByAddress(eventAddress);
+    if (res === undefined) {
+      throw new Error(`Unknown strategy address: ${eventAddress}`);
     }
 
-    const errorMessage = `Unknown strategy address: ${eventAddress}`;
-    throw new Error(errorMessage);
+    return res;
   }
 }

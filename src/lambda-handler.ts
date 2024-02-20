@@ -1,12 +1,8 @@
 import {S3Service, SQSService, Logger} from '@thisisarchimedes/backend-sdk';
 import {EventProcessorService} from './EventProcessorService';
-import {ConfigServiceLeverage} from './services/config/ConfigServiceLeverage';
+import {ConfigServiceAWS} from './services/config/ConfigServiceAWS';
 import {ethers} from 'ethers';
 import {EnvironmentContext} from './types/EnvironmentContext';
-import {ConfigServicePSP} from './services/config/ConfigServicePSP';
-
-const s3Service = new S3Service();
-const sqsService = new SQSService();
 
 export const handler = async (
     // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
@@ -14,34 +10,15 @@ export const handler = async (
     // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
     _context: any,
 ): Promise<void> => {
-  Logger.initialize('Events fetcher');
+  const environment = process.env.ENVIRONMENT as string;
+  const region = process.env.AWS_REGION as string;
+  const configService: ConfigServiceAWS = new ConfigServiceAWS(environment, region);
+  await configService.refreshConfig();
 
-  const configService = new ConfigServiceLeverage();
-  const _appContext: EnvironmentContext = await configService.getEnvironmentContext();
+  Logger.initialize('Events fetcher');
   const logger = Logger.getInstance();
 
-  const mainrovider = new ethers.providers.JsonRpcProvider(
-      _appContext.rpcAddress ?? '',
-  );
-  const altProvider = new ethers.providers.JsonRpcProvider(
-      _appContext.alternateRpcAddress ?? '',
-  );
-
-  const pspBucketName = process.env.PSP_STRATEGY_CONFIG_BUCKET as string;
-  const pspFileName = process.env.PSP_STRATEGY_CONFIG_FILE as string;
-  const configServicePSP: ConfigServicePSP = new ConfigServicePSP(pspBucketName, pspFileName);
-
-  await configServicePSP.refreshStrategyConfig();
-
-  const eventProcessorService = new EventProcessorService(
-      mainrovider,
-      altProvider,
-      s3Service,
-      sqsService,
-      logger,
-      _appContext,
-      configServicePSP,
-  );
+  const eventProcessorService = new EventProcessorService(logger, configService);
 
   await eventProcessorService.execute();
 };

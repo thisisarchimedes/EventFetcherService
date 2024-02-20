@@ -1,7 +1,7 @@
 import nock from 'nock';
-import {LoggerAdapter} from '../adapters/LoggerAdapter';
+import {LoggerAdapter} from '../../adapters/LoggerAdapter';
 import {Mock} from './Mock';
-import {EventFetcherLogEntryMessage, NewRelicLogEntry} from '../../src/types/NewRelicLogEntry';
+import {EventFetcherLogEntryMessage, NewRelicLogEntry} from '../../../src/types/NewRelicLogEntry';
 
 export class MockNewRelic extends Mock {
   private baseUrl: string;

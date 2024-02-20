@@ -5,8 +5,8 @@ import {LoggerAdapter} from '../adapters/LoggerAdapter';
 import {EventFetcherLogEntryMessage} from '../../src/types/NewRelicLogEntry';
 import {handler} from '../../src/lambda-handler';
 
-import {MockEthereumNode} from './MockEthereumNode';
-import {MockNewRelic} from './MockNewRelic';
+import {MockEthereumNode} from './Mocks/MockEthereumNode';
+import {MockNewRelic} from './Mocks/MockNewRelic';
 
 describe('PSP Events', function() {
   let logger: LoggerAdapter;

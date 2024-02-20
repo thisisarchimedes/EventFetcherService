@@ -4,7 +4,7 @@ import {expect} from 'chai';
 
 import {LoggerAdapter} from '../adapters/LoggerAdapter';
 import {EventFetcherAdapter} from '../adapters/EventFetcherAdapter';
-import {ConfigServicePSPAdapter} from '../adapters/ConfigServicePSPAdapter';
+import {ConfigServiceAdapter} from '../adapters/ConfigServiceAdapter';
 
 import {EventFactory} from '../../src/onchain_events/EventFactory';
 import {OnChainEventPSP} from '../../src/onchain_events/OnChainEventPSP';
@@ -14,14 +14,16 @@ import {EventFetcherLogEntryMessage} from '../../src/types/NewRelicLogEntry';
 describe('PSP Events Logging', function() {
   let logger: LoggerAdapter;
   let eventFetcher: EventFetcherAdapter;
-  let configService: ConfigServicePSPAdapter;
+  let configService: ConfigServiceAdapter;
   let eventFactory: EventFactory;
 
   beforeEach(async function() {
     logger = new LoggerAdapter('local_logger.txt');
     eventFetcher = new EventFetcherAdapter();
-    configService = new ConfigServicePSPAdapter('test/data/strategies.json');
-    await configService.refreshStrategyConfig();
+    configService = new ConfigServiceAdapter();
+    configService.setLeverageAddressesFile('test/data/leverageAddresses.json');
+    configService.setPSPInfoFile('test/data/strategies.json');
+    await configService.refreshConfig();
 
     eventFactory = new EventFactory(configService, logger as unknown as Logger);
   });

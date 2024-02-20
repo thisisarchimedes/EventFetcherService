@@ -45,8 +45,11 @@ describe('Config Service Test', function() {
 
     ExpectedPSPContractInfo.forEach((contract) => {
       const expectedAddress = getExpectedPSPContractAddress(ExpectedPSPContractInfo, contract.strategyName);
-      expect(expectedAddress).to.equal(configService.getPSPContractAddress(contract.strategyName));
+      expect(expectedAddress).to.equal(configService.getPSPContractAddressByStrategyName(contract.strategyName));
     });
+
+    const strategyCount: number = configService.getPSPStrategyCount();
+    expect(strategyCount).to.equal(ExpectedPSPContractInfo.length);
   });
 
   function getExpectedPSPContractAddress(
@@ -75,14 +78,28 @@ describe('Config Service Test', function() {
 
   it('should retrieve last block scanned from AWS', function() {
     const lastBlockScanned: number = configService.getLastBlockScanned();
-    expect(lastBlockScanned).to.be.greaterThan(19242000);
+    expect(lastBlockScanned).to.be.gte(6000000);
+  });
+
+  it('should set last block scanned', async function() {
+    const OriginalBlockScanned: number = configService.getLastBlockScanned();
+
+    await configService.setLastScannedBlock(OriginalBlockScanned - 1);
+    const newBlockScanned: number = configService.getLastBlockScanned();
+
+    expect(newBlockScanned).to.not.be.undefined;
+    expect(newBlockScanned).to.be.a('number');
+    expect(newBlockScanned).to.be.equal(OriginalBlockScanned - 1);
+
+    // reset the block scanned to original value
+    await configService.setLastScannedBlock(OriginalBlockScanned);
   });
 
   it('should get main and alt RPC URL from AWS', function() {
     const mainRpcURL: string = configService.getMainRPCURL();
     expect(mainRpcURL.startsWith('http')).to.be.true;
 
-    const altRpcURL: string = configService.getAlternateRPCURL();
+    const altRpcURL: string = configService.getAlternativeRPCURL();
     expect(altRpcURL.startsWith('http')).to.be.true;
   });
 

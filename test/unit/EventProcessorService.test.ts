@@ -9,6 +9,8 @@ import chaiAsPromised from 'chai-as-promised';
 import chai from 'chai';
 
 import {EventProcessorService} from '../../src/EventProcessorService';
+import { ConfigServiceAdapter } from '../adapters/ConfigServiceAdapter';
+import { ConfigService } from '../../src/services/config/ConfigService';
 
 // Set up Chai to use the sinonChai and chaiAsPromised plugins
 chai.use(sinonChai);
@@ -25,8 +27,12 @@ describe('Events Catching and logging', function() {
   let sqsStub: sinon.SinonStubbedInstance<SQSService>;
   let loggerStub: sinon.SinonStubbedInstance<Logger>;
 
+  let configService: ConfigServiceAdapter;
+
   // This runs before each individual test
   beforeEach(async function() {
+
+    const startBlock = await ethers.provider.getBlockNumber();
     // Deploy a mock contract for the tests
     const PositionOpenerFactory = await ethers.getContractFactory(
         'PositionOpener_mock',
@@ -56,6 +62,13 @@ describe('Events Catching and logging', function() {
     positionExpiratorMockContract = await PositionExpiratorFactory.deploy();
     await positionExpiratorMockContract.deployed();
 
+    const leverageContractAddresses = {
+      positionOpenerAddress: positionOpenerMockContract.address,
+      positionCloserAddress: positionCloserMockContract.address,
+      positionLiquidatorAddress: positionLiquidatorMockContract.address,
+      positionExpiratorAddress: positionExpiratorMockContract.address,
+    };
+
     // Stub the S3Service and SQSService and their methods
     s3Stub = sinon.createStubInstance(S3Service);
     s3Stub.getObject.resolves();
@@ -67,8 +80,20 @@ describe('Events Catching and logging', function() {
     // Stub the Logger
     loggerStub = sinon.createStubInstance(Logger);
 
+    configService = new ConfigServiceAdapter();
+    configService.setLeverageAddressesFile('test/data/leverageAddresses.json');
+    configService.setPSPInfoFile('test/data/strategies.json');
+    configService.setMaxNumberOfBlocksToProess(10);
+    configService.setLastBlockScanned(startBlock);
+    await configService.refreshConfig();
+
+    configService.setLeverageAddresses(leverageContractAddresses);
+
+
     // Initialize the EventProcessorService with the stubs and mock contract
-    eventProcessorService = new EventProcessorService(
+    eventProcessorService = new EventProcessorService(loggerStub, configService);
+
+    /*eventProcessorService = new EventProcessorService(
         ethers.provider,
         ethers.provider,
         s3Stub,
@@ -88,7 +113,7 @@ describe('Events Catching and logging', function() {
           NEW_EVENTS_QUEUE_URL: 'test-queue-url',
           EVENTS_FETCH_PAGE_SIZE: 1000,
         },
-    );
+    );*/
   });
 
   // Test case for processing the openPosition event

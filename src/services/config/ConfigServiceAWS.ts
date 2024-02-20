@@ -2,12 +2,15 @@ import {ContractInfoLeverage} from '../../types/ContractInfoLeverage';
 import {ContractInfoPSP} from '../../types/ContractInfoPSP';
 import {ConfigService, LeverageContractAddresses} from './ConfigService';
 import {AppConfigClient} from './AppConfigClient';
+import {S3Service} from '@thisisarchimedes/backend-sdk';
 
 export class ConfigServiceAWS extends ConfigService {
   private readonly appConfigClient: AppConfigClient;
+  private readonly s3Service: S3Service = new S3Service();
 
   constructor(environment: string, region: string) {
     super();
+    this.environment = environment;
     this.appConfigClient = new AppConfigClient(environment, region);
   }
 
@@ -20,6 +23,12 @@ export class ConfigServiceAWS extends ConfigService {
       this.refreshEventFetchPageSize(),
       this.refreshEventQueueURL(),
     ]);
+  }
+
+  public async setLastScannedBlock(blockNumber: number): Promise<void> {
+    const res = JSON.parse(await this.appConfigClient.fetchConfigRawString('LastBlockScannedS3FileURL'));
+    await this.s3Service.putObject(res['bucket'], res['key'], blockNumber.toString());
+    this.lastBlockScanned = blockNumber;
   }
 
   public async refreshLeverageContractAddresses(): Promise<void> {
@@ -68,8 +77,9 @@ export class ConfigServiceAWS extends ConfigService {
   }
 
   private async refreshLastScannedBlock(): Promise<void> {
-    const res = await this.appConfigClient.fetchConfigRawString('LastBlockScanned');
-    this.lastBlockScanned = parseInt(res, 10);
+    const res = JSON.parse(await this.appConfigClient.fetchConfigRawString('LastBlockScannedS3FileURL'));
+    const blockNumber = await this.s3Service.getObject(res['bucket'], res['key']);
+    this.lastBlockScanned = parseInt(blockNumber, 10);
   }
 
   private async refreshRPCURL(): Promise<void> {

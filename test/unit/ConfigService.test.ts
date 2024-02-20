@@ -57,7 +57,7 @@ describe('Config Service Test', function() {
 
     ExpectedPSPContractInfo.forEach((contract) => {
       const expectedAddress = getExpectedPSPContractAddress(ExpectedPSPContractInfo, contract.strategyName);
-      expect(expectedAddress).to.equal(configService.getPSPContractAddress(contract.strategyName));
+      expect(expectedAddress).to.equal(configService.getPSPContractAddressByStrategyName(contract.strategyName));
     });
   });
 
@@ -67,6 +67,15 @@ describe('Config Service Test', function() {
   ): string {
     return (addresses.find((contract) => contract.strategyName === strategyName)?.strategyAddress) as string;
   }
+
+  it('should get ContracInfoPSP by address', async function() {
+    const ExpectedPSPContractInfo: ContractInfoPSP[] = await fetchPSPContractInfo();
+
+    ExpectedPSPContractInfo.forEach((contract) => {
+      const expectedContract = ExpectedPSPContractInfo.find((c) => c.strategyAddress === contract.strategyAddress);
+      expect(expectedContract).to.deep.equal(configService.getPSPStrategyInfoByAddress(contract.strategyAddress));
+    });
+  });
 
   async function fetchLeverageContractAddresses(): Promise<ContractInfoLeverage[]> {
     const data = await readFile(leverageAddressesFile, 'utf-8');

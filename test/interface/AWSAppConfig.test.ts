@@ -36,15 +36,6 @@ describe('Config Service - Demo Environment', function() {
     expect(positionCloser).to.not.be.undefined;
   });
 
-  it('should fetch last block scanned', async function() {
-    const lastBlockScannedStr = await appConfigClient.fetchConfigRawString('LastBlockScanned');
-    const lastBlockScanned = parseInt(lastBlockScannedStr, 10);
-
-    expect(lastBlockScanned).to.not.be.undefined;
-    expect(lastBlockScanned).to.be.a('number');
-    expect(lastBlockScanned).to.be.greaterThan(19243000);
-  });
-
   it('should fetch RPC URL', async function() {
     const rpcURL = await appConfigClient.fetchConfigRawString('RpcUrl');
 

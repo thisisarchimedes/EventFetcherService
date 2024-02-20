@@ -1,6 +1,6 @@
 import {ethers} from 'ethers';
 import rawEventDescriptors from './events.json';
-import {S3Service, SQSService, Logger} from '@thisisarchimedes/backend-sdk';
+import {SQSService, Logger} from '@thisisarchimedes/backend-sdk';
 import dotenv from 'dotenv';
 import {IEventProcessorService} from './IEventProcessorService';
 import {
@@ -8,10 +8,9 @@ import {
   DecodedData,
   EventDescriptor,
 } from './types/EventDescriptor';
-import {EnvironmentContext} from './types/EnvironmentContext';
 import {ProcessedEvent} from './types/ProcessedEvent';
 import {EventData} from './types/EventData';
-import {ConfigServicePSP} from './services/config/ConfigServicePSP';
+import {ConfigService} from './services/config/ConfigService';
 import {EventFactory} from './onchain_events/EventFactory';
 import {EventFetcherRPC} from './services/blockchain/EventFetcherRPC';
 
@@ -30,54 +29,60 @@ const EVENT_DESCRIPTORS: EventDescriptor[] = rawEventDescriptors.map((event) => 
 });
 
 export class EventProcessorService implements IEventProcessorService {
-  private readonly mainProvider: ethers.providers.Provider;
-  private readonly altProvider: ethers.providers.Provider;
-  private readonly s3Service: S3Service;
-  private readonly sqsService: SQSService;
   private readonly EVENT_DESCRIPTORS = EVENT_DESCRIPTORS;
   private readonly logger: Logger;
-  private readonly _context: EnvironmentContext;
+  private readonly configService: ConfigService;
 
-  private readonly configServicePSP: ConfigServicePSP;
   private readonly eventFactory: EventFactory;
+  private readonly mainProvider: ethers.providers.Provider;
+  private readonly altProvider: ethers.providers.Provider;
+
+  private readonly sqsService: SQSService;
 
   constructor(
-      mainProvider: ethers.providers.Provider,
-      altProvider: ethers.providers.Provider,
-      s3Service: S3Service,
-      sqsService: SQSService,
       logger: Logger,
-      context: EnvironmentContext,
-      configServicePSP: ConfigServicePSP,
+      configService: ConfigService,
   ) {
-    this.mainProvider = mainProvider;
-    this.altProvider = altProvider;
-    this.s3Service = s3Service;
-    this.sqsService = sqsService;
     this.logger = logger;
-    this._context = context;
+    this.configService = configService;
+    this.eventFactory = new EventFactory(this.configService, this.logger);
 
-    this.configServicePSP = configServicePSP;
-    this.eventFactory = new EventFactory(this.configServicePSP, this.logger);
+    this.sqsService = new SQSService();
+
+    console.log('----', configService);
+    this.mainProvider = new ethers.providers.JsonRpcProvider(
+        configService.getMainRPCURL(),
+    );
+    this.altProvider = new ethers.providers.JsonRpcProvider(
+        configService.getAlternativeRPCURL(),
+    );
   }
 
   public async execute(): Promise<void> {
+    console.log('0 - execute: Executing the event fetcher workflow...');
     try {
       this.logger.info('Executing the event fetcher workflow...');
-      this.logger.info(`RPC: ${this._context.rpcAddress}\n
-                        SQS queue: ${this._context.NEW_EVENTS_QUEUE_URL}\n
-                        Env: ${this._context.environment}`);
+      this.logger.info(`RPC: ${this.configService.getMainRPCURL()}\n
+                        SQS queue: ${this.configService.getEventQueueURL()}\n
+                        Env: ${this.configService.getEnvironment()}`);
 
-      const lastBlock = await this.getLastScannedBlock();
-      const currentBlock = await this.getCurrentBlockNumber();
+      console.log(`1 - RPC: ${this.configService.getMainRPCURL()}\n
+      SQS queue: ${this.configService.getEventQueueURL()}\n
+      Env: ${this.configService.getEnvironment()}`);
+      const startBlock = await this.getStartBlockNumber();
+      const endBlock = await this.getEndBlockNumber();
+      console.log('1 - execute: startBlock', startBlock);
+      console.log('2 - execute: endBlock', endBlock);
 
-      await this.processAndQueueLeverageEvents(lastBlock, currentBlock);
-      await this.processPSPEvents(lastBlock, currentBlock);
+      await this.processAndQueueLeverageEvents(startBlock, endBlock);
+      await this.processPSPEvents(startBlock, endBlock);
 
-      await this.setLastScannedBlock(currentBlock);
+      await this.configService.setLastScannedBlock(endBlock);
+
       this.logger.info('Event fetcher workflow completed.');
     } catch (error) {
       this.logger.error(`Error in event fetcher workflow: ${error}`);
+      console.error('Error in event fetcher workflow:', error);
     } finally {
       await this.logger.flush();
     }
@@ -86,6 +91,7 @@ export class EventProcessorService implements IEventProcessorService {
   private async processAndQueueLeverageEvents(lastBlock: number, currentBlock: number) {
     const events: ProcessedEvent[] = await this.fetchAndProcessEvents(lastBlock, currentBlock);
 
+    console.log('1 - processAndQueueLeverageEvents: events', events);
     if (events.length > 0) {
       this.logger.info(
           `Fetched ${events.length} events from blocks ${lastBlock} to ${currentBlock}`,
@@ -100,7 +106,8 @@ export class EventProcessorService implements IEventProcessorService {
   }
 
   private async processPSPEvents(lastBlock: number, currentBlock: number) {
-    const eventFetcher = new EventFetcherRPC(this._context.rpcAddress, this._context.alternateRpcAddress);
+    const eventFetcher = new EventFetcherRPC(this.configService.getMainRPCURL(),
+        this.configService.getAlternativeRPCURL());
     const eventsLog = await eventFetcher.getOnChainEvents(lastBlock, currentBlock);
 
     for (const event of eventsLog) {
@@ -115,7 +122,7 @@ export class EventProcessorService implements IEventProcessorService {
     }
   }
 
-  private async getCurrentBlockNumber(): Promise<number> {
+  private async getEndBlockNumber(): Promise<number> {
     const [alchemyBlock, infuraBlock] = await Promise.all([
       this.mainProvider.getBlockNumber(),
       this.altProvider.getBlockNumber(),
@@ -211,29 +218,36 @@ export class EventProcessorService implements IEventProcessorService {
       toBlock: number,
   ): Promise<ProcessedEvent[]> {
     const processedEvents: ProcessedEvent[] = [];
+    console.log('0 - fetchAndProcessEvents: Fetching events from', fromBlock, 'to', toBlock);
     for (
       let startBlock = fromBlock + 1;
       startBlock <= toBlock;
-      startBlock += this._context.EVENTS_FETCH_PAGE_SIZE
+      startBlock += this.configService.getEventsFetchPageSize()
     ) {
       const endBlock = Math.min(
-          startBlock + this._context.EVENTS_FETCH_PAGE_SIZE - 1,
+          startBlock + this.configService.getEventsFetchPageSize() - 1,
           toBlock,
       );
       for (const descriptor of this.EVENT_DESCRIPTORS) {
         let filter = {};
 
-        const contractAddress =
-          descriptor.contractType == ContractType.Opener ?
-            this._context.positionOpenerAddress :
-            descriptor.contractType == ContractType.Closer ?
-              this._context.positionCloserAddress :
-              descriptor.contractType == ContractType.Liquidator ?
-                this._context.positionLiquidatorAddress :
-                descriptor.contractType == ContractType.Expirator ?
-                  this._context.positionExpiratorAddress :
-                  '';
+        let contractAddress: string = '';
+        switch (descriptor.contractType) {
+          case ContractType.Opener:
+            contractAddress = this.configService.getLeveragePositionOpenerAddress();
+            break;
+          case ContractType.Closer:
+            contractAddress = this.configService.getLeveragePositionCloserAddress();
+            break;
+          case ContractType.Liquidator:
+            contractAddress = this.configService.getLeveragePositionLiquidatorAddress();
+            break;
+          case ContractType.Expirator:
+            contractAddress = this.configService.getLeveragePositionExpiratorAddress();
+            break;
+        }
 
+        console.log('1 - fetchAndProcessEvents');
         if (contractAddress.length == 0) continue;
 
         filter = {
@@ -249,7 +263,10 @@ export class EventProcessorService implements IEventProcessorService {
 
         processedEvents.push(...processedLogs);
       }
+      console.log('2 - fetchAndProcessEvents');
     }
+    console.log('3 - fetchAndProcessEvents');
+
 
     return processedEvents;
   }
@@ -257,37 +274,32 @@ export class EventProcessorService implements IEventProcessorService {
   private async queueEvents(events: ProcessedEvent[]): Promise<void> {
     for (const event of events) {
       this.logger.info(
-          `Appending message to queue ${this._context.NEW_EVENTS_QUEUE_URL
+          `Appending message to queue ${this.configService.getEventQueueURL()
           }\n msg ${JSON.stringify(event)}`,
       );
       await this.sqsService.sendMessage(
-          this._context.NEW_EVENTS_QUEUE_URL,
+          this.configService.getEventQueueURL(),
           JSON.stringify(event),
       );
     }
   }
 
-  async getLastScannedBlock(): Promise<number> {
-    const currentBlockNumber = await this.getCurrentBlockNumber();
-    const defaultBlockNumber = Math.max(currentBlockNumber - 1000, 0);
-    const lastBlockScanned = this._context.lastBlockScanned;
+  async getStartBlockNumber(): Promise<number> {
+    const MaxNumberOfBlocksToProess = this.configService.getMaxNumberOfBlocksToProcess();
+    console.log('0 - getStartBlockNumber, MaxNumberOfBlocksToProess: ', MaxNumberOfBlocksToProess);
+    const currentBlockNumber = await this.getEndBlockNumber();
+    console.log('1 - getStartBlockNumber, currentBlockNumber: ', currentBlockNumber);
+    const defaultBlockNumber = Math.max(currentBlockNumber - MaxNumberOfBlocksToProess, 0);
+    console.log('2 - getStartBlockNumber, defaultBlockNumber: ', defaultBlockNumber);
+    const lastBlockScanned = this.configService.getLastBlockScanned();
+    console.log('3 - getStartBlockNumber, lastBlockScanned: ', lastBlockScanned);
 
     if (lastBlockScanned == 0 ||
-      currentBlockNumber - lastBlockScanned > 1000 ||
+      currentBlockNumber - lastBlockScanned > MaxNumberOfBlocksToProess ||
       lastBlockScanned > currentBlockNumber) {
       return defaultBlockNumber;
     }
 
     return lastBlockScanned;
-  }
-
-  async setLastScannedBlock(blockNumber: number): Promise<void> {
-    const bucket = this._context.S3_BUCKET;
-
-    await this.s3Service.putObject(
-        bucket,
-        this._context.S3_LAST_BLOCK_KEY,
-        blockNumber.toString(),
-    );
   }
 }

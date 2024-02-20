@@ -11,21 +11,33 @@ export class ConfigServiceAdapter extends ConfigService {
   private leverageAddressesFile: string;
   private pspInfoFile: string;
 
-  constructor() {
-    super('', '', '');
-  }
-
   public async refreshConfig(): Promise<void> {
     await this.refreshLeverageContractAddresses();
     await this.refreshPSPContractInfo();
+
+    this.environment = 'local';
+    this.MainRPCURL = process.env.PSP_ACCEPTANCE_TEST_NODE as string;
+    this.AltRPCURL = process.env.PSP_ACCEPTANCE_TEST_NODE as string;
+    this.EventFetchPageSize = 100;
+    this.EventQueueURL = 'https://test-queue-url';
   }
 
   public setLeverageAddressesFile(file: string): void {
     this.leverageAddressesFile = file;
   }
 
+  public setLeverageAddresses(leverageAddresses: LeverageContractAddresses): void {
+    this.leverageContractAddresses = leverageAddresses;
+  }
+
   public setPSPInfoFile(file: string): void {
     this.pspInfoFile = file;
+  }
+
+  public setLastBlockScanned(blockNumber: number): void {
+    
+    this.lastBlockScanned = blockNumber;
+    console.log('Setting last block scanned to: ', this.lastBlockScanned);
   }
 
   protected async refreshLeverageContractAddresses(): Promise<void> {
@@ -57,6 +69,15 @@ export class ConfigServiceAdapter extends ConfigService {
   private async getPSPContractInfoFromFile(): Promise<ContractInfoPSP[]> {
     const data = await readFile(this.pspInfoFile, 'utf-8');
     return JSON.parse(data);
+  }
+
+  public setLastScannedBlock(blockNumber: number): Promise<void> {
+    this.lastBlockScanned = blockNumber;
+    return Promise.resolve();
+  }
+
+  public setMaxNumberOfBlocksToProess(maxBlocks: number): void {
+    this.MaxNumberOfBlocksToProess = maxBlocks;
   }
 }
 
