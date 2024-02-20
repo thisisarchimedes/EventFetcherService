@@ -14,11 +14,14 @@
   "dependencies": {
     "@aws-sdk/client-appconfig": "^3.515.0",
     "@thisisarchimedes/backend-sdk": "1.0.59",
-    "aws-sdk": "^2.1483.0",
+    "aws-sdk": "^2.1561.0",
+    "aws-sdk-client-mock": "^3.0.1",
+    "aws-sdk-mock": "^5.9.0",
     "dotenv": "^16.4.4",
     "eslint-plugin-promise": "^6.1.1",
     "ethers": "^5.7.2",
     "fp-ts": "^2.16.2",
+    "mock-aws-s3": "^4.0.2",
     "nock": "^13.5.1",
     "nyc": "^15.1.0"
   },

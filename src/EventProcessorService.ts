@@ -14,6 +14,8 @@ import {ConfigService} from './services/config/ConfigService';
 import {EventFactory} from './onchain_events/EventFactory';
 import {EventFetcherRPC} from './services/blockchain/EventFetcherRPC';
 
+import {SQS} from '@aws-sdk/client-sqs';
+
 dotenv.config();
 
 const EVENT_DESCRIPTORS: EventDescriptor[] = rawEventDescriptors.map((event) => {
@@ -49,7 +51,6 @@ export class EventProcessorService implements IEventProcessorService {
 
     this.sqsService = new SQSService();
 
-    console.log('----', configService);
     this.mainProvider = new ethers.providers.JsonRpcProvider(
         configService.getMainRPCURL(),
     );
@@ -59,20 +60,14 @@ export class EventProcessorService implements IEventProcessorService {
   }
 
   public async execute(): Promise<void> {
-    console.log('0 - execute: Executing the event fetcher workflow...');
     try {
       this.logger.info('Executing the event fetcher workflow...');
       this.logger.info(`RPC: ${this.configService.getMainRPCURL()}\n
                         SQS queue: ${this.configService.getEventQueueURL()}\n
                         Env: ${this.configService.getEnvironment()}`);
 
-      console.log(`1 - RPC: ${this.configService.getMainRPCURL()}\n
-      SQS queue: ${this.configService.getEventQueueURL()}\n
-      Env: ${this.configService.getEnvironment()}`);
       const startBlock = await this.getStartBlockNumber();
       const endBlock = await this.getEndBlockNumber();
-      console.log('1 - execute: startBlock', startBlock);
-      console.log('2 - execute: endBlock', endBlock);
 
       await this.processAndQueueLeverageEvents(startBlock, endBlock);
       await this.processPSPEvents(startBlock, endBlock);
@@ -91,7 +86,6 @@ export class EventProcessorService implements IEventProcessorService {
   private async processAndQueueLeverageEvents(lastBlock: number, currentBlock: number) {
     const events: ProcessedEvent[] = await this.fetchAndProcessEvents(lastBlock, currentBlock);
 
-    console.log('1 - processAndQueueLeverageEvents: events', events);
     if (events.length > 0) {
       this.logger.info(
           `Fetched ${events.length} events from blocks ${lastBlock} to ${currentBlock}`,
@@ -158,6 +152,10 @@ export class EventProcessorService implements IEventProcessorService {
       logs: ethers.providers.Log[],
       descriptor: EventDescriptor,
   ): ProcessedEvent[] {
+    console.log('0 - decodeAndProcessLogs descriptor:', descriptor);
+    console.log('1 - decodeAndProcessLogs logs:', logs);
+
+
     const logRes = logs
         .map((log) => {
           const indexedTypes = descriptor.decodeData
@@ -218,7 +216,6 @@ export class EventProcessorService implements IEventProcessorService {
       toBlock: number,
   ): Promise<ProcessedEvent[]> {
     const processedEvents: ProcessedEvent[] = [];
-    console.log('0 - fetchAndProcessEvents: Fetching events from', fromBlock, 'to', toBlock);
     for (
       let startBlock = fromBlock + 1;
       startBlock <= toBlock;
@@ -247,7 +244,6 @@ export class EventProcessorService implements IEventProcessorService {
             break;
         }
 
-        console.log('1 - fetchAndProcessEvents');
         if (contractAddress.length == 0) continue;
 
         filter = {
@@ -263,9 +259,7 @@ export class EventProcessorService implements IEventProcessorService {
 
         processedEvents.push(...processedLogs);
       }
-      console.log('2 - fetchAndProcessEvents');
     }
-    console.log('3 - fetchAndProcessEvents');
 
 
     return processedEvents;
@@ -277,22 +271,22 @@ export class EventProcessorService implements IEventProcessorService {
           `Appending message to queue ${this.configService.getEventQueueURL()
           }\n msg ${JSON.stringify(event)}`,
       );
-      await this.sqsService.sendMessage(
-          this.configService.getEventQueueURL(),
-          JSON.stringify(event),
-      );
+      try {
+        await this.sqsService.sendMessage(
+            this.configService.getEventQueueURL(),
+            JSON.stringify(event),
+        );
+      } catch (error) {
+        this.logger.error(`Failed to send message to queue: ${error}`);
+      }
     }
   }
 
   async getStartBlockNumber(): Promise<number> {
     const MaxNumberOfBlocksToProess = this.configService.getMaxNumberOfBlocksToProcess();
-    console.log('0 - getStartBlockNumber, MaxNumberOfBlocksToProess: ', MaxNumberOfBlocksToProess);
     const currentBlockNumber = await this.getEndBlockNumber();
-    console.log('1 - getStartBlockNumber, currentBlockNumber: ', currentBlockNumber);
     const defaultBlockNumber = Math.max(currentBlockNumber - MaxNumberOfBlocksToProess, 0);
-    console.log('2 - getStartBlockNumber, defaultBlockNumber: ', defaultBlockNumber);
     const lastBlockScanned = this.configService.getLastBlockScanned();
-    console.log('3 - getStartBlockNumber, lastBlockScanned: ', lastBlockScanned);
 
     if (lastBlockScanned == 0 ||
       currentBlockNumber - lastBlockScanned > MaxNumberOfBlocksToProess ||
