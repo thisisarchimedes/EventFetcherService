@@ -69,7 +69,7 @@ jobs:
           ParameterKey=EventsFetchPageSize,ParameterValue="${{ secrets.EVENTS_FETCH_PAGE_SIZE }}" \
           ParameterKey=NewRelicAPIKey,ParameterValue="${{ secrets.NEW_RELIC_API_KEY }}" \
           ParameterKey=S3ForkKey,ParameterValue="${{ secrets.S3_FORK_KEY }}" \
-          ParameterKey=Environment,ParameterValue="staging"
+          ParameterKey=Environment,ParameterValue="stable"
 
   deploy_demo:
     runs-on: ubuntu-latest
