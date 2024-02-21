@@ -62,20 +62,20 @@ export class EventProcessorService implements IEventProcessorService {
 
       const currentBlock = await this.getCurrentBlockNumber();
 
-      const events: ProcessedEvent[] = await this.fetchAndProcessEvents(lastBlock, currentBlock);
+      const {processedEvents: events, endBlock} = await this.fetchAndProcessEvents(lastBlock, currentBlock);
 
       if (events.length > 0) {
         this.logger.info(
-            `Fetched ${events.length} events from blocks ${lastBlock} to ${currentBlock}`,
+            `Fetched ${events.length} events from blocks ${lastBlock} to ${endBlock}`,
         );
         await this.queueEvents(events);
       } else {
         this.logger.info(
-            `No new events found on blocks ${lastBlock} to ${currentBlock}`,
+            `No new events found on blocks ${lastBlock} to ${endBlock}`,
         );
       }
 
-      await this.setLastScannedBlock(currentBlock);
+      await this.setLastScannedBlock(endBlock);
       this.logger.info('Event fetcher workflow completed.');
     } catch (error) {
       this.logger.error(`Error in event fetcher workflow: ${error}`);
@@ -176,21 +176,17 @@ export class EventProcessorService implements IEventProcessorService {
   private async fetchAndProcessEvents(
       fromBlock: number,
       toBlock: number,
-  ): Promise<ProcessedEvent[]> {
+  ): Promise<{ processedEvents: ProcessedEvent[], endBlock: number}> {
     const processedEvents: ProcessedEvent[] = [];
-    for (
-      let startBlock = fromBlock + 1;
-      startBlock <= toBlock;
-      startBlock += this._context.EVENTS_FETCH_PAGE_SIZE
-    ) {
-      const endBlock = Math.min(
-          startBlock + this._context.EVENTS_FETCH_PAGE_SIZE - 1,
-          toBlock,
-      );
-      for (const descriptor of this.EVENT_DESCRIPTORS) {
-        let filter = {};
+    const startBlock = fromBlock + 1;
+    const endBlock = Math.min(
+        startBlock + this._context.EVENTS_FETCH_PAGE_SIZE - 1,
+        toBlock,
+    );
+    for (const descriptor of this.EVENT_DESCRIPTORS) {
+      let filter = {};
 
-        const contractAddress =
+      const contractAddress =
           descriptor.contractType == ContractType.Opener ?
             this._context.positionOpenerAddress :
             descriptor.contractType == ContractType.Closer ?
@@ -201,25 +197,24 @@ export class EventProcessorService implements IEventProcessorService {
                   this._context.positionExpiratorAddress :
                   '';
 
-        if (contractAddress.length == 0) continue;
+      if (contractAddress.length == 0) continue;
 
-        filter = {
-          address: contractAddress,
-          topics: [descriptor.signature],
-          fromBlock: startBlock,
-          toBlock: endBlock + 5,
-        };
+      filter = {
+        address: contractAddress,
+        topics: [descriptor.signature],
+        fromBlock: startBlock,
+        toBlock: endBlock + 5,
+      };
 
 
-        const fetchedLogs = await this.fetchLogsFromProviders(filter);
-        const uniqueLogs = this.deduplicateLogs(fetchedLogs);
-        const processedLogs = this.decodeAndProcessLogs(uniqueLogs, descriptor);
+      const fetchedLogs = await this.fetchLogsFromProviders(filter);
+      const uniqueLogs = this.deduplicateLogs(fetchedLogs);
+      const processedLogs = this.decodeAndProcessLogs(uniqueLogs, descriptor);
 
-        processedEvents.push(...processedLogs);
-      }
+      processedEvents.push(...processedLogs);
     }
 
-    return processedEvents;
+    return {processedEvents, endBlock};
   }
 
   private async queueEvents(events: ProcessedEvent[]): Promise<void> {
