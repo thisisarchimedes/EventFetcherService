@@ -11,7 +11,7 @@ export class MockSQS extends Mock {
   }
 
   public mockSQSSendMessage() {
-    nock('https://sqs.us-east-1.amazonaws.com')
+    nock(this.sqsUrl)
         .persist()
         .post('/', (body) => {
           this.LastMessageToQueue = body;
