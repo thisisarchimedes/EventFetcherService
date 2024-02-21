@@ -1,6 +1,6 @@
-import { S3Service } from '@thisisarchimedes/backend-sdk';
-import { ContractAddress } from '../types/ContractAddress';
-import { EnvironmentContext } from '../types/EnvironmentContext';
+import {S3Service} from '@thisisarchimedes/backend-sdk';
+import {ContractAddress} from '../types/ContractAddress';
+import {EnvironmentContext} from '../types/EnvironmentContext';
 
 export class ConfigService {
   private readonly s3: S3Service;
@@ -14,8 +14,8 @@ export class ConfigService {
   }
 
   private fetchContractAddress(
-    name: string,
-    contractsJson: string,
+      name: string,
+      contractsJson: string,
   ): string {
     const contracts = JSON.parse(contractsJson) as ContractAddress[];
     const contract = contracts.find((contract) => contract.name === name);
@@ -28,8 +28,8 @@ export class ConfigService {
 
     try {
       const lastBlockScanned = parseInt(
-        await this.fetchS3Object(lastBlockBucket ?? '', lastBlockKey),
-        10,
+          await this.fetchS3Object(lastBlockBucket ?? '', lastBlockKey),
+          10,
       );
       return lastBlockScanned;
     } catch {
@@ -38,28 +38,28 @@ export class ConfigService {
   }
 
   private async fetchRpcAddress(
-    configBucket: string,
-    rpcKey: string,
+      configBucket: string,
+      rpcKey: string,
   ): Promise<string> {
     const rpcJson = await this.fetchS3Object(configBucket, rpcKey);
     return JSON.parse(rpcJson)['rpc'];
   }
 
   private async fetchPositionAddresses(
-    contractAddressesJson: string,
+      contractAddressesJson: string,
   ): Promise<Record<string, string>> {
     const names = [
       'PositionOpener',
       'PositionCloser',
       'PositionLiquidator',
       'positionExpirator',
-      'ExpiredVault'
+      'ExpiredVault',
     ];
     const addresses = await Promise.all(
-      names.map((name) => this.fetchContractAddress(name, contractAddressesJson)),
+        names.map((name) => this.fetchContractAddress(name, contractAddressesJson)),
     );
     return Object.fromEntries(
-      names.map((name, index) => [`${name}Address`, addresses[index]]),
+        names.map((name, index) => [`${name}Address`, addresses[index]]),
     );
   }
 
@@ -69,7 +69,7 @@ export class ConfigService {
     rpcKey: string;
     contractAddressesKey: string;
     newEventsQueueURL: string;
-  } {
+    } {
     return {
       environment: process.env.ENVIRONMENT ?? 'local',
       configBucket: process.env.S3_BUCKET_CONFIG ?? '',
@@ -99,7 +99,7 @@ export class ConfigService {
     ]);
 
     const positionAddresses = await this.fetchPositionAddresses(
-      contractAddressesJson,
+        contractAddressesJson,
     );
 
     return {
@@ -113,7 +113,7 @@ export class ConfigService {
       lastBlockScanned,
       S3_LAST_BLOCK_KEY: process.env.S3_LAST_BLOCK_KEY ?? '',
       EVENTS_FETCH_PAGE_SIZE: Number(
-        process.env.EVENTS_FETCH_PAGE_SIZE ?? '1000',
+          process.env.EVENTS_FETCH_PAGE_SIZE ?? '1000',
       ),
       NEW_EVENTS_QUEUE_URL: newEventsQueueURL,
       rpcAddress,
