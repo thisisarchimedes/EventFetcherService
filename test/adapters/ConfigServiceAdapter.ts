@@ -35,9 +35,7 @@ export class ConfigServiceAdapter extends ConfigService {
   }
 
   public setLastBlockScanned(blockNumber: number): void {
-    
     this.lastBlockScanned = blockNumber;
-    console.log('Setting last block scanned to: ', this.lastBlockScanned);
   }
 
   protected async refreshLeverageContractAddresses(): Promise<void> {

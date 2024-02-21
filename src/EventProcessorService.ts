@@ -152,10 +152,6 @@ export class EventProcessorService implements IEventProcessorService {
       logs: ethers.providers.Log[],
       descriptor: EventDescriptor,
   ): ProcessedEvent[] {
-    console.log('0 - decodeAndProcessLogs descriptor:', descriptor);
-    console.log('1 - decodeAndProcessLogs logs:', logs);
-
-
     const logRes = logs
         .map((log) => {
           const indexedTypes = descriptor.decodeData

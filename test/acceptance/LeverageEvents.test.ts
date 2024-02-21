@@ -2,19 +2,12 @@ import {expect} from 'chai';
 import nock from 'nock';
 
 import {LoggerAdapter} from '../adapters/LoggerAdapter';
-import {EventFetcherLogEntryMessage} from '../../src/types/NewRelicLogEntry';
 import {handler} from '../../src/lambda-handler';
 
 import {MockEthereumNode} from './Mocks/MockEthereumNode';
 import {MockNewRelic} from './Mocks/MockNewRelic';
 import {MockSQS} from './Mocks/MockSQS';
 import {MockAWSS3} from './Mocks/MockAWSS3';
-
-import sinon from 'sinon';
-import {S3Service, SQSService, Logger} from '@thisisarchimedes/backend-sdk';
-
-
-let interceptedRequestBody = null;
 
 describe('Leverage Events', function() {
   let logger: LoggerAdapter;
@@ -26,8 +19,6 @@ describe('Leverage Events', function() {
   beforeEach(function() {
     initalizeMocks();
     setupNockInterceptors();
-
-    mockSQS.mockSQSSendMessage();
   });
 
   afterEach(function() {
@@ -35,25 +26,6 @@ describe('Leverage Events', function() {
   });
 
   it('should process openPosition event and push messages to SQS', async function() {
-    const region = 'us-east-1';
-    const bucket = 'wbtc-engine-events-store';
-
-    nock(`https://${bucket}.s3.${region}.amazonaws.com`, {
-      reqheaders: {
-        'x-amz-user-agent': (headerValue) => true,
-      },
-    })
-        .get('/last-block-number?x-id=GetObject')
-        .reply(200, '7000000');
-
-    nock(`https://${bucket}.s3.${region}.amazonaws.com`, {
-      reqheaders: {
-        'x-amz-user-agent': (headerValue) => true,
-      },
-    })
-        .put('/last-block-number?x-id=PutObject')
-        .reply(200);
-
     await handler(0, 0);
 
     const expectedSQSMessage = createExpectedSQSMessage();
@@ -82,20 +54,12 @@ describe('Leverage Events', function() {
       },
     });
   }
-  
-  
-
 
   function validateSQSMessage(actualLog: string, expectedLog: string): boolean {
     const actualMessage = JSON.stringify(actualLog);
     const expectedMessage = JSON.stringify(expectedLog);
-    console.log('expected SQS message: ', actualMessage);
-    console.log('Actual SQS message: ', expectedMessage);
     return JSON.stringify(actualMessage.MessageBody) === JSON.stringify(expectedMessage.MessageBody);
   }
-  
-  
-  
 
   function initalizeMocks() {
     logger = new LoggerAdapter('local_logger.txt');
@@ -107,15 +71,14 @@ describe('Leverage Events', function() {
 
     mockSQS = new MockSQS('https://sqs.us-east-1.amazonaws.com/');
 
-    mockAWSS3 = new MockAWSS3('https://sqs.us-east-1.amazonaws.com');
+    mockAWSS3 = new MockAWSS3('wbtc-engine-events-store', 'us-east-1');
   }
 
   function setupNockInterceptors() {
     mockEthereumNodeResponses();
     mockNewRelicLogEndpoint();
-
-    mockAWSS3.mockChangeLastProcessedBlockNumber();
-    mockAWSS3.mockGetLastProcessedBlockNumber(6000000);
+    mockAWSS3Endpoint();
+    mockSQSEndpoint();
   }
 
   function mockEthereumNodeResponses() {
@@ -126,6 +89,15 @@ describe('Leverage Events', function() {
 
   function mockNewRelicLogEndpoint() {
     mockNewRelic.mockLogEndpoint();
+  }
+
+  function mockAWSS3Endpoint() {
+    mockAWSS3.mockChangeLastProcessedBlockNumber();
+    mockAWSS3.mockGetLastProcessedBlockNumber(7000000);
+  }
+
+  function mockSQSEndpoint() {
+    mockSQS.mockSQSSendMessage();
   }
 
   function cleanupNock() {

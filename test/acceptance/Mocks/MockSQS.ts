@@ -21,8 +21,6 @@ export class MockSQS extends Mock {
   }
 
   public getLatestMessage(): string {
-    console.log('>>>>++++ Intercepted request body: ', JSON.stringify(this.LastMessageToQueue));
-
     return this.LastMessageToQueue;
   }
 }
