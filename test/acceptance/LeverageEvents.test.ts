@@ -37,7 +37,7 @@ describe('Leverage Events', function() {
   });
 
   function createExpectedSQSMessagePositionLiquidated(): string {
-    // How we expect ETH Log message in leveragePositionOpenedEvent.json to be formatted on the SQS side
+    // This is how we expect ETH Log message in leveragePositionOpenedEvent.json to be formatted on the SQS side
     return JSON.stringify({
       MessageBody: {
         name: 'PositionLiquidated',
