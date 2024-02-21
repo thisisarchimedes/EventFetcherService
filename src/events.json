@@ -45,5 +45,14 @@
       { "name": "user", "type": "address", "indexed": true },
       { "name": "claimableAmount", "type": "uint256", "indexed": false }
     ]
+  },
+    {
+    "name": "Claim",
+    "contractType": 4,
+    "decodeData": [
+      { "name": "claimer", "type": "address", "indexed": true },
+      { "name": "nftId", "type": "uint256", "indexed": true },
+      { "name": "amount", "type": "uint256", "indexed": false }
+    ]
   }
 ]

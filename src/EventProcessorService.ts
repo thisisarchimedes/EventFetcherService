@@ -176,7 +176,7 @@ export class EventProcessorService implements IEventProcessorService {
   private async fetchAndProcessEvents(
       fromBlock: number,
       toBlock: number,
-  ): Promise<{ processedEvents: ProcessedEvent[], endBlock: number}> {
+  ): Promise<{ processedEvents: ProcessedEvent[], endBlock: number }> {
     const processedEvents: ProcessedEvent[] = [];
     const startBlock = fromBlock + 1;
     const endBlock = Math.min(
@@ -185,17 +185,25 @@ export class EventProcessorService implements IEventProcessorService {
     );
     for (const descriptor of this.EVENT_DESCRIPTORS) {
       let filter = {};
+      let contractAddress = '';
 
-      const contractAddress =
-          descriptor.contractType == ContractType.Opener ?
-            this._context.positionOpenerAddress :
-            descriptor.contractType == ContractType.Closer ?
-              this._context.positionCloserAddress :
-              descriptor.contractType == ContractType.Liquidator ?
-                this._context.positionLiquidatorAddress :
-                descriptor.contractType == ContractType.Expirator ?
-                  this._context.positionExpiratorAddress :
-                  '';
+      switch (descriptor.contractType) {
+        case ContractType.Opener:
+          contractAddress = this._context.positionOpenerAddress;
+          break;
+        case ContractType.Closer:
+          contractAddress = this._context.positionCloserAddress;
+          break;
+        case ContractType.Liquidator:
+          contractAddress = this._context.positionLiquidatorAddress;
+          break;
+        case ContractType.Expirator:
+          contractAddress = this._context.positionExpiratorAddress;
+          break;
+        case ContractType.ExpiredVault:
+          contractAddress = this._context.expiredVaultAddress;
+          break;
+      }
 
       if (contractAddress.length == 0) continue;
 
@@ -205,7 +213,6 @@ export class EventProcessorService implements IEventProcessorService {
         fromBlock: startBlock,
         toBlock: endBlock + 5,
       };
-
 
       const fetchedLogs = await this.fetchLogsFromProviders(filter);
       const uniqueLogs = this.deduplicateLogs(fetchedLogs);

@@ -19,6 +19,7 @@ describe('Events Catching and logging', function() {
   let positionCloserMockContract: Contract;
   let positionLiquidatorMockContract: Contract;
   let positionExpiratorMockContract: Contract;
+  let expiredVaultMockContract: Contract;
 
   let eventProcessorService: EventProcessorService;
   let s3Stub: sinon.SinonStubbedInstance<S3Service>;
@@ -56,6 +57,13 @@ describe('Events Catching and logging', function() {
     positionExpiratorMockContract = await PositionExpiratorFactory.deploy();
     await positionExpiratorMockContract.deployed();
 
+    const ExpiredVaultFactory = await ethers.getContractFactory(
+        'ExpiredVault_mock',
+    );
+
+    expiredVaultMockContract = await ExpiredVaultFactory.deploy();
+    await expiredVaultMockContract.deployed();
+
     // Stub the S3Service and SQSService and their methods
     s3Stub = sinon.createStubInstance(S3Service);
     s3Stub.getObject.resolves();
@@ -80,6 +88,7 @@ describe('Events Catching and logging', function() {
           positionCloserAddress: positionCloserMockContract.address,
           positionLiquidatorAddress: positionLiquidatorMockContract.address,
           positionExpiratorAddress: positionExpiratorMockContract.address,
+          expiredVaultAddress: expiredVaultMockContract.address,
           lastBlockScanned: 0,
           S3_LAST_BLOCK_KEY: '',
           S3_BUCKET: 'test-bucket',
@@ -254,6 +263,44 @@ describe('Events Catching and logging', function() {
         nftId: nftId.toString(),
         user: user,
         claimableAmount: claimableAmount.toString(),
+      },
+    };
+
+    // Assert that the SQS service's sendMessage function was called correctly
+    expect(sqsStub.sendMessage).to.have.been.calledOnceWith(
+        'test-queue-url',
+        JSON.stringify(expectedMessage),
+    );
+  });
+
+  it('should process claim event and push messages to SQS', async function() {
+    // Generate random data to simulate a real-world scenario
+    const nftId = Math.floor(Math.random() * 1000);
+    const claimer = ethers.Wallet.createRandom().address;
+    const claimableAmount = Math.floor(Math.random() * 1000);
+
+    // Call the openPosition function on the mock contract with random values
+    const tx = await expiredVaultMockContract.claim(
+        claimer,
+        nftId,
+        claimableAmount,
+    );
+
+    // Wait for the transaction to be mined
+    await tx.wait();
+
+    // Execute the event processor function
+    await eventProcessorService.execute();
+
+    const expectedMessage = {
+      name: 'Claim',
+      contractType: 4,
+      txHash: tx.hash,
+      blockNumber: tx.blockNumber,
+      data: {
+        claimer: claimer,
+        nftId: nftId.toString(),
+        amount: claimableAmount.toString(),
       },
     };
 

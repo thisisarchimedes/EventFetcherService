@@ -53,6 +53,7 @@ export class ConfigService {
       'PositionCloser',
       'PositionLiquidator',
       'positionExpirator',
+      'ExpiredVault',
     ];
     const addresses = await Promise.all(
         names.map((name) => this.fetchContractAddress(name, contractAddressesJson)),
@@ -106,6 +107,7 @@ export class ConfigService {
       positionExpiratorAddress: positionAddresses['positionExpiratorAddress'],
       positionLiquidatorAddress: positionAddresses['PositionLiquidatorAddress'],
       positionOpenerAddress: positionAddresses['PositionOpenerAddress'],
+      expiredVaultAddress: positionAddresses['ExpiredVaultAddress'],
       environment,
       S3_BUCKET: process.env.S3_BUCKET ?? '',
       lastBlockScanned,
