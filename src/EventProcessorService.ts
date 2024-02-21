@@ -14,8 +14,6 @@ import {ConfigService} from './services/config/ConfigService';
 import {EventFactory} from './onchain_events/EventFactory';
 import {EventFetcherRPC} from './services/blockchain/EventFetcherRPC';
 
-import {SQS} from '@aws-sdk/client-sqs';
-
 dotenv.config();
 
 const EVENT_DESCRIPTORS: EventDescriptor[] = rawEventDescriptors.map((event) => {
