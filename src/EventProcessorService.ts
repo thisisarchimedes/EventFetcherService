@@ -1,18 +1,18 @@
-import {ethers} from 'ethers';
+import { ethers } from 'ethers';
 import rawEventDescriptors from './events.json';
-import {SQSService, Logger} from '@thisisarchimedes/backend-sdk';
+import { SQSService, Logger } from '@thisisarchimedes/backend-sdk';
 import dotenv from 'dotenv';
-import {IEventProcessorService} from './IEventProcessorService';
+import { IEventProcessorService } from './IEventProcessorService';
 import {
   ContractType,
   DecodedData,
   EventDescriptor,
 } from './types/EventDescriptor';
-import {ProcessedEvent} from './types/ProcessedEvent';
-import {EventData} from './types/EventData';
-import {ConfigService} from './services/config/ConfigService';
-import {EventFactory} from './onchain_events/EventFactory';
-import {EventFetcherRPC} from './services/blockchain/EventFetcherRPC';
+import { SQSMessage } from './types/SQSMessage';
+import { EventData } from './types/EventData';
+import { ConfigService } from './services/config/ConfigService';
+import { EventFactory } from './onchain_events/EventFactory';
+import { EventFetcherRPC } from './services/blockchain/EventFetcherRPC';
 
 dotenv.config();
 
@@ -20,7 +20,7 @@ const EVENT_DESCRIPTORS: EventDescriptor[] = rawEventDescriptors.map((event) => 
   const obj: EventDescriptor = {
     ...event,
     signature: ethers.utils.id(
-        `${event.name}(${event.decodeData.map((param) => param.type).join(',')})`,
+      `${event.name}(${event.decodeData.map((param) => param.type).join(',')})`,
     ),
     contractType: event.contractType,
   };
@@ -40,8 +40,8 @@ export class EventProcessorService implements IEventProcessorService {
   private readonly sqsService: SQSService;
 
   constructor(
-      logger: Logger,
-      configService: ConfigService,
+    logger: Logger,
+    configService: ConfigService,
   ) {
     this.logger = logger;
     this.configService = configService;
@@ -50,10 +50,10 @@ export class EventProcessorService implements IEventProcessorService {
     this.sqsService = new SQSService();
 
     this.mainProvider = new ethers.providers.JsonRpcProvider(
-        configService.getMainRPCURL(),
+      configService.getMainRPCURL(),
     );
     this.altProvider = new ethers.providers.JsonRpcProvider(
-        configService.getAlternativeRPCURL(),
+      configService.getAlternativeRPCURL(),
     );
   }
 
@@ -82,24 +82,24 @@ export class EventProcessorService implements IEventProcessorService {
   }
 
   private async processAndQueueLeverageEvents(lastBlock: number, currentBlock: number) {
-    const events: ProcessedEvent[] = await this.fetchAndProcessEvents(lastBlock, currentBlock);
+    const events: SQSMessage[] = await this.fetchAndProcessEvents(lastBlock, currentBlock);
 
     if (events.length > 0) {
       this.logger.info(
-          `Fetched ${events.length} events from blocks ${lastBlock} to ${currentBlock}`,
+        `Fetched ${events.length} events from blocks ${lastBlock} to ${currentBlock}`,
       );
 
       await this.queueEvents(events);
     } else {
       this.logger.info(
-          `No new events found on blocks ${lastBlock} to ${currentBlock}`,
+        `No new events found on blocks ${lastBlock} to ${currentBlock}`,
       );
     }
   }
 
   private async processPSPEvents(lastBlock: number, currentBlock: number) {
     const eventFetcher = new EventFetcherRPC(this.configService.getMainRPCURL(),
-        this.configService.getAlternativeRPCURL());
+      this.configService.getAlternativeRPCURL());
     const eventsLog = await eventFetcher.getOnChainEvents(lastBlock, currentBlock);
 
     for (const event of eventsLog) {
@@ -123,7 +123,7 @@ export class EventProcessorService implements IEventProcessorService {
   }
 
   private async fetchLogsFromProviders(
-      filter: ethers.providers.Filter,
+    filter: ethers.providers.Filter,
   ): Promise<ethers.providers.Log[]> {
     const [alchemyLogs, infuraLogs] = await Promise.all([
       this.mainProvider.getLogs(filter),
@@ -147,84 +147,84 @@ export class EventProcessorService implements IEventProcessorService {
   }
 
   public decodeAndProcessLogs(
-      logs: ethers.providers.Log[],
-      descriptor: EventDescriptor,
-  ): ProcessedEvent[] {
+    logs: ethers.providers.Log[],
+    descriptor: EventDescriptor,
+  ): SQSMessage[] {
     console.log('1 - decodeAndProcessLogs:', descriptor);
     const logRes = logs
-        .map((log) => {
-          const indexedTypes = descriptor.decodeData
-              .filter((param: DecodedData) => param.indexed)
-              .map((param: DecodedData) => param.type);
+      .map((log) => {
+        const indexedTypes = descriptor.decodeData
+          .filter((param: DecodedData) => param.indexed)
+          .map((param: DecodedData) => param.type);
 
-          console.log('indexedTypes:', indexedTypes);
+        console.log('indexedTypes:', indexedTypes);
 
-          const nonIndexedTypes = descriptor.decodeData
-              .filter((param: DecodedData) => !param.indexed)
-              .map((param: DecodedData) => param.type);
+        const nonIndexedTypes = descriptor.decodeData
+          .filter((param: DecodedData) => !param.indexed)
+          .map((param: DecodedData) => param.type);
 
-          try {
+        try {
           // Decode non-indexed parameters from: log.data
-            const nonIndexedData = ethers.utils.defaultAbiCoder.decode(
-                nonIndexedTypes,
-                log.data,
-            );
+          const nonIndexedData = ethers.utils.defaultAbiCoder.decode(
+            nonIndexedTypes,
+            log.data,
+          );
 
-            // Decode indexed parameters from: log.topics
-            const indexedData: ethers.utils.Result[] = indexedTypes.map(
-                (type: string, index: number) => {
-                  const topic = log.topics[index + 1];
-                  return ethers.utils.defaultAbiCoder.decode([type], topic)[0];
-                },
-            );
+          // Decode indexed parameters from: log.topics
+          const indexedData: ethers.utils.Result[] = indexedTypes.map(
+            (type: string, index: number) => {
+              const topic = log.topics[index + 1];
+              return ethers.utils.defaultAbiCoder.decode([type], topic)[0];
+            },
+          );
 
-            // Merge both indexed and non-indexed data
-            const allData: ethers.utils.Result[] = [
-              ...indexedData,
-              ...nonIndexedData,
-            ];
+          // Merge both indexed and non-indexed data
+          const allData: ethers.utils.Result[] = [
+            ...indexedData,
+            ...nonIndexedData,
+          ];
 
-            console.log('2 - decodeAndProcessLogs:', allData);
+          console.log('2 - decodeAndProcessLogs:', allData);
 
-            const eventData: EventData = {};
-            descriptor.decodeData.forEach((param: DecodedData, index: number) => {
-              eventData[param.name] = allData[index].toString();
-            });
+          const eventData: EventData = {};
+          descriptor.decodeData.forEach((param: DecodedData, index: number) => {
+            eventData[param.name] = allData[index].toString();
+          });
 
-            const retObj: ProcessedEvent = {
-              name: descriptor.name,
-              contractType: descriptor.contractType,
-              txHash: log.transactionHash,
-              blockNumber: log.blockNumber,
-              data: eventData,
-            };
-            console.log('3 - decodeAndProcessLogs:', retObj);
+          const retObj: SQSMessage = {
+            name: descriptor.name,
+            contractType: descriptor.contractType,
+            txHash: log.transactionHash,
+            blockNumber: log.blockNumber,
+            data: eventData,
+          };
+          console.log('3 - decodeAndProcessLogs:', retObj);
 
 
-            return retObj;
-          } catch (error) {
-            this.logger.error(`Failed to decode log: ${JSON.stringify(error)}`);
-            return null;
-          }
-        })
-        .filter((event): event is ProcessedEvent => event !== null);
+          return retObj;
+        } catch (error) {
+          this.logger.error(`Failed to decode log: ${JSON.stringify(error)}`);
+          return null;
+        }
+      })
+      .filter((event): event is SQSMessage => event !== null);
 
     return logRes;
   }
 
   private async fetchAndProcessEvents(
-      fromBlock: number,
-      toBlock: number,
-  ): Promise<ProcessedEvent[]> {
-    const processedEvents: ProcessedEvent[] = [];
+    fromBlock: number,
+    toBlock: number,
+  ): Promise<SQSMessage[]> {
+    const processedEvents: SQSMessage[] = [];
     for (
       let startBlock = fromBlock + 1;
       startBlock <= toBlock;
       startBlock += this.configService.getEventsFetchPageSize()
     ) {
       const endBlock = Math.min(
-          startBlock + this.configService.getEventsFetchPageSize() - 1,
-          toBlock,
+        startBlock + this.configService.getEventsFetchPageSize() - 1,
+        toBlock,
       );
       for (const descriptor of this.EVENT_DESCRIPTORS) {
         let filter = {};
@@ -233,19 +233,19 @@ export class EventProcessorService implements IEventProcessorService {
         switch (descriptor.contractType) {
           case ContractType.Opener:
             contractAddress = this.configService.getLeveragePositionOpenerAddress();
-            //console.log('>>> contractAddress - opener:', contractAddress);
+            // console.log('>>> contractAddress - opener:', contractAddress);
             break;
           case ContractType.Closer:
             contractAddress = this.configService.getLeveragePositionCloserAddress();
-            //console.log('>>> contractAddress - closer:', contractAddress);
+            // console.log('>>> contractAddress - closer:', contractAddress);
             break;
           case ContractType.Liquidator:
             contractAddress = this.configService.getLeveragePositionLiquidatorAddress();
-            //console.log('>>> contractAddress - liquidator:', contractAddress);
+            // console.log('>>> contractAddress - liquidator:', contractAddress);
             break;
           case ContractType.Expirator:
             contractAddress = this.configService.getLeveragePositionExpiratorAddress();
-            //console.log('>>> contractAddress - expirator:', contractAddress);
+            // console.log('>>> contractAddress - expirator:', contractAddress);
             break;
         }
 
@@ -270,16 +270,16 @@ export class EventProcessorService implements IEventProcessorService {
     return processedEvents;
   }
 
-  private async queueEvents(events: ProcessedEvent[]): Promise<void> {
+  private async queueEvents(events: SQSMessage[]): Promise<void> {
     for (const event of events) {
       this.logger.info(
-          `Appending message to queue ${this.configService.getEventQueueURL()
-          }\n msg ${JSON.stringify(event)}`,
+        `Appending message to queue ${this.configService.getEventQueueURL()
+        }\n msg ${JSON.stringify(event)}`,
       );
       try {
         await this.sqsService.sendMessage(
-            this.configService.getEventQueueURL(),
-            JSON.stringify(event),
+          this.configService.getEventQueueURL(),
+          JSON.stringify(event),
         );
       } catch (error) {
         // Catching InvalidChecksumError to allow acceptance test to mock the flow

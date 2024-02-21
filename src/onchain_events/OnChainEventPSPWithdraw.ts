@@ -4,8 +4,8 @@ import { Logger, SQSService } from '@thisisarchimedes/backend-sdk';
 import { ConfigService } from '../services/config/ConfigService';
 
 export class OnChainEventPSPWithdraw extends OnChainEventPSP {
-  constructor(eventLog: ethers.providers.Log, logger: Logger, sqsService: SQSService, configService: ConfigService) {
-    super(eventLog, logger, sqsService, configService);
+  constructor(rawEventLog: ethers.providers.Log, logger: Logger, sqsService: SQSService, configService: ConfigService) {
+    super(rawEventLog, logger, sqsService, configService);
     this.eventName = 'Withdraw';
   }
 

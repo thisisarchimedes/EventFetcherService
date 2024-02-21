@@ -4,10 +4,10 @@ import {Logger, SQSService} from '@thisisarchimedes/backend-sdk';
 import {ConfigService} from '../services/config/ConfigService';
 import { SQSMessage } from '../types/SQSMessage';
 
-export class OnChainEventLeveragePositionOpened extends OnChainEventLeverage {
+export class OnChainEventLeveragePositionClosed extends OnChainEventLeverage {
   constructor(rawEventLog: ethers.providers.Log, logger: Logger, sqsService: SQSService, configService: ConfigService) {
     super(rawEventLog, logger, sqsService, configService);
-    this.eventName = 'LeveragedPositionOpened';
+    this.eventName = 'LeveragedPositionClosed';
     this.parseEventLog(rawEventLog);
   }
 
@@ -39,19 +39,17 @@ export class OnChainEventLeveragePositionOpened extends OnChainEventLeverage {
 
   private setPositionAmountsFromEventLogData(eventLog: ethers.providers.Log): void {
     const decodedData = ethers.utils.defaultAbiCoder.decode(
-        ['uint256', 'uint256', 'uint256', 'uint256'],
+        ['uint256', 'uint256'],
         eventLog.data);
 
     this.depositAmount = decodedData[0];
     this.borrowedAmount = decodedData[1];
-    this.positionExpireBlock = decodedData[2];
-    this.sharesReceived = decodedData[3];
   }
 
   protected getSQSMessage(): SQSMessage {
     const msg: SQSMessage = {
-      name: 'PositionOpened',
-      contractType: 0,
+      name: 'PositionClosed',
+      contractType: 1,
       txHash: this.txHash,
       blockNumber: this.blockNumber,
       data: {
@@ -60,8 +58,8 @@ export class OnChainEventLeveragePositionOpened extends OnChainEventLeverage {
         strategy: this.strategyConfig.strategyAddress,
         collateralAmount: this.depositAmount.toString(),
         wbtcToBorrow: this.borrowedAmount.toString(),
-        positionExpireBlock: this.positionExpireBlock.toString(),
-        sharesReceived: this.sharesReceived.toString(),
+        positionExpireBlock: '',
+        sharesReceived: '',
       },
     };
 

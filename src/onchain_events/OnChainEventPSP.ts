@@ -6,9 +6,9 @@ import {OnChainEvent} from './OnChainEvent';
 import {ConfigService} from '../services/config/ConfigService';
 
 export abstract class OnChainEventPSP extends OnChainEvent {
-  constructor(eventLog: ethers.providers.Log, logger: Logger, sqsService: SQSService, configService: ConfigService) {
-    super(logger, sqsService, configService);
-    this.parseEventLog(eventLog);
+  constructor(rawEventLog: ethers.providers.Log, logger: Logger, sqsService: SQSService, configService: ConfigService) {
+    super(rawEventLog, logger, sqsService, configService);
+    this.parseEventLog(rawEventLog);
   }
 
   public process(): void {
