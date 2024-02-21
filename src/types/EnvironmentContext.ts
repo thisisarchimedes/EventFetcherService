@@ -4,6 +4,7 @@ export type EnvironmentContext = {
   positionLiquidatorAddress: string;
   positionCloserAddress: string;
   positionExpiratorAddress: string;
+  expiredVaultAddress: string;
   lastBlockScanned: number;
   S3_BUCKET: string;
   EVENTS_FETCH_PAGE_SIZE: number;

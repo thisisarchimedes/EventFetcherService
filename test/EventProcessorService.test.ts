@@ -1,24 +1,25 @@
-import {S3Service, SQSService, Logger} from '@thisisarchimedes/backend-sdk';
+import { S3Service, SQSService, Logger } from '@thisisarchimedes/backend-sdk';
 
-import {expect} from 'chai';
-import {ethers} from 'hardhat';
-import {Contract} from 'ethers';
+import { expect } from 'chai';
+import { ethers } from 'hardhat';
+import { Contract } from 'ethers';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
 import chai from 'chai';
 
-import {EventProcessorService} from '../src/EventProcessorService';
+import { EventProcessorService } from '../src/EventProcessorService';
 
 // Set up Chai to use the sinonChai and chaiAsPromised plugins
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
 
-describe('Events Catching and logging', function() {
+describe('Events Catching and logging', function () {
   let positionOpenerMockContract: Contract;
   let positionCloserMockContract: Contract;
   let positionLiquidatorMockContract: Contract;
   let positionExpiratorMockContract: Contract;
+  let expiredVaultMockContract: Contract;
 
   let eventProcessorService: EventProcessorService;
   let s3Stub: sinon.SinonStubbedInstance<S3Service>;
@@ -26,35 +27,42 @@ describe('Events Catching and logging', function() {
   let loggerStub: sinon.SinonStubbedInstance<Logger>;
 
   // This runs before each individual test
-  beforeEach(async function() {
+  beforeEach(async function () {
     // Deploy a mock contract for the tests
     const PositionOpenerFactory = await ethers.getContractFactory(
-        'PositionOpener_mock',
+      'PositionOpener_mock',
     );
 
     positionOpenerMockContract = await PositionOpenerFactory.deploy();
     await positionOpenerMockContract.deployed();
 
     const PositionCloserFactory = await ethers.getContractFactory(
-        'PositionCloser_mock',
+      'PositionCloser_mock',
     );
 
     positionCloserMockContract = await PositionCloserFactory.deploy();
     await positionCloserMockContract.deployed();
 
     const PositionLiquidatorFactory = await ethers.getContractFactory(
-        'PositionLiquidator_mock',
+      'PositionLiquidator_mock',
     );
 
     positionLiquidatorMockContract = await PositionLiquidatorFactory.deploy();
     await positionLiquidatorMockContract.deployed();
 
     const PositionExpiratorFactory = await ethers.getContractFactory(
-        'PositionExpirator_mock',
+      'PositionExpirator_mock',
     );
 
     positionExpiratorMockContract = await PositionExpiratorFactory.deploy();
     await positionExpiratorMockContract.deployed();
+
+    const ExpiredVaultFactory = await ethers.getContractFactory(
+      'ExpiredVault_mock',
+    );
+
+    expiredVaultMockContract = await ExpiredVaultFactory.deploy();
+    await expiredVaultMockContract.deployed();
 
     // Stub the S3Service and SQSService and their methods
     s3Stub = sinon.createStubInstance(S3Service);
@@ -69,30 +77,31 @@ describe('Events Catching and logging', function() {
 
     // Initialize the EventProcessorService with the stubs and mock contract
     eventProcessorService = new EventProcessorService(
-        ethers.provider,
-        ethers.provider,
-        s3Stub,
-        sqsStub,
-        loggerStub,
-        {
-          environment: 'local',
-          positionOpenerAddress: positionOpenerMockContract.address,
-          positionCloserAddress: positionCloserMockContract.address,
-          positionLiquidatorAddress: positionLiquidatorMockContract.address,
-          positionExpiratorAddress: positionExpiratorMockContract.address,
-          lastBlockScanned: 0,
-          S3_LAST_BLOCK_KEY: '',
-          S3_BUCKET: 'test-bucket',
-          rpcAddress: '',
-          alternateRpcAddress: '',
-          NEW_EVENTS_QUEUE_URL: 'test-queue-url',
-          EVENTS_FETCH_PAGE_SIZE: 1000,
-        },
+      ethers.provider,
+      ethers.provider,
+      s3Stub,
+      sqsStub,
+      loggerStub,
+      {
+        environment: 'local',
+        positionOpenerAddress: positionOpenerMockContract.address,
+        positionCloserAddress: positionCloserMockContract.address,
+        positionLiquidatorAddress: positionLiquidatorMockContract.address,
+        positionExpiratorAddress: positionExpiratorMockContract.address,
+        expiredVaultAddress: expiredVaultMockContract.address,
+        lastBlockScanned: 0,
+        S3_LAST_BLOCK_KEY: '',
+        S3_BUCKET: 'test-bucket',
+        rpcAddress: '',
+        alternateRpcAddress: '',
+        NEW_EVENTS_QUEUE_URL: 'test-queue-url',
+        EVENTS_FETCH_PAGE_SIZE: 1000,
+      },
     );
   });
 
   // Test case for processing the openPosition event
-  it('should process openPosition event and push messages to SQS', async function() {
+  it('should process openPosition event and push messages to SQS', async function () {
     // Generate random data to simulate a real-world scenario
     const nftId = Math.floor(Math.random() * 1000);
     const user = ethers.Wallet.createRandom().address;
@@ -104,13 +113,13 @@ describe('Events Catching and logging', function() {
 
     // Call the openPosition function on the mock contract with random values
     const tx = await positionOpenerMockContract.openPosition(
-        nftId,
-        user,
-        strategy,
-        collateralAmount,
-        wbtcToBorrow,
-        positionExpireBlock,
-        sharesReceived,
+      nftId,
+      user,
+      strategy,
+      collateralAmount,
+      wbtcToBorrow,
+      positionExpireBlock,
+      sharesReceived,
     );
 
     // Wait for the transaction to be mined
@@ -138,22 +147,22 @@ describe('Events Catching and logging', function() {
 
     // Assert that the SQS service's sendMessage function was called correctly
     expect(sqsStub.sendMessage).to.have.been.calledOnceWith(
-        'test-queue-url',
-        JSON.stringify(expectedMessage),
+      'test-queue-url',
+      JSON.stringify(expectedMessage),
     );
   });
 
-  it('should process closePosition event and push messages to SQS', async function() {
+  it('should process closePosition event and push messages to SQS', async function () {
     const nftId = Math.floor(Math.random() * 1000);
     const user = ethers.Wallet.createRandom().address;
     const receivedAmount = Math.floor(Math.random() * 1000);
     const wbtcDebtAmount = Math.floor(Math.random() * 1000);
 
     const tx = await positionCloserMockContract.closePosition(
-        nftId,
-        user,
-        receivedAmount,
-        wbtcDebtAmount,
+      nftId,
+      user,
+      receivedAmount,
+      wbtcDebtAmount,
     );
 
     await tx.wait();
@@ -174,13 +183,13 @@ describe('Events Catching and logging', function() {
     };
 
     expect(sqsStub.sendMessage).to.have.been.calledOnceWith(
-        'test-queue-url',
-        JSON.stringify(expectedMessage),
+      'test-queue-url',
+      JSON.stringify(expectedMessage),
     );
   });
 
   // Test case for processing the openPosition event
-  it('should process liquidatePosition event and push messages to SQS', async function() {
+  it('should process liquidatePosition event and push messages to SQS', async function () {
     // Generate random data to simulate a real-world scenario
     const nftId = Math.floor(Math.random() * 1000);
     const strategy = ethers.Wallet.createRandom().address;
@@ -190,11 +199,11 @@ describe('Events Catching and logging', function() {
 
     // Call the openPosition function on the mock contract with random values
     const tx = await positionLiquidatorMockContract.liquidatePosition(
-        nftId,
-        strategy,
-        _wbtcDebtPaid,
-        _claimableAmount,
-        _liquidationFee,
+      nftId,
+      strategy,
+      _wbtcDebtPaid,
+      _claimableAmount,
+      _liquidationFee,
     );
 
     // Wait for the transaction to be mined
@@ -220,13 +229,13 @@ describe('Events Catching and logging', function() {
 
     // Assert that the SQS service's sendMessage function was called correctly
     expect(sqsStub.sendMessage).to.have.been.calledOnceWith(
-        'test-queue-url',
-        JSON.stringify(expectedMessage),
+      'test-queue-url',
+      JSON.stringify(expectedMessage),
     );
   });
 
   // Test case for processing the openPosition event
-  it('should process expirePosition event and push messages to SQS', async function() {
+  it('should process expirePosition event and push messages to SQS', async function () {
     // Generate random data to simulate a real-world scenario
     const nftId = Math.floor(Math.random() * 1000);
     const user = ethers.Wallet.createRandom().address;
@@ -234,9 +243,9 @@ describe('Events Catching and logging', function() {
 
     // Call the openPosition function on the mock contract with random values
     const tx = await positionExpiratorMockContract.expirePosition(
-        nftId,
-        user,
-        claimableAmount,
+      nftId,
+      user,
+      claimableAmount,
     );
 
     // Wait for the transaction to be mined
@@ -259,12 +268,50 @@ describe('Events Catching and logging', function() {
 
     // Assert that the SQS service's sendMessage function was called correctly
     expect(sqsStub.sendMessage).to.have.been.calledOnceWith(
-        'test-queue-url',
-        JSON.stringify(expectedMessage),
+      'test-queue-url',
+      JSON.stringify(expectedMessage),
     );
   });
 
-  afterEach(function() {
+  it('should process claim event and push messages to SQS', async function () {
+    // Generate random data to simulate a real-world scenario
+    const nftId = Math.floor(Math.random() * 1000);
+    const claimer = ethers.Wallet.createRandom().address;
+    const claimableAmount = Math.floor(Math.random() * 1000);
+
+    // Call the openPosition function on the mock contract with random values
+    const tx = await expiredVaultMockContract.claim(
+      claimer,
+      nftId,
+      claimableAmount,
+    );
+
+    // Wait for the transaction to be mined
+    await tx.wait();
+
+    // Execute the event processor function
+    await eventProcessorService.execute();
+
+    const expectedMessage = {
+      name: 'Claim',
+      contractType: 4,
+      txHash: tx.hash,
+      blockNumber: tx.blockNumber,
+      data: {
+        claimer: claimer,
+        nftId: nftId.toString(),
+        amount: claimableAmount.toString(),
+      },
+    };
+
+    // Assert that the SQS service's sendMessage function was called correctly
+    expect(sqsStub.sendMessage).to.have.been.calledOnceWith(
+      'test-queue-url',
+      JSON.stringify(expectedMessage),
+    );
+  });
+
+  afterEach(function () {
     sinon.restore();
   });
 });
