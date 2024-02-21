@@ -54,21 +54,10 @@ describe('Leverage Events', function() {
         .put('/last-block-number?x-id=PutObject')
         .reply(200);
 
-/*
-    nock('https://sqs.us-east-1.amazonaws.com')
-        .persist()
-        .post('/', (body) => {
-          console.log('>>>> Intercepted request body: ', JSON.stringify(body));
-          interceptedRequestBody = body;
-          return true;
-        })
-        .reply(200, {});*/
-
     await handler(0, 0);
 
-
     const expectedSQSMessage = createExpectedSQSMessage();
-    const actualSQSMessage = mockSQS.getLatestMessage(); //interceptedRequestBody; // mockSQS.getLatestMessage();
+    const actualSQSMessage = mockSQS.getLatestMessage();
 
     expect(actualSQSMessage).to.not.be.null;
     const res: boolean = validateSQSMessage(actualSQSMessage, expectedSQSMessage);
