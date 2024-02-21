@@ -146,7 +146,7 @@ describe('Events Catching and logging', function() {
 
     // Define the expected message that should be sent to SQS
     const expectedMessage = {
-      name: 'PositionOpened',
+      name: 'LeveragedPositionOpened',
       contractType: 0,
       txHash: tx.hash,
       blockNumber: tx.blockNumber,

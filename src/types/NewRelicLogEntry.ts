@@ -2,7 +2,8 @@ export interface EventFetcherLogEntryMessage {
     event: string;
     user: string;
     strategy: string;
-    amount: string;
+    depositAmount: string;
+    borrowedAmount?: string;
 }
 
 export interface NewRelicLogEntry {

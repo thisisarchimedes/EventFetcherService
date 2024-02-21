@@ -1,42 +1,34 @@
 import {ethers} from 'ethers';
 
-import {Logger} from '@thisisarchimedes/backend-sdk';
-import {PSPContractInfo} from '../services/config/ConfigServicePSP';
+import {Logger, SQSService} from '@thisisarchimedes/backend-sdk';
 import {EventFetcherLogEntryMessage} from '../types/NewRelicLogEntry';
+import {OnChainEvent} from './OnChainEvent';
+import {ConfigService} from '../services/config/ConfigService';
 
-export class OnChainEventPSP {
-  protected eventName: string = '';
-  protected strategyConfig: PSPContractInfo;
-  protected logger: Logger;
-
-  protected amount: bigint = BigInt(0);
-  protected userAddress: string = '';
-
-  constructor(strategyConfig: PSPContractInfo, logger: Logger) {
-    this.strategyConfig = strategyConfig;
-    this.logger = logger;
+export abstract class OnChainEventPSP extends OnChainEvent {
+  constructor(eventLog: ethers.providers.Log, logger: Logger, sqsService: SQSService, configService: ConfigService) {
+    super(logger, sqsService, configService);
+    this.parseEventLog(eventLog);
   }
 
   public process(): void {
-    this.logDepositEvent();
+    this.logPSPEvent();
   }
 
   protected parseEventLog(eventLog: ethers.providers.Log): void {
     this.setUserAddressFromEventLog(eventLog);
     this.setAmountFromEventLogData(eventLog);
+    this.strategyConfig = this.findStrategyConfigBStrategyAddress(eventLog.address);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected setAmountFromEventLogData(eventLog: ethers.providers.Log): void {
-    // This method should be overridden by subclasses
-  }
+  protected abstract setAmountFromEventLogData(eventLog: ethers.providers.Log): void
 
-  private logDepositEvent(): void {
+  private logPSPEvent(): void {
     const eventDetails: EventFetcherLogEntryMessage = {
       event: this.eventName,
       user: this.userAddress,
       strategy: this.strategyConfig.strategyName,
-      amount: this.amount.toString(),
+      depositAmount: this.depositAmount.toString(),
     };
 
     this.logger.info(JSON.stringify(eventDetails));
