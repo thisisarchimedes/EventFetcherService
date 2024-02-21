@@ -9,9 +9,7 @@ import {EventFactory} from '../../src/onchain_events/EventFactory';
 import {EventFetcherLogEntryMessage} from '../../src/types/NewRelicLogEntry';
 import {SQSServiceAdapter} from '../adapters/SQSServiceAdapter';
 import {OnChainEvent} from '../../src/onchain_events/OnChainEvent';
-import {SQSMessage as EventFetcherSQSMessage} from '../../src/types/SQSMessage';
-import {SQS} from 'aws-sdk';
-
+import {EventFetcherSQSMessage} from '../../src/types/SQSMessage';
 
 describe('Leverage Events Logging & Queuing', function() {
   let logger: LoggerAdapter;
