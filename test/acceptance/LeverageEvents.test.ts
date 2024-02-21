@@ -26,6 +26,8 @@ describe('Leverage Events', function() {
   beforeEach(function() {
     initalizeMocks();
     setupNockInterceptors();
+
+    mockSQS.mockSQSSendMessage();
   });
 
   afterEach(function() {
@@ -52,7 +54,7 @@ describe('Leverage Events', function() {
         .put('/last-block-number?x-id=PutObject')
         .reply(200);
 
-
+/*
     nock('https://sqs.us-east-1.amazonaws.com')
         .persist()
         .post('/', (body) => {
@@ -60,13 +62,13 @@ describe('Leverage Events', function() {
           interceptedRequestBody = body;
           return true;
         })
-        .reply(200, {});
+        .reply(200, {});*/
 
     await handler(0, 0);
 
 
     const expectedSQSMessage = createExpectedSQSMessage();
-    const actualSQSMessage = interceptedRequestBody; // mockSQS.getLatestMessage();
+    const actualSQSMessage = mockSQS.getLatestMessage(); //interceptedRequestBody; // mockSQS.getLatestMessage();
 
     expect(actualSQSMessage).to.not.be.null;
     const res: boolean = validateSQSMessage(actualSQSMessage, expectedSQSMessage);
@@ -114,7 +116,7 @@ describe('Leverage Events', function() {
     const newRelicApiUrl: string = process.env.NEW_RELIC_API_URL as string;
     mockNewRelic = new MockNewRelic(newRelicApiUrl, logger);
 
-    // mockSQS = new MockSQS('https://sqs.us-east-1.amazonaws.com/');
+    mockSQS = new MockSQS('https://sqs.us-east-1.amazonaws.com/');
 
     mockAWSS3 = new MockAWSS3('https://sqs.us-east-1.amazonaws.com');
   }
