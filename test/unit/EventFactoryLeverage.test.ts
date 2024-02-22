@@ -18,17 +18,13 @@ describe('Leverage Events Logging & Queuing', function() {
   let eventFactory: EventFactory;
   let sqsService: SQSServiceAdapter;
 
+  const LOCAL_LOGGER: string = 'local_logger.txt';
+  const LEVERAGE_ADDRESS_FILE: string = 'test/data/leverageAddresses.json';
+  const PSP_INFO_FILE: string = 'test/data/strategies.json';
+
   beforeEach(async function() {
-    logger = new LoggerAdapter('local_logger.txt');
-    eventFetcher = new EventFetcherAdapter();
-    sqsService = new SQSServiceAdapter();
-
-    configService = new ConfigServiceAdapter();
-    configService.setLeverageAddressesFile('test/data/leverageAddresses.json');
-    configService.setPSPInfoFile('test/data/strategies.json');
-    await configService.refreshConfig();
-
-    eventFactory = new EventFactory(configService, logger as unknown as Logger, sqsService);
+    setupTestEnvironment();
+    await loadConfiguration();
   });
 
   it('should report on PositionOpened event', async function() {
@@ -95,6 +91,19 @@ describe('Leverage Events Logging & Queuing', function() {
     testEventProcessing(event, expectedLogMessage, expectedSqsMessage);
   });
 
+  function setupTestEnvironment() {
+    logger = new LoggerAdapter(LOCAL_LOGGER);
+    eventFetcher = new EventFetcherAdapter();
+    sqsService = new SQSServiceAdapter();
+    configService = new ConfigServiceAdapter();
+  }
+
+  async function loadConfiguration() {
+    configService.setLeverageAddressesFile(LEVERAGE_ADDRESS_FILE);
+    configService.setPSPInfoFile(PSP_INFO_FILE);
+    await configService.refreshConfig();
+    eventFactory = new EventFactory(configService, logger as unknown as Logger, sqsService);
+  }
 
   async function testEventGeneration(
       eventFileName: string,
