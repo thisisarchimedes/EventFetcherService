@@ -9,8 +9,8 @@ import chaiAsPromised from 'chai-as-promised';
 import chai from 'chai';
 
 import {EventProcessorService} from '../../src/EventProcessorService';
-import { ConfigService } from '../../src/services/config/ConfigService';
-import { ConfigServiceAdapter } from '../adapters/ConfigServiceAdapter';
+import {ConfigService} from '../../src/services/config/ConfigService';
+import {ConfigServiceAdapter} from '../adapters/ConfigServiceAdapter';
 
 
 chai.use(sinonChai);
@@ -72,30 +72,8 @@ describe('Inner logic functions', function() {
 
     // Initialize the EventProcessorService with the stubs and mock contract
     eventProcessorService = new EventProcessorService(
-      loggerStub,
-      configSerivce);
-
-   /* eventProcessorService = new EventProcessorService(
-        ethers.provider,
-        ethers.provider,
-        s3Stub,
-        sqsStub,
         loggerStub,
-        {
-          environment: 'local',
-          positionOpenerAddress: positionOpenerMockContract.address,
-          positionCloserAddress: positionCloserMockContract.address,
-          positionLiquidatorAddress: positionLiquidatorMockContract.address,
-          positionExpiratorAddress: positionExpiratorMockContract.address,
-          lastBlockScanned: 0,
-          S3_LAST_BLOCK_KEY: '',
-          S3_BUCKET: 'test-bucket',
-          rpcAddress: '',
-          alternateRpcAddress: '',
-          NEW_EVENTS_QUEUE_URL: 'test-queue-url',
-          EVENTS_FETCH_PAGE_SIZE: 1000,
-        },
-    );*/
+        configSerivce);
   });
 
   // Helper function to create a mock Log object
