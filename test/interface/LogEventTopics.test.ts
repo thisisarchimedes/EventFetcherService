@@ -21,7 +21,7 @@ describe('Events Catching and logging', function() {
   let sharesReceived: number;
 
   beforeEach(function() {
-    generateMockParam();
+    generateMockParams();
   });
 
   it('should have the expected topic[0] for PositionOpened event', async function() {
@@ -77,7 +77,7 @@ describe('Events Catching and logging', function() {
   });
 
 
-  function generateMockParam() {
+  function generateMockParams() {
     nftId = Math.floor(Math.random() * 1000);
     user = ethers.Wallet.createRandom().address;
     strategy = ethers.Wallet.createRandom().address;
@@ -95,49 +95,3 @@ describe('Events Catching and logging', function() {
     return mockContract;
   }
 });
-
-
-/*
-
-      positionOpenerMockContract = await PositionOpenerFactory.deploy();
-      await positionOpenerMockContract.deployed();
-
-      const PositionCloserFactory = await ethers.getContractFactory(
-          'PositionCloser_mock',
-      );
-
-      positionCloserMockContract = await PositionCloserFactory.deploy();
-      await positionCloserMockContract.deployed();
-
-      const PositionLiquidatorFactory = await ethers.getContractFactory(
-          'PositionLiquidator_mock',
-      );
-
-      positionLiquidatorMockContract = await PositionLiquidatorFactory.deploy();
-      await positionLiquidatorMockContract.deployed();
-
-      const PositionExpiratorFactory = await ethers.getContractFactory(
-          'PositionExpirator_mock',
-      );
-
-      positionExpiratorMockContract = await PositionExpiratorFactory.deploy();
-      await positionExpiratorMockContract.deployed();
-
-      const leverageContractAddresses = {
-        positionOpenerAddress: positionOpenerMockContract.address,
-        positionCloserAddress: positionCloserMockContract.address,
-        positionLiquidatorAddress: positionLiquidatorMockContract.address,
-        positionExpiratorAddress: positionExpiratorMockContract.address,
-      };
-
-
-const tx = await positionOpenerMockContract.openPosition(
-    nftId,
-    user,
-    strategy,
-    collateralAmount,
-    wbtcToBorrow,
-    positionExpireBlock,
-    sharesReceived,
-);
-*/
