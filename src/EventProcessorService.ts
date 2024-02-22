@@ -60,9 +60,11 @@ export class EventProcessorService implements IEventProcessorService {
 
       const lastBlock = await this.getLastScannedBlock();
 
+      const startBlock = lastBlock + 1; // advance block scanning by one block from last run
+
       const currentBlock = await this.getCurrentBlockNumber();
 
-      const {processedEvents: events, endBlock} = await this.fetchAndProcessEvents(lastBlock, currentBlock);
+      const {processedEvents: events, endBlock} = await this.fetchAndProcessEvents(startBlock, currentBlock);
 
       if (events.length > 0) {
         this.logger.info(
@@ -247,7 +249,7 @@ export class EventProcessorService implements IEventProcessorService {
 
   async setLastScannedBlock(blockNumber: number): Promise<void> {
     const bucket = this._context.S3_BUCKET;
-
+    console.log('seeting last block scanned to S3: ', blockNumber);
     await this.s3Service.putObject(
         bucket,
         this._context.S3_LAST_BLOCK_KEY,
