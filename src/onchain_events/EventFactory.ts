@@ -8,10 +8,12 @@ import {OnChainEventLeveragePositionOpened} from './leverage_events/OnChainEvent
 import {OnChainEventLeveragePositionClosed} from './leverage_events/OnChainEventLeveragePositionClosed';
 import {
   TOPIC_EVENT_LEVERAGE_POSITION_CLOSED,
+  TOPIC_EVENT_LEVERAGE_POSITION_LIQUIDATED,
   TOPIC_EVENT_LEVERAGE_POSITION_OPENED,
   TOPIC_EVENT_PSP_DEPOSIT,
   TOPIC_EVENT_PSP_WITHDRAW,
 } from './EventTopic';
+import { OnChainEventLeveragePositionLiquidated } from './leverage_events/OnChainEventLeveragePositionLiquidated';
 
 export class EventFactory {
   private configService: ConfigService;
@@ -62,6 +64,9 @@ export class EventFactory {
 
       case TOPIC_EVENT_LEVERAGE_POSITION_CLOSED:
         return new OnChainEventLeveragePositionClosed(eventLog, this.logger, this.sqsService, this.configService);
+
+      case TOPIC_EVENT_LEVERAGE_POSITION_LIQUIDATED:
+        return new OnChainEventLeveragePositionLiquidated(eventLog, this.logger, this.sqsService, this.configService);
     }
 
     return undefined;

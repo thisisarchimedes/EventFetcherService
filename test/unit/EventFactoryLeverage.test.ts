@@ -91,6 +91,36 @@ describe('Leverage Events Logging & Queuing', function() {
     testEventProcessing(event, expectedLogMessage, expectedSqsMessage);
   });
 
+  it('should report on PositionLqiuidated event', async function() {
+    const eventSyntheticDataFileName: string = 'test/data/leveragePositionLiquidatedEvent.json';
+    const expectedEventName: string = 'LeveragedPositionLiquidated';
+
+    const expectedLogMessage: EventFetcherLogEntryMessage = {
+      event: 'LeveragedPositionLiquidated',
+      user: '0',
+      strategy: 'Convex FRAXBP/msUSD Single Pool',
+      depositAmount: '2',
+      borrowedAmount: '1',
+    };
+
+    const expectedSqsMessage: EventFetcherSQSMessage = {
+      name: 'PositionLiquidated',
+      contractType: 2,
+      txHash: '0x1fe52317d52b452120708667eed57e3c19ad39268bfabcf60230978c50df426f',
+      blockNumber: 6000003,
+      data: {
+        nftId: 2,
+        strategy: '0x825cc02ec7B77d4432e82e7bCAf3B89a67a555F1',
+        wbtcDebtPaid: '1',
+        claimableAmount: '2',
+        liquidationFee: '3',
+      },
+    };
+
+    const event: OnChainEvent = await testEventGeneration(eventSyntheticDataFileName, expectedEventName);
+    testEventProcessing(event, expectedLogMessage, expectedSqsMessage);
+  });
+
   function setupTestEnvironment() {
     logger = new LoggerAdapter(LOCAL_LOGGER);
     eventFetcher = new EventFetcherAdapter();
@@ -115,7 +145,7 @@ describe('Leverage Events Logging & Queuing', function() {
     const onChainEvents: OnChainEvent[] = [];
     for (const event of eventsLog) {
       try {
-        const evt = eventFactory.createEvent(event);
+        const evt = await eventFactory.createEvent(event);
         onChainEvents.push(evt);
       } catch (e) {
         if (e.message === 'Unknown contract address') {

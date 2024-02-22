@@ -6,13 +6,10 @@ import {ethers} from 'ethers';
 export abstract class OnChainEvent {
   protected eventName: string = '';
   protected userAddress: string = '';
-
-  protected strategyConfig!: ContractInfoPSP;
-  protected depositAmount: bigint = BigInt(0);
-
   protected txHash: string = '';
   protected blockNumber: number = 0;
 
+  protected strategyConfig!: ContractInfoPSP;
   protected logger: Logger;
   protected sqsService: SQSService;
   protected configService: ConfigService;
