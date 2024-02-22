@@ -45,11 +45,9 @@ export class EventFactory {
       throw new Error(errorMessage);
     }
 
-    if (results[0] !== undefined) {
-      return results[0] as OnChainEvent;
-    }
+    const event = results.find((result) => result !== undefined);
 
-    return results[1] as OnChainEvent;
+    return event as OnChainEvent;
   }
 
   private createPSPEvent(eventLog: ethers.providers.Log): OnChainEvent | undefined {
