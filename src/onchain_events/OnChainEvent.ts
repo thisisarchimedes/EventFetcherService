@@ -1,7 +1,7 @@
-import { Logger, SQSService } from '@thisisarchimedes/backend-sdk';
-import { ConfigService } from '../services/config/ConfigService';
-import { ContractInfoPSP } from '../types/ContractInfoPSP';
-import { ethers } from 'ethers';
+import {Logger, SQSService} from '@thisisarchimedes/backend-sdk';
+import {ConfigService} from '../services/config/ConfigService';
+import {ContractInfoPSP} from '../types/ContractInfoPSP';
+import {ethers} from 'ethers';
 
 export abstract class OnChainEvent {
   protected eventName: string = '';

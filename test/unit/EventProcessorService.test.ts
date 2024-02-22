@@ -9,8 +9,8 @@ import chaiAsPromised from 'chai-as-promised';
 import chai from 'chai';
 
 import {EventProcessorService} from '../../src/EventProcessorService';
-import { ConfigServiceAdapter } from '../adapters/ConfigServiceAdapter';
-import { ConfigService } from '../../src/services/config/ConfigService';
+import {ConfigServiceAdapter} from '../adapters/ConfigServiceAdapter';
+import {ConfigService} from '../../src/services/config/ConfigService';
 
 // Set up Chai to use the sinonChai and chaiAsPromised plugins
 chai.use(sinonChai);
@@ -31,7 +31,6 @@ describe('Events Catching and logging', function() {
 
   // This runs before each individual test
   beforeEach(async function() {
-
     const startBlock = await ethers.provider.getBlockNumber();
     // Deploy a mock contract for the tests
     const PositionOpenerFactory = await ethers.getContractFactory(
@@ -93,7 +92,7 @@ describe('Events Catching and logging', function() {
     // Initialize the EventProcessorService with the stubs and mock contract
     eventProcessorService = new EventProcessorService(loggerStub, configService);
 
-    /*eventProcessorService = new EventProcessorService(
+    /* eventProcessorService = new EventProcessorService(
         ethers.provider,
         ethers.provider,
         s3Stub,

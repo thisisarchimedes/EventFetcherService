@@ -114,21 +114,21 @@ describe('Leverage Events', function() {
 
 
 function createExpectedSQSMessagePositionLiquidated(): string {
-    // This is how we expect ETH Log message in leveragePositionOpenedEvent.json to be formatted on the SQS side
-    return JSON.stringify({
-      MessageBody: {
-        name: 'LeverPositionOpened',
-        contractType: 2,
-        txHash: '0x1fe52317d52b452120708667eed57e3c19ad39268bfabcf60230978c50df426f',
-        blockNumber: 6000003,
-        data: {
-          nftId: '2',
-          strategy: '0x825cc02ec7B77d4432e82e7bCAf3B89a67a555F1',
-          wbtcDebtPaid: '5000000',
-          claimableAmount: '5000000',
-          liquidationFee: '5000000',
-        },
-        QueueUrl: 'https://sqs.us-east-1.amazonaws.com/240910251918/wbtc_engine_events_queue_demo',
+  // This is how we expect ETH Log message in leveragePositionOpenedEvent.json to be formatted on the SQS side
+  return JSON.stringify({
+    MessageBody: {
+      name: 'LeverPositionOpened',
+      contractType: 2,
+      txHash: '0x1fe52317d52b452120708667eed57e3c19ad39268bfabcf60230978c50df426f',
+      blockNumber: 6000003,
+      data: {
+        nftId: '2',
+        strategy: '0x825cc02ec7B77d4432e82e7bCAf3B89a67a555F1',
+        wbtcDebtPaid: '5000000',
+        claimableAmount: '5000000',
+        liquidationFee: '5000000',
       },
-    });
-  }
+      QueueUrl: 'https://sqs.us-east-1.amazonaws.com/240910251918/wbtc_engine_events_queue_demo',
+    },
+  });
+}

@@ -2,7 +2,7 @@ import {ethers} from 'ethers';
 import {OnChainEventLeverage} from './OnChainEventLeverage';
 import {Logger, SQSService} from '@thisisarchimedes/backend-sdk';
 import {ConfigService} from '../services/config/ConfigService';
-import { SQSMessage } from '../types/SQSMessage';
+import {SQSMessage} from '../types/SQSMessage';
 
 export class OnChainEventLeveragePositionOpened extends OnChainEventLeverage {
   constructor(rawEventLog: ethers.providers.Log, logger: Logger, sqsService: SQSService, configService: ConfigService) {
