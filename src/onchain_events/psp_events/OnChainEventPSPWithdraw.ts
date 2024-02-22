@@ -1,7 +1,7 @@
-import { ethers } from 'ethers';
-import { OnChainEventPSP } from './OnChainEventPSP';
-import { Logger, SQSService } from '@thisisarchimedes/backend-sdk';
-import { ConfigService } from '../../services/config/ConfigService';
+import {ethers} from 'ethers';
+import {OnChainEventPSP} from './OnChainEventPSP';
+import {Logger, SQSService} from '@thisisarchimedes/backend-sdk';
+import {ConfigService} from '../../services/config/ConfigService';
 
 export class OnChainEventPSPWithdraw extends OnChainEventPSP {
   constructor(rawEventLog: ethers.providers.Log, logger: Logger, sqsService: SQSService, configService: ConfigService) {

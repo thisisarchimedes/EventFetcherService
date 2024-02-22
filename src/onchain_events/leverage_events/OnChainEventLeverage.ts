@@ -1,8 +1,8 @@
-import { OnChainEvent } from '../OnChainEvent';
-import { Logger, SQSService } from '@thisisarchimedes/backend-sdk';
-import { ConfigService } from '../../services/config/ConfigService';
-import { EventFetcherLogEntryMessage } from '../../types/NewRelicLogEntry';
-import { SQSMessage } from '../../types/SQSMessage';
+import {OnChainEvent} from '../OnChainEvent';
+import {Logger, SQSService} from '@thisisarchimedes/backend-sdk';
+import {ConfigService} from '../../services/config/ConfigService';
+import {EventFetcherLogEntryMessage} from '../../types/NewRelicLogEntry';
+import {SQSMessage} from '../../types/SQSMessage';
 
 export abstract class OnChainEventLeverage extends OnChainEvent {
   protected nftId!: number;

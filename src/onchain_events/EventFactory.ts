@@ -1,11 +1,11 @@
-import { ethers } from 'ethers';
-import { ConfigService } from '../services/config/ConfigService';
-import { Logger, SQSService } from '@thisisarchimedes/backend-sdk';
-import { OnChainEventPSPDeposit } from './psp_events/OnChainEventPSPDeposit';
-import { OnChainEventPSPWithdraw } from './psp_events/OnChainEventPSPWithdraw';
-import { OnChainEvent } from './OnChainEvent';
-import { OnChainEventLeveragePositionOpened } from './leverage_events/OnChainEventLeveragePositionOpened';
-import { OnChainEventLeveragePositionClosed } from './leverage_events/OnChainEventLeveragePositionClosed';
+import {ethers} from 'ethers';
+import {ConfigService} from '../services/config/ConfigService';
+import {Logger, SQSService} from '@thisisarchimedes/backend-sdk';
+import {OnChainEventPSPDeposit} from './psp_events/OnChainEventPSPDeposit';
+import {OnChainEventPSPWithdraw} from './psp_events/OnChainEventPSPWithdraw';
+import {OnChainEvent} from './OnChainEvent';
+import {OnChainEventLeveragePositionOpened} from './leverage_events/OnChainEventLeveragePositionOpened';
+import {OnChainEventLeveragePositionClosed} from './leverage_events/OnChainEventLeveragePositionClosed';
 import {
   TOPIC_EVENT_LEVERAGE_POSITION_CLOSED,
   TOPIC_EVENT_LEVERAGE_POSITION_OPENED,
