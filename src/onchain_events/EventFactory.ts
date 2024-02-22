@@ -25,29 +25,14 @@ export class EventFactory {
   }
 
   public async createEvent(eventLog: ethers.providers.Log): Promise<OnChainEvent> {
-    let errorMessage;
-
     const results = await Promise.all([
       this.createPSPEvent(eventLog),
       this.createLeverageEvent(eventLog),
     ]);
 
-    if (results.every((result) => result === undefined)) {
-      errorMessage = `Unhandled event topic: ${eventLog.topics[0]}`;
-      this.logger.error(errorMessage);
-      throw new Error(errorMessage);
-    }
+    const event = this.getEventObjectOrThrowError(results, eventLog);
 
-    // this should NOT happen
-    if (results.every((result) => result !== undefined)) {
-      errorMessage = `Multiple events detected, but expecting just one: ${eventLog.topics[0]}`;
-      this.logger.error(errorMessage);
-      throw new Error(errorMessage);
-    }
-
-    const event = results.find((result) => result !== undefined);
-
-    return event as OnChainEvent;
+    return event;
   }
 
   private createPSPEvent(eventLog: ethers.providers.Log): OnChainEvent | undefined {
@@ -80,6 +65,26 @@ export class EventFactory {
     }
 
     return undefined;
+  }
+
+  private getEventObjectOrThrowError(results: [OnChainEvent | undefined, OnChainEvent | undefined],
+      eventLog: ethers.providers.Log): OnChainEvent {
+    if (results.every((result) => result === undefined)) {
+      const errorMessage = `Unhandled event topic, ${eventLog.topics[0]}`;
+      this.logger.error(errorMessage);
+      throw new Error(errorMessage);
+    }
+
+    // this should NOT happen
+    if (results.every((result) => result !== undefined)) {
+      const errorMessage = `Multiple events detected, but expecting just one: ${eventLog.topics[0]}`;
+      this.logger.error(errorMessage);
+      throw new Error(errorMessage);
+    }
+
+    const event = results.find((result) => result !== undefined);
+
+    return event as unknown as OnChainEvent;
   }
 
   private isLogEventEmittedByPSPContract(eventLog: ethers.providers.Log): boolean {
