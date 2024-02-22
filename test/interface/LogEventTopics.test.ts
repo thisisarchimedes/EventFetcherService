@@ -36,10 +36,8 @@ describe('Validating Topic hash calculation for leverage events', function() {
         sharesReceived,
     );
 
-    const receipt = await tx.wait();
-    const topics = receipt.logs[0].topics;
-
-    expect(topics[0]).to.equal(TOPIC_EVENT_LEVERAGE_POSITION_OPENED);
+    const topic = await getTopic0Hash(tx);
+    expect(topic).to.equal(TOPIC_EVENT_LEVERAGE_POSITION_OPENED);
   });
 
   it('should have the expected topic[0] for PositionClosed event', async function() {
@@ -52,10 +50,8 @@ describe('Validating Topic hash calculation for leverage events', function() {
         wbtcToBorrow,
     );
 
-    const receipt = await tx.wait();
-    const topics = receipt.logs[0].topics;
-
-    expect(topics[0]).to.equal(TOPIC_EVENT_LEVERAGE_POSITION_CLOSED);
+    const topic = await getTopic0Hash(tx);
+    expect(topic).to.equal(TOPIC_EVENT_LEVERAGE_POSITION_CLOSED);
   });
 
   it('should have the expected topic[0] for PositionLiquidated event', async function() {
@@ -69,10 +65,8 @@ describe('Validating Topic hash calculation for leverage events', function() {
         sharesReceived,
     );
 
-    const receipt = await tx.wait();
-    const topics = receipt.logs[0].topics;
-
-    expect(topics[0]).to.equal(TOPIC_EVENT_LEVERAGE_POSITION_LIQUIDATED);
+    const topic = await getTopic0Hash(tx);
+    expect(topic).to.equal(TOPIC_EVENT_LEVERAGE_POSITION_LIQUIDATED);
   });
 
   it('should have the expected topic[0] for PositionExpired event', async function() {
@@ -84,11 +78,15 @@ describe('Validating Topic hash calculation for leverage events', function() {
         collateralAmount,
     );
 
+    const topic = await getTopic0Hash(tx);
+    expect(topic).to.equal(TOPIC_EVENT_LEVERAGE_POSITION_EXPIRED);
+  });
+
+  async function getTopic0Hash(tx): Promise<string> {
     const receipt = await tx.wait();
     const topics = receipt.logs[0].topics;
-
-    expect(topics[0]).to.equal(TOPIC_EVENT_LEVERAGE_POSITION_EXPIRED);
-  });
+    return topics[0];
+  }
 
   function generateMockParams(): void {
     nftId = Math.floor(Math.random() * 1000);
