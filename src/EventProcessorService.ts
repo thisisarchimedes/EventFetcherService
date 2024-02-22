@@ -150,14 +150,12 @@ export class EventProcessorService implements IEventProcessorService {
       logs: ethers.providers.Log[],
       descriptor: EventDescriptor,
   ): SQSMessage[] {
-    console.log('1 - decodeAndProcessLogs:', descriptor);
     const logRes = logs
         .map((log) => {
           const indexedTypes = descriptor.decodeData
               .filter((param: DecodedData) => param.indexed)
               .map((param: DecodedData) => param.type);
 
-          console.log('indexedTypes:', indexedTypes);
 
           const nonIndexedTypes = descriptor.decodeData
               .filter((param: DecodedData) => !param.indexed)
@@ -184,7 +182,6 @@ export class EventProcessorService implements IEventProcessorService {
               ...nonIndexedData,
             ];
 
-            console.log('2 - decodeAndProcessLogs:', allData);
 
             const eventData: EventData = {};
             descriptor.decodeData.forEach((param: DecodedData, index: number) => {
@@ -198,7 +195,6 @@ export class EventProcessorService implements IEventProcessorService {
               blockNumber: log.blockNumber,
               data: eventData,
             };
-            console.log('3 - decodeAndProcessLogs:', retObj);
 
 
             return retObj;
@@ -233,19 +229,15 @@ export class EventProcessorService implements IEventProcessorService {
         switch (descriptor.contractType) {
           case ContractType.Opener:
             contractAddress = this.configService.getLeveragePositionOpenerAddress();
-            // console.log('>>> contractAddress - opener:', contractAddress);
             break;
           case ContractType.Closer:
             contractAddress = this.configService.getLeveragePositionCloserAddress();
-            // console.log('>>> contractAddress - closer:', contractAddress);
             break;
           case ContractType.Liquidator:
             contractAddress = this.configService.getLeveragePositionLiquidatorAddress();
-            // console.log('>>> contractAddress - liquidator:', contractAddress);
             break;
           case ContractType.Expirator:
             contractAddress = this.configService.getLeveragePositionExpiratorAddress();
-            // console.log('>>> contractAddress - expirator:', contractAddress);
             break;
         }
 

@@ -38,7 +38,7 @@ describe('PSP Events', function() {
       event: 'Deposit',
       user: '0x93B435e55881Ea20cBBAaE00eaEdAf7Ce366BeF2',
       strategy: 'Convex FRAXBP/msUSD Single Pool',
-      amount: '5000000',
+      depositAmount: '5000000',
     };
   }
 
@@ -50,7 +50,7 @@ describe('PSP Events', function() {
       actualLog.event === expectedLog.event &&
       actualLog.user === expectedLog.user &&
       actualLog.strategy === expectedLog.strategy &&
-      actualLog.amount === expectedLog.amount
+      actualLog.depositAmount === expectedLog.depositAmount
     );
   }
 
