@@ -30,6 +30,8 @@ export class EventFactory {
    * Make it async so we can process PSP and Leverage event in parallel
    * Seperate the switch and break it into two different functions
    * Also create folders for PSP and leverage events
+   * 
+   * Verify that we check the contract address and not just the topic for each event
    */
   public createEvent(eventLog: ethers.providers.Log): OnChainEvent {
     let errorMessage;
