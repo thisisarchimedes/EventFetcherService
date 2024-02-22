@@ -6,8 +6,7 @@ import {
   TOPIC_EVENT_LEVERAGE_POSITION_CLOSED,
   TOPIC_EVENT_LEVERAGE_POSITION_OPENED,
   TOPIC_EVENT_LEVERAGE_POSITION_LIQUIDATED,
-  TOPIC_EVENT_PSP_DEPOSIT,
-  TOPIC_EVENT_PSP_WITHDRAW,
+  TOPIC_EVENT_LEVERAGE_POSITION_EXPIRED,
 } from '../../src/onchain_events/EventTopic';
 
 
@@ -76,6 +75,20 @@ describe('Events Catching and logging', function() {
     expect(topics[0]).to.equal(TOPIC_EVENT_LEVERAGE_POSITION_LIQUIDATED);
   });
 
+  it('should have the expected topic[0] for PositionExpired event', async function() {
+    const PositionExpiratorMockContract: Contract = await deployMockContract('PositionExpirator_mock');
+
+    const tx = await PositionExpiratorMockContract.expirePosition(
+        nftId,
+        user,
+        collateralAmount,
+    );
+
+    const receipt = await tx.wait();
+    const topics = receipt.logs[0].topics;
+
+    expect(topics[0]).to.equal(TOPIC_EVENT_LEVERAGE_POSITION_EXPIRED);
+  });
 
   function generateMockParams(): void {
     nftId = Math.floor(Math.random() * 1000);
