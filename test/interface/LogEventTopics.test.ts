@@ -77,7 +77,7 @@ describe('Events Catching and logging', function() {
   });
 
 
-  function generateMockParams() {
+  function generateMockParams(): void {
     nftId = Math.floor(Math.random() * 1000);
     user = ethers.Wallet.createRandom().address;
     strategy = ethers.Wallet.createRandom().address;
