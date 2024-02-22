@@ -10,7 +10,7 @@ import {
 } from '../../src/onchain_events/EventTopic';
 
 
-describe('Events Catching and logging', function() {
+describe('Validating Topic hash calculation for leverage events', function() {
   let nftId: number;
   let user: string;
   let strategy: string;
