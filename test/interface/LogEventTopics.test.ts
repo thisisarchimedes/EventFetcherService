@@ -87,8 +87,8 @@ describe('Events Catching and logging', function() {
     sharesReceived = Math.floor(Math.random() * 1000);
   }
 
-  async function deployMockContract(name: string) {
-    const factory = await ethers.getContractFactory(name);
+  async function deployMockContract(contractName: string): Promise<Contract> {
+    const factory = await ethers.getContractFactory(contractName);
     const mockContract: Contract = await factory.deploy();
     await mockContract.deployed();
 
