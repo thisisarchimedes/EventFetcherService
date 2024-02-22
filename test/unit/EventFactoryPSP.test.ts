@@ -39,7 +39,7 @@ describe('PSP Events Logging', function() {
     const onChainEvents: OnChainEvent[] = [];
     for (const event of eventsLog) {
       try {
-        const evt = eventFactory.createEvent(event);
+        const evt = await eventFactory.createEvent(event);
         onChainEvents.push(evt);
       } catch (e) {
         if (e.message === 'Unknown strategy address') {
@@ -72,7 +72,7 @@ describe('PSP Events Logging', function() {
     const onChainEvents: OnChainEvent[] = [];
     for (const event of eventsLog) {
       try {
-        const evt = eventFactory.createEvent(event);
+        const evt = await eventFactory.createEvent(event);
         onChainEvents.push(evt);
       } catch (e) {
         if (e.message === 'Unknown strategy address') {

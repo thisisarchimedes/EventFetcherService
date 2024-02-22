@@ -104,7 +104,7 @@ export class EventProcessorService implements IEventProcessorService {
 
     for (const event of eventsLog) {
       try {
-        const evt = this.eventFactory.createEvent(event);
+        const evt = await this.eventFactory.createEvent(event);
         evt.process();
       } catch (e) {
         if ((e as Error).message === 'Unknown strategy address') {

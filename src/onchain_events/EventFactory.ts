@@ -1,11 +1,11 @@
-import {ethers} from 'ethers';
-import {ConfigService} from '../services/config/ConfigService';
-import {Logger, SQSService} from '@thisisarchimedes/backend-sdk';
-import {OnChainEventPSPDeposit} from './OnChainEventPSPDeposit';
-import {OnChainEventPSPWithdraw} from './OnChainEventPSPWithdraw';
-import {OnChainEvent} from './OnChainEvent';
-import {OnChainEventLeveragePositionOpened} from './OnChainEventLeveragePositionOpened';
-import {OnChainEventLeveragePositionClosed} from './OnChainEventLeveragePositionClosed';
+import { ethers } from 'ethers';
+import { ConfigService } from '../services/config/ConfigService';
+import { Logger, SQSService } from '@thisisarchimedes/backend-sdk';
+import { OnChainEventPSPDeposit } from './psp_events/OnChainEventPSPDeposit';
+import { OnChainEventPSPWithdraw } from './psp_events/OnChainEventPSPWithdraw';
+import { OnChainEvent } from './OnChainEvent';
+import { OnChainEventLeveragePositionOpened } from './leverage_events/OnChainEventLeveragePositionOpened';
+import { OnChainEventLeveragePositionClosed } from './leverage_events/OnChainEventLeveragePositionClosed';
 import {
   TOPIC_EVENT_LEVERAGE_POSITION_CLOSED,
   TOPIC_EVENT_LEVERAGE_POSITION_OPENED,
@@ -24,17 +24,38 @@ export class EventFactory {
     this.sqsService = sqsService;
   }
 
-  /**
-   *
-   *
-   * Make it async so we can process PSP and Leverage event in parallel
-   * Seperate the switch and break it into two different functions
-   * Also create folders for PSP and leverage events
-   *
-   * Verify that we check the contract address and not just the topic for each event
-   */
-  public createEvent(eventLog: ethers.providers.Log): OnChainEvent {
+  public async createEvent(eventLog: ethers.providers.Log): Promise<OnChainEvent> {
     let errorMessage;
+
+    const results = await Promise.all([
+      this.createPSPEvent(eventLog),
+      this.createLeverageEvent(eventLog),
+    ]);
+
+    if (results[0] === undefined && results[1] === undefined) {
+      errorMessage = `Unhandled event topic: ${eventLog.topics[0]}`;
+      this.logger.error(errorMessage);
+      throw new Error(errorMessage);
+    }
+
+    // this should NOT happen
+    if (results[0] !== undefined && results[1] !== undefined) {
+      errorMessage = `Two events detected, but expecting just one: ${eventLog.topics[0]}`;
+      this.logger.error(errorMessage);
+      throw new Error(errorMessage);
+    }
+
+    if (results[0] !== undefined) {
+      return results[0] as OnChainEvent;
+    }
+
+    return results[1] as OnChainEvent;
+  }
+
+  private createPSPEvent(eventLog: ethers.providers.Log): OnChainEvent | undefined {
+    if (this.isLogEventEmittedByPSPContract(eventLog) === false) {
+      return undefined;
+    }
 
     switch (eventLog.topics[0]) {
       case TOPIC_EVENT_PSP_DEPOSIT:
@@ -42,17 +63,45 @@ export class EventFactory {
 
       case TOPIC_EVENT_PSP_WITHDRAW:
         return new OnChainEventPSPWithdraw(eventLog, this.logger, this.sqsService, this.configService);
+    }
 
+    return undefined;
+  }
+
+  private createLeverageEvent(eventLog: ethers.providers.Log): OnChainEvent | undefined {
+    if (this.isLogEventEmittedByLeverageContract(eventLog) === false) {
+      return undefined;
+    }
+
+    switch (eventLog.topics[0]) {
       case TOPIC_EVENT_LEVERAGE_POSITION_OPENED:
         return new OnChainEventLeveragePositionOpened(eventLog, this.logger, this.sqsService, this.configService);
 
       case TOPIC_EVENT_LEVERAGE_POSITION_CLOSED:
         return new OnChainEventLeveragePositionClosed(eventLog, this.logger, this.sqsService, this.configService);
-
-      default:
-        errorMessage = `Unhandled event topic: ${eventLog.topics[0]}`;
-        this.logger.error(errorMessage);
-        throw new Error(errorMessage);
     }
+
+    return undefined;
+  }
+
+  private isLogEventEmittedByPSPContract(eventLog: ethers.providers.Log): boolean {
+    const res = this.configService.getPSPStrategyInfoByAddress(eventLog.address);
+
+    if (res === undefined) {
+      return false;
+    }
+    return true;
+  }
+
+  private isLogEventEmittedByLeverageContract(eventLog: ethers.providers.Log): boolean {
+    const emitterAddress = eventLog.address;
+
+    if (this.configService.getLeveragePositionOpenerAddress() === emitterAddress ||
+      this.configService.getLeveragePositionCloserAddress() === emitterAddress ||
+      this.configService.getLeveragePositionLiquidatorAddress() === emitterAddress ||
+      this.configService.getLeveragePositionExpiratorAddress() === emitterAddress) {
+      return true;
+    }
+    return false;
   }
 }
