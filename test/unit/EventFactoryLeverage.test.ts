@@ -10,7 +10,6 @@ import {EventFetcherLogEntryMessage} from '../../src/types/NewRelicLogEntry';
 import {SQSServiceAdapter} from '../adapters/SQSServiceAdapter';
 import {OnChainEvent} from '../../src/onchain_events/OnChainEvent';
 import {EventFetcherSQSMessage} from '../../src/types/SQSMessage';
-import exp from 'constants';
 
 describe('Leverage Events Logging & Queuing', function() {
   let logger: LoggerAdapter;
