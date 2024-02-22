@@ -32,15 +32,15 @@ export class EventFactory {
       this.createLeverageEvent(eventLog),
     ]);
 
-    if (results[0] === undefined && results[1] === undefined) {
+    if (results.every((result) => result === undefined)) {
       errorMessage = `Unhandled event topic: ${eventLog.topics[0]}`;
       this.logger.error(errorMessage);
       throw new Error(errorMessage);
     }
 
     // this should NOT happen
-    if (results[0] !== undefined && results[1] !== undefined) {
-      errorMessage = `Two events detected, but expecting just one: ${eventLog.topics[0]}`;
+    if (results.every((result) => result !== undefined)) {
+      errorMessage = `Multiple events detected, but expecting just one: ${eventLog.topics[0]}`;
       this.logger.error(errorMessage);
       throw new Error(errorMessage);
     }
