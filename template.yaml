@@ -57,43 +57,16 @@ Resources:
           AWS_REGION: !Ref Region
           
 Parameters:
-  NewEventsQueueUrl:
-    Type: String
-    Description: SQS Queue URL
-
-  S3LastBlockKey:
-    Type: String
-    Description: S3 Key for Last Block Number
-
-  S3DeploymentAddressKey:
-    Type: String
-    Description: S3 Key for Deployment Address
-
-  EventsFetchPageSize:
-    Type: Number
-    Default: 1000
-    Description: Events Fetch Page Size
-
-  NewRelicAPIKey:
-    Type: String
-    Description: New Relic License Key
-
-  S3Bucket:
-    Type: String
-    Description: S3 Bucket Name
-
-  S3BucketConfig:
-    Type: String
-    Description: S3 Bucket Config Name
 
   Environment:
     Type: String
     Description: Environment
-    Default: 'local'
+    Default: 'Demo'
 
-  S3ForkKey:
+  Environment:
     Type: String
     Description: S3 Key for test RPC URL
+    Default: 'us-east-1'
 
   FunctionNameSuffix:
     Type: String
