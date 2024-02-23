@@ -1,12 +1,13 @@
 import {ethers} from 'ethers';
-import {IEventFetcher} from './IEventFetcher';
+import {EventFetcher} from './EventFetcher';
 
 
-export class EventFetcherRPC implements IEventFetcher {
+export class EventFetcherRPC extends EventFetcher {
   private readonly mainProvider: ethers.providers.Provider;
   private readonly altProvider: ethers.providers.Provider;
 
   constructor(mainProviderRPCURL: string, altProviderRPCURL: string) {
+    super();
     this.mainProvider = new ethers.providers.JsonRpcProvider(mainProviderRPCURL);
     this.altProvider = new ethers.providers.JsonRpcProvider(altProviderRPCURL);
   }
@@ -34,7 +35,6 @@ export class EventFetcherRPC implements IEventFetcher {
     return Math.min(mainBlockNumber, altBlockNumber);
   }
 
-
   private async fetchLogsFromBlockchain(
       filter: ethers.providers.Filter,
   ): Promise<ethers.providers.Log[]> {
@@ -44,18 +44,5 @@ export class EventFetcherRPC implements IEventFetcher {
     ]);
 
     return this.deduplicateLogs([...alchemyLogs, ...infuraLogs]);
-  }
-
-  private deduplicateLogs(logs: ethers.providers.Log[]): ethers.providers.Log[] {
-    const uniqueLogs = new Map<string, ethers.providers.Log>();
-
-    for (const log of logs) {
-      const uniqueKey = log.transactionHash + log.logIndex;
-      if (!uniqueLogs.has(uniqueKey)) {
-        uniqueLogs.set(uniqueKey, log);
-      }
-    }
-
-    return Array.from(uniqueLogs.values());
   }
 }

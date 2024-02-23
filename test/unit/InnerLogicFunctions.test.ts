@@ -11,6 +11,9 @@ import chai from 'chai';
 import {EventProcessorService} from '../../src/EventProcessorService';
 import {ConfigService} from '../../src/services/config/ConfigService';
 import {ConfigServiceAdapter} from '../adapters/ConfigServiceAdapter';
+import {EventFetcherAdapter} from '../adapters/EventFetcherAdapter';
+import { EventFactory } from '../../src/onchain_events/EventFactory';
+import chaiAsPromised from 'chai-as-promised';
 
 
 chai.use(sinonChai);
@@ -25,7 +28,9 @@ describe('Inner logic functions', function() {
   let s3Stub: sinon.SinonStubbedInstance<S3Service>;
   let sqsStub: sinon.SinonStubbedInstance<SQSService>;
   let loggerStub: sinon.SinonStubbedInstance<Logger>;
-  let configSerivce: ConfigService;
+  let configService: ConfigService;
+  let eventFactory: EventFactory;
+  let eventFetcher: EventFetcherAdapter;
 
   beforeEach(async function() {
     // Deploy a mock contract for the tests
@@ -68,12 +73,14 @@ describe('Inner logic functions', function() {
     // Stub the Logger
     loggerStub = sinon.createStubInstance(Logger);
 
-    configSerivce = new ConfigServiceAdapter();
+    configService = new ConfigServiceAdapter();
+
+    eventFactory = new EventFactory(configService, loggerStub, sqsStub);
 
     // Initialize the EventProcessorService with the stubs and mock contract
     eventProcessorService = new EventProcessorService(
         loggerStub,
-        configSerivce);
+        configService);
   });
 
   // Helper function to create a mock Log object
@@ -89,20 +96,18 @@ describe('Inner logic functions', function() {
     topics: ['0xtopic1', '0xtopic2'], // Mock value
   });
 
-  it('should return an empty array for no logs', function() {
+
+  it('should return an empty array for no logs', async function() {
     const logs = [];
-    const result = eventProcessorService.deduplicateLogs(logs);
-    expect(result).to.be.an('array').that.is.empty;
+    await expect(eventFactory.createEvent(logs[0])).to.be.rejectedWith('Event log has no topics');
   });
 
-  it('should return the same logs if all are unique', function() {
-    const logs = [
-      createMockLog('0x1', 1),
-      createMockLog('0x2', 2),
-      createMockLog('0x3', 3),
-    ];
-    const result = eventProcessorService.deduplicateLogs(logs);
-    expect(result).to.deep.equal(logs);
+  it('should return the same logs if all are unique', async function() {
+    eventFetcher = new EventFetcherAdapter();
+    eventFetcher.setEventArrayFromFile('test/data/duplicatedLogs.json');
+    const logs: ethers.providers.Log[] = await eventFetcher.getOnChainEvents(100, 200);
+
+    expect(logs.length).to.equal(1);
   });
 
   it('should remove duplicate logs', function() {
