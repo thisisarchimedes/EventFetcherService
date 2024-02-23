@@ -66,8 +66,6 @@ jobs:
         run: |
           sam deploy --debug --template-file packaged.yaml --stack-name EventProcessorStack --capabilities CAPABILITY_IAM --parameter-overrides \
           ParameterKey=Environment,ParameterValue="Demo" \
-          ParameterKey=Region,ParameterValue="us-east-1"
-
 
 
   deploy_demo:
@@ -115,15 +113,7 @@ jobs:
         id: deploy
         run: |
           sam deploy --debug --template-file packaged.yaml --stack-name EventProcessorStackDemo --capabilities CAPABILITY_IAM --parameter-overrides \
-          ParameterKey=NewEventsQueueUrl,ParameterValue="${{ secrets.NEW_EVENTS_QUEUE_URL_DEMO }}" \
-          ParameterKey=S3Bucket,ParameterValue="${{ secrets.S3_BUCKET_DEMO }}" \
-          ParameterKey=S3BucketConfig,ParameterValue="${{ secrets.S3_BUCKET_CONFIG }}" \
-          ParameterKey=S3LastBlockKey,ParameterValue="${{ secrets.S3_LAST_BLOCK_KEY }}" \
-          ParameterKey=S3DeploymentAddressKey,ParameterValue="${{ secrets.S3_DEPLOYMENT_ADDRESS_KEY_DEMO }}" \
-          ParameterKey=EventsFetchPageSize,ParameterValue="${{ secrets.EVENTS_FETCH_PAGE_SIZE }}" \
-          ParameterKey=NewRelicAPIKey,ParameterValue="${{ secrets.NEW_RELIC_API_KEY }}" \
-          ParameterKey=S3ForkKey,ParameterValue="${{ secrets.S3_FORK_KEY_DEMO }}" \
-          ParameterKey=Environment,ParameterValue="Demo"
+          ParameterKey=Environment,ParameterValue="Demo" \
 
   report-devops-event-deploy:
       runs-on: ubuntu-latest

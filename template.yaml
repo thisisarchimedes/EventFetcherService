@@ -54,18 +54,12 @@ Resources:
       Environment:
         Variables:
           ENVIRONMENT: !Ref Environment
-          AWS_REGION: !Ref Region
           
 Parameters:
-
   Environment:
     Type: String
     Description: Environment
     Default: 'Demo'
-
-  Region:
-    Type: String
-    Description: The AWS region where resources will be created.
 
   FunctionNameSuffix:
     Type: String
