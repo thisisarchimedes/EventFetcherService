@@ -1,5 +1,5 @@
-import { ethers } from 'ethers';
-import { EventFetcher } from '../../src/services/blockchain/eventFetcher';
+import {ethers} from 'ethers';
+import {EventFetcher} from '../../src/services/blockchain/eventFetcher';
 import fs from 'fs';
 
 export class EventFetcherAdapter extends EventFetcher {

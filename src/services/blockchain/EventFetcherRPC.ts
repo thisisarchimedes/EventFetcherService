@@ -1,5 +1,5 @@
-import { ethers } from 'ethers';
-import { EventFetcher } from './EventFetcher';
+import {ethers} from 'ethers';
+import {EventFetcher} from './EventFetcher';
 
 
 export class EventFetcherRPC extends EventFetcher {
@@ -13,8 +13,8 @@ export class EventFetcherRPC extends EventFetcher {
   }
 
   public async getOnChainEvents(blockNumberFrom: number,
-    blockNumberTo: number,
-    topics: string[],
+      blockNumberTo: number,
+      topics: string[],
   ): Promise<ethers.providers.Log[]> {
     const filter: ethers.providers.Filter = {
       topics: topics,
@@ -36,7 +36,7 @@ export class EventFetcherRPC extends EventFetcher {
   }
 
   private async fetchLogsFromBlockchain(
-    filter: ethers.providers.Filter,
+      filter: ethers.providers.Filter,
   ): Promise<ethers.providers.Log[]> {
     const [alchemyLogs, infuraLogs] = await Promise.all([
       this.mainProvider.getLogs(filter),

@@ -2,7 +2,7 @@ import {ethers} from 'ethers';
 import {OnChainEventPSP} from './OnChainEventPSP';
 import {Logger, SQSService} from '@thisisarchimedes/backend-sdk';
 import {ConfigService} from '../../services/config/ConfigService';
-import { EventFetcherLogEntryMessage } from '../../types/NewRelicLogEntry';
+import {EventFetcherLogEntryMessage} from '../../types/NewRelicLogEntry';
 
 export class OnChainEventPSPWithdraw extends OnChainEventPSP {
   private withdrawAmount!: bigint;

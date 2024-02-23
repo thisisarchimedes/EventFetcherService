@@ -7,8 +7,8 @@ import {handler} from '../../src/lambda-handler';
 
 import {MockEthereumNode} from './Mocks/MockEthereumNode';
 import {MockNewRelic} from './Mocks/MockNewRelic';
-import { MockSQS } from './Mocks/MockSQS';
-import { MockAWSS3 } from './Mocks/MockAWSS3';
+import {MockSQS} from './Mocks/MockSQS';
+import {MockAWSS3} from './Mocks/MockAWSS3';
 
 describe('PSP Events', function() {
   let logger: LoggerAdapter;

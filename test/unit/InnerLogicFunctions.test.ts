@@ -1,19 +1,16 @@
-import {S3Service, SQSService, Logger} from '@thisisarchimedes/backend-sdk';
-
 import {expect} from 'chai';
-import {ethers} from 'hardhat';
 import {Contract} from 'ethers';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
 import chai from 'chai';
 
-import {EventProcessorService} from '../../src/EventProcessorService';
+import {S3Service, SQSService, Logger} from '@thisisarchimedes/backend-sdk';
+
 import {ConfigService} from '../../src/services/config/ConfigService';
 import {ConfigServiceAdapter} from '../adapters/ConfigServiceAdapter';
 import {EventFetcherAdapter} from '../adapters/EventFetcherAdapter';
-import { EventFactory } from '../../src/onchain_events/EventFactory';
-import chaiAsPromised from 'chai-as-promised';
+import {EventFactory} from '../../src/onchain_events/EventFactory';
 
 
 chai.use(sinonChai);
@@ -24,7 +21,6 @@ describe('Inner logic functions', function() {
   let positionCloserMockContract: Contract;
   let positionLiquidatorMockContract: Contract;
   let positionExpiratorMockContract: Contract;
-  let eventProcessorService: EventProcessorService;
   let s3Stub: sinon.SinonStubbedInstance<S3Service>;
   let sqsStub: sinon.SinonStubbedInstance<SQSService>;
   let loggerStub: sinon.SinonStubbedInstance<Logger>;
@@ -76,26 +72,7 @@ describe('Inner logic functions', function() {
     configService = new ConfigServiceAdapter();
 
     eventFactory = new EventFactory(configService, loggerStub, sqsStub);
-
-    // Initialize the EventProcessorService with the stubs and mock contract
-    eventProcessorService = new EventProcessorService(
-        loggerStub,
-        configService);
   });
-
-  // Helper function to create a mock Log object
-  const createMockLog = (transactionHash, logIndex) => ({
-    transactionHash: transactionHash,
-    logIndex: logIndex,
-    blockNumber: 123, // Mock value
-    blockHash: '0xblockhash', // Mock value
-    transactionIndex: 0, // Mock value
-    removed: false, // Mock value
-    address: '0xaddress', // Mock value
-    data: '0xdata', // Mock value
-    topics: ['0xtopic1', '0xtopic2'], // Mock value
-  });
-
 
   it('should return an empty array for no logs', async function() {
     const logs = [];

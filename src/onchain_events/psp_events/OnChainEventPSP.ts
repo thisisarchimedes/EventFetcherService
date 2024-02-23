@@ -1,7 +1,6 @@
 import {ethers} from 'ethers';
 
 import {Logger, SQSService} from '@thisisarchimedes/backend-sdk';
-import {EventFetcherLogEntryMessage} from '../../types/NewRelicLogEntry';
 import {OnChainEvent} from '../OnChainEvent';
 import {ConfigService} from '../../services/config/ConfigService';
 
