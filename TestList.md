@@ -25,6 +25,7 @@
 [] Use the correct terminology (Port is the interface ; Adapter is the impementation of this interface)
 [] Mock AppConfig so we don't need to manually change leverage addresses
 [] collect all event then process all async
+[] Go over different types and remove what isn't being used
 
 # Notes
 

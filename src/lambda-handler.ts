@@ -1,8 +1,6 @@
-import {S3Service, SQSService, Logger} from '@thisisarchimedes/backend-sdk';
+import {Logger} from '@thisisarchimedes/backend-sdk';
 import {EventProcessorService} from './EventProcessorService';
 import {ConfigServiceAWS} from './services/config/ConfigServiceAWS';
-import {ethers} from 'ethers';
-import {EnvironmentContext} from './types/EnvironmentContext';
 
 export const handler = async (
     // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any

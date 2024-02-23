@@ -1,9 +1,5 @@
 import {OnChainEvent} from '../OnChainEvent';
-import {Logger, SQSService} from '@thisisarchimedes/backend-sdk';
-import {ConfigService} from '../../services/config/ConfigService';
-import {EventFetcherLogEntryMessage} from '../../types/NewRelicLogEntry';
-import {SQSMessage} from '../../types/SQSMessage';
-import {ethers} from 'ethers';
+import {EventFetcherSQSMessage} from '../../types/EventFetcherSQSMessage';
 
 export abstract class OnChainEventLeverage extends OnChainEvent {
   protected nftId!: number;
@@ -13,7 +9,7 @@ export abstract class OnChainEventLeverage extends OnChainEvent {
     this.sendSqsLeverageEvent();
   }
 
-  protected abstract getSQSMessage(): SQSMessage;
+  protected abstract getSQSMessage(): EventFetcherSQSMessage;
   protected abstract logLeverageEvent(): void;
 
   private sendSqsLeverageEvent(): void {

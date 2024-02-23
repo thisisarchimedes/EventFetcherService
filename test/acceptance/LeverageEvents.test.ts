@@ -1,5 +1,6 @@
 import {expect} from 'chai';
 import nock from 'nock';
+import isEqual from 'lodash/isEqual';
 
 import {LoggerAdapter} from '../adapters/LoggerAdapter';
 import {handler} from '../../src/lambda-handler';
@@ -8,12 +9,7 @@ import {MockEthereumNode} from './Mocks/MockEthereumNode';
 import {MockNewRelic} from './Mocks/MockNewRelic';
 import {MockSQS} from './Mocks/MockSQS';
 import {MockAWSS3} from './Mocks/MockAWSS3';
-import {mock} from 'aws-sdk-mock';
-import {EventFetcherSQSMessage} from '../../src/types/SQSMessage';
 
-import isEqual from 'lodash/isEqual';
-
-import diff from 'fast-diff';
 
 describe('Leverage Events', function() {
   let logger: LoggerAdapter;
