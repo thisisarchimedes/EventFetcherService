@@ -14,9 +14,19 @@ export const handler = async (
   await configService.refreshConfig();
 
   Logger.initialize('Events fetcher');
+
+  const configService = new ConfigService();
+
+  const _appContext: EnvironmentContext = await configService.getEnvironmentContext();
   const logger = Logger.getInstance();
 
   const eventProcessorService = new EventProcessorService(logger, configService);
 
-  await eventProcessorService.execute();
+    await eventProcessorService.execute();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (ex: any) {
+    console.log('Error:', (ex as Error).message);
+  } finally {
+    await logger.flush();
+  }
 };
