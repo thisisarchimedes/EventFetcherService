@@ -63,10 +63,9 @@ Parameters:
     Description: Environment
     Default: 'Demo'
 
-  Environment:
+  Region:
     Type: String
-    Description: S3 Key for test RPC URL
-    Default: 'us-east-1'
+    Description: The AWS region where resources will be created.
 
   FunctionNameSuffix:
     Type: String
