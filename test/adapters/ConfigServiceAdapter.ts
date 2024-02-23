@@ -45,12 +45,13 @@ export class ConfigServiceAdapter extends ConfigService {
     const positionLiquidatorAddress = res.find((contract: { name: string; }) =>
       contract.name === 'PositionLiquidator');
     const positionCloserAddress = res.find((contract: { name: string; }) => contract.name === 'PositionCloser');
+    const positionExpiratorAddress = res.find((contract: { name: string; }) => contract.name === 'positionExpirator');
 
     this.leverageContractAddresses = {
       positionOpenerAddress: positionOpenerAddress?.address || '',
       positionLiquidatorAddress: positionLiquidatorAddress?.address || '',
       positionCloserAddress: positionCloserAddress?.address || '',
-      positionExpiratorAddress: '',
+      positionExpiratorAddress: positionExpiratorAddress?.address || '',
     } as LeverageContractAddresses;
   }
 

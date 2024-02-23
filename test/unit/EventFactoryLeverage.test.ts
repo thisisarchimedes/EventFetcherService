@@ -88,7 +88,7 @@ describe('Leverage Events Logging & Queuing', function() {
     testEventProcessing(event, expectedLogMessage, expectedSqsMessage);
   });
 
-  it('should report on PositionLqiuidated event', async function() {
+  it('should report on PositionLiqiuidated event', async function() {
     const eventSyntheticDataFileName: string = 'test/data/leveragePositionLiquidatedEvent.json';
     const expectedEventName: string = 'LeveragedPositionLiquidated';
 
@@ -117,6 +117,34 @@ describe('Leverage Events Logging & Queuing', function() {
     const event: OnChainEvent = await testEventGeneration(eventSyntheticDataFileName, expectedEventName);
     testEventProcessing(event, expectedLogMessage, expectedSqsMessage);
   });
+
+  it('should report on PositionExpired event', async function() {
+    const eventSyntheticDataFileName: string = 'test/data/leveragePositionExpiredEvent.json';
+    const expectedEventName: string = 'LeveragedPositionExpired';
+
+    const expectedLogMessage: EventFetcherLogEntryMessage = {
+      event: 'LeveragedPositionExpired',
+      user: '0x925cc02EC7b77d4432e82e7bCaf3B89a67a555F2',
+      strategy: '',
+      depositAmount: '1',
+    };
+
+    const expectedSqsMessage: EventFetcherSQSMessage = {
+      name: 'PositionExpired',
+      contractType: 3,
+      txHash: '0x1fe52317d52b452120708667eed57e3c19ad39268bfabcf60230978c50df426f',
+      blockNumber: 6000003,
+      data: {
+        nftId: 2,
+        user: '0x925cc02EC7b77d4432e82e7bCaf3B89a67a555F2',
+        claimableAmount: '1',
+      },
+    };
+
+    const event: OnChainEvent = await testEventGeneration(eventSyntheticDataFileName, expectedEventName);
+    testEventProcessing(event, expectedLogMessage, expectedSqsMessage);
+  });
+
 
   function setupTestEnvironment() {
     logger = new LoggerAdapter(LOCAL_LOGGER);
