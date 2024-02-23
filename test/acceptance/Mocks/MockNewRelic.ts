@@ -24,7 +24,7 @@ export class MockNewRelic extends Mock {
   }
 
   public findMatchingLogEntry(logger: LoggerAdapter): EventFetcherLogEntryMessage | null {
-    const logLines = logger.getLastSeveralMessagesRawStrings(3);
+    const logLines = logger.getLastSeveralMessagesRawStrings(5);
 
     for (let i = logLines.length - 1; i >= 0; i--) {
       const logEntry = this.parseLogEntry(logLines[i]);

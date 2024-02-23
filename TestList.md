@@ -1,22 +1,3 @@
-# Tests - Interface
-
-[X] Load json from AWS bucket
-[X] Load current PSP addresses from AWS bucket
-[X] Fetch logs
-[X] fetch logs from a specific block and contract
-[X] Detect PSP deposit event
-[X] Detect PSP withdraw event
-[] Detect PSP adjust in event
-[] Detect PSP adjust out event
-[] Detect PSP do hard work event
-
-# Tests - Unit
-
-[] Unit tests factory psp
-[] Unit tests factory leverage
-[] acceptance test psp
-[] acceptance test leverage
-
 # Refactor
 
 [] Improve Factory - for leverage check the correct address on each If condition

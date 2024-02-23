@@ -15,6 +15,8 @@ export abstract class OnChainEventPSP extends OnChainEvent {
     this.logPSPEvent();
   }
 
+  protected abstract logPSPEvent(): void;
+
   protected parseEventLog(eventLog: ethers.providers.Log): void {
     this.setUserAddressFromEventLog(eventLog);
     this.setAmountFromEventLogData(eventLog);
@@ -22,17 +24,6 @@ export abstract class OnChainEventPSP extends OnChainEvent {
   }
 
   protected abstract setAmountFromEventLogData(eventLog: ethers.providers.Log): void
-
-  private logPSPEvent(): void {
-    const eventDetails: EventFetcherLogEntryMessage = {
-      event: this.eventName,
-      user: this.userAddress,
-      strategy: this.strategyConfig.strategyName,
-      depositAmount: this.depositAmount.toString(),
-    };
-
-    this.logger.info(JSON.stringify(eventDetails));
-  }
 
   private setUserAddressFromEventLog(eventLog: ethers.providers.Log): void {
     const rawAddress = eventLog.topics[2];
