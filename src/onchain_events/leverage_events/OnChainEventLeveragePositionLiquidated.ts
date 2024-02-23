@@ -3,7 +3,7 @@ import {OnChainEventLeverage} from './OnChainEventLeverage';
 import {Logger, SQSService} from '@thisisarchimedes/backend-sdk';
 import {ConfigService} from '../../services/config/ConfigService';
 import {SQSMessage} from '../../types/SQSMessage';
-import { EventFetcherLogEntryMessage } from '../../types/NewRelicLogEntry';
+import {EventFetcherLogEntryMessage} from '../../types/NewRelicLogEntry';
 
 export class OnChainEventLeveragePositionLiquidated extends OnChainEventLeverage {
   private debtPaid!: bigint;

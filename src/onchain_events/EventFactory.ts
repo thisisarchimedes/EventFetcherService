@@ -13,7 +13,7 @@ import {
   TOPIC_EVENT_PSP_DEPOSIT,
   TOPIC_EVENT_PSP_WITHDRAW,
 } from './EventTopic';
-import { OnChainEventLeveragePositionLiquidated } from './leverage_events/OnChainEventLeveragePositionLiquidated';
+import {OnChainEventLeveragePositionLiquidated} from './leverage_events/OnChainEventLeveragePositionLiquidated';
 
 export class EventFactoryUnknownEventError extends Error {
   constructor(message: string) {
