@@ -89,9 +89,9 @@ describe('PSP Events Logging', function() {
     event.process();
     const expectedLogMessage: EventFetcherLogEntryMessage = {
       event: 'Withdraw',
-      user: '0x5B63D628f307042BF9F28aB5C867f89ee231Ef58',
+      user: '0x2222222222222222222222222222222222222222',
       strategy: 'Convex ETH+/ETH Single Pool',
-      depositAmount: '8989886520688963896',
+      depositAmount: '1',
     };
 
     const actualLogMessage = JSON.parse(JSON.parse(logger.getLastMessageRawString().split('INFO: ')[1]));
