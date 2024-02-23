@@ -38,9 +38,7 @@ describe('Leverage Events', function() {
     const expectedSQSMessage = createExpectedSQSMessagePositionOpened();
     const actualSQSMessage = mockSQS.getLatestMessage();
 
-    expect(actualSQSMessage).to.not.be.null;
-    const res: boolean = validateSQSMessage(actualSQSMessage, expectedSQSMessage);
-    expect(res).to.be.true;
+    validateSQSMessage(actualSQSMessage, expectedSQSMessage);
   });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -65,11 +63,43 @@ describe('Leverage Events', function() {
     };
   }
 
-  function validateSQSMessage(actualLog: string, expectedLog: string): boolean {
+  it('should process PositionClosed event and push messages to SQS', async function() {
+    mockEthereumNodeResponses('test/data/leveragePositionClosedEvent.json');
+    await handler(0, 0);
+
+    const expectedSQSMessage = createExpectedSQSMessagePositionClosed();
+    const actualSQSMessage = mockSQS.getLatestMessage();
+
+    validateSQSMessage(actualSQSMessage, expectedSQSMessage);
+  });
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function createExpectedSQSMessagePositionClosed(): any {
+    // This is how we expect ETH Log message in leveragePositionClosedEvent.json to be formatted on the SQS side
+    return {
+      MessageBody: {
+        name: 'PositionClosed',
+        contractType: 1,
+        txHash: '0x1fe52317d52b452120708667eed57e3c19ad39268bfabcf60230978c50df426f',
+        blockNumber: 6000003,
+        data: {
+          nftId: 2,
+          user: '0x925cc02EC7b77d4432e82e7bCaf3B89a67a555F2',
+          receivedAmount: '1',
+          wbtcDebtAmount: '2',
+        },
+      },
+    };
+  }
+
+  function validateSQSMessage(actualLog: string, expectedLog: string): void {
+    expect(actualLog).to.not.be.null;
+
     const actualMessage = JSON.parse(actualLog['MessageBody']);
     const expectedMessage = expectedLog['MessageBody'];
 
-    return isEqual((actualMessage), (expectedMessage));
+    const res = isEqual((actualMessage), (expectedMessage));
+    expect(res).to.be.true;
   }
 
   function initalizeMocks() {

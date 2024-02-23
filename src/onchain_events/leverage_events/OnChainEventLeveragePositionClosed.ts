@@ -18,9 +18,7 @@ export class OnChainEventLeveragePositionClosed extends OnChainEventLeverage {
 
   protected parseEventLog(eventLog: ethers.providers.Log): void {
     this.setUserAddressFromEventLog(eventLog);
-    this.setStrategyConfigFromEventLogTopic(eventLog);
     this.setNftIdFromEventLogTopic(eventLog);
-
     this.setPositionAmountsFromEventLogData(eventLog);
   }
 
@@ -28,7 +26,7 @@ export class OnChainEventLeveragePositionClosed extends OnChainEventLeverage {
     const eventDetails: EventFetcherLogEntryMessage = {
       event: this.eventName,
       user: this.userAddress,
-      strategy: this.strategyConfig.strategyName,
+      strategy: '',
       depositAmount: this.receivedAmount.toString(),
       borrowedAmount: this.debtAmount.toString(),
     };
@@ -38,14 +36,6 @@ export class OnChainEventLeveragePositionClosed extends OnChainEventLeverage {
 
   private setNftIdFromEventLogTopic(eventLog: ethers.providers.Log): void {
     this.nftId = Number(eventLog.topics[1]);
-  }
-
-  private setStrategyConfigFromEventLogTopic(eventLog: ethers.providers.Log): void {
-    const rawAddress = eventLog.topics[3];
-    const trimmedAddress = '0x' + rawAddress.slice(26);
-    const strategyAddress = ethers.utils.getAddress(trimmedAddress);
-
-    this.strategyConfig = this.findStrategyConfigBStrategyAddress(strategyAddress);
   }
 
   private setUserAddressFromEventLog(eventLog: ethers.providers.Log): void {
@@ -72,11 +62,8 @@ export class OnChainEventLeveragePositionClosed extends OnChainEventLeverage {
       data: {
         nftId: this.nftId,
         user: this.userAddress,
-        strategy: this.strategyConfig.strategyAddress,
-        collateralAmount: this.receivedAmount.toString(),
-        wbtcToBorrow: this.debtAmount.toString(),
-        positionExpireBlock: '',
-        sharesReceived: '',
+        receivedAmount: this.receivedAmount.toString(),
+        wbtcDebtAmount: this.debtAmount.toString(),
       },
     };
 
