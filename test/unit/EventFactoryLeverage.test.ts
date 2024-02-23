@@ -66,7 +66,7 @@ describe('Leverage Events Logging & Queuing', function() {
     const expectedLogMessage: EventFetcherLogEntryMessage = {
       event: 'LeveragedPositionClosed',
       user: '0x925cc02EC7b77d4432e82e7bCaf3B89a67a555F2',
-      strategy: 'Convex FRAXBP/msUSD Single Pool',
+      strategy: '',
       depositAmount: '1',
       borrowedAmount: '2',
     };
@@ -79,11 +79,8 @@ describe('Leverage Events Logging & Queuing', function() {
       data: {
         nftId: 2,
         user: '0x925cc02EC7b77d4432e82e7bCaf3B89a67a555F2',
-        strategy: '0x825cc02ec7B77d4432e82e7bCAf3B89a67a555F1',
-        collateralAmount: '1',
-        wbtcToBorrow: '2',
-        positionExpireBlock: '',
-        sharesReceived: '',
+        receivedAmount: '1',
+        wbtcDebtAmount: '2',
       },
     };
 
