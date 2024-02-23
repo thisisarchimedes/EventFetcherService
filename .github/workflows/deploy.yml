@@ -65,18 +65,10 @@ jobs:
         id: deploy
         run: |
           sam deploy --debug --template-file packaged.yaml --stack-name EventProcessorStack --capabilities CAPABILITY_IAM --parameter-overrides \
-          ParameterKey=NewEventsQueueUrl,ParameterValue="${{ secrets.NEW_EVENTS_QUEUE_URL }}" \
-          ParameterKey=S3Bucket,ParameterValue="${{ secrets.S3_BUCKET }}" \
-          ParameterKey=S3BucketConfig,ParameterValue="${{ secrets.S3_BUCKET_CONFIG }}" \
-          ParameterKey=S3LastBlockKey,ParameterValue="${{ secrets.S3_LAST_BLOCK_KEY }}" \
-          ParameterKey=S3DeploymentAddressKey,ParameterValue="${{ secrets.S3_DEPLOYMENT_ADDRESS_KEY }}" \
-          ParameterKey=EventsFetchPageSize,ParameterValue="${{ secrets.EVENTS_FETCH_PAGE_SIZE }}" \
-          ParameterKey=NewRelicAPIKey,ParameterValue="${{ secrets.NEW_RELIC_API_KEY }}" \
-          ParameterKey=S3ForkKey,ParameterValue="${{ secrets.S3_FORK_KEY }}" \
           ParameterKey=Environment,ParameterValue="Demo" \
-          ParameterKey=PSPStrategyConfigBucket,ParameterValue="${{ vars.PSP_STRATEGY_CONFIG_BUCKET }}" \
-          ParameterKey=PSPStrategyConfigFile,ParameterValue="${{ vars.PSP_STRATEGY_CONFIG_FILE }}" \
-          ParameterKey=NewRelicApiUrl,ParameterValue="${{ vars.NEW_RELIC_API_URL }}"
+          ParameterKey=Region,ParameterValue="us-east-1"
+
+
 
   deploy_demo:
     runs-on: ubuntu-latest

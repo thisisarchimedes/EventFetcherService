@@ -53,20 +53,9 @@ Resources:
             Schedule: rate(1 minute)
       Environment:
         Variables:
-          NEW_EVENTS_QUEUE_URL: !Ref NewEventsQueueUrl
-          S3_LAST_BLOCK_KEY: !Ref S3LastBlockKey
-          S3_DEPLOYMENT_ADDRESS_KEY: !Ref S3DeploymentAddressKey
-          EVENTS_FETCH_PAGE_SIZE: !Ref EventsFetchPageSize
-          NEW_RELIC_API_KEY: !Ref NewRelicAPIKey
-          S3_BUCKET: !Ref S3Bucket
-          S3_BUCKET_CONFIG: !Ref S3BucketConfig
           ENVIRONMENT: !Ref Environment
-          S3_FORK_KEY: !Ref S3ForkKey
-          PSP_STRATEGY_CONFIG_BUCKET: !Ref PSPStrategyConfigBucket
-          PSP_STRATEGY_CONFIG_FILE: !Ref PSPStrategyConfigFile
-          NEW_RELIC_API_URL: !Ref NewRelicApiUrl
+          AWS_REGION: !Ref Region
           
-
 Parameters:
   NewEventsQueueUrl:
     Type: String
