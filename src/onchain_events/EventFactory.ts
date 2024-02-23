@@ -15,6 +15,13 @@ import {
 } from './EventTopic';
 import { OnChainEventLeveragePositionLiquidated } from './leverage_events/OnChainEventLeveragePositionLiquidated';
 
+export class EventFactoryUnknownEventError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'EventFactoryInvalidEventError';
+  }
+}
+
 export class EventFactory {
   private configService: ConfigService;
   private logger: Logger;
@@ -75,16 +82,16 @@ export class EventFactory {
   private getEventObjectOrThrowError(results: [OnChainEvent | undefined, OnChainEvent | undefined],
       eventLog: ethers.providers.Log): OnChainEvent {
     if (results.every((result) => result === undefined)) {
-      const errorMessage = `Unhandled event topic, ${eventLog.topics[0]}`;
+      const errorMessage = `Unknown event topic, ${eventLog.topics[0]}`;
       this.logger.error(errorMessage);
-      throw new Error(errorMessage);
+      throw new EventFactoryUnknownEventError(errorMessage);
     }
 
     // this should NOT happen
     if (results.every((result) => result !== undefined)) {
       const errorMessage = `Multiple events detected, but expecting just one: ${eventLog.topics[0]}`;
       this.logger.error(errorMessage);
-      throw new Error(errorMessage);
+      throw new EventFactoryUnknownEventError(errorMessage);
     }
 
     const event = results.find((result) => result !== undefined);

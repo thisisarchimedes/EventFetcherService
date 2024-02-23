@@ -8,6 +8,12 @@ import {MockEthereumNode} from './Mocks/MockEthereumNode';
 import {MockNewRelic} from './Mocks/MockNewRelic';
 import {MockSQS} from './Mocks/MockSQS';
 import {MockAWSS3} from './Mocks/MockAWSS3';
+import {mock} from 'aws-sdk-mock';
+import {EventFetcherSQSMessage} from '../../src/types/SQSMessage';
+
+import isEqual from 'lodash/isEqual';
+
+import diff from 'fast-diff';
 
 describe('Leverage Events', function() {
   let logger: LoggerAdapter;
@@ -18,7 +24,7 @@ describe('Leverage Events', function() {
 
   beforeEach(function() {
     initalizeMocks();
-    setupNockInterceptors();
+    setupGenericNockInterceptors();
   });
 
   afterEach(function() {
@@ -26,6 +32,7 @@ describe('Leverage Events', function() {
   });
 
   it('should process PositionOpened event and push messages to SQS', async function() {
+    mockEthereumNodeResponses('test/data/leveragePositionOpenedEvent.json');
     await handler(0, 0);
 
     const expectedSQSMessage = createExpectedSQSMessagePositionOpened();
@@ -36,34 +43,33 @@ describe('Leverage Events', function() {
     expect(res).to.be.true;
   });
 
-  function createExpectedSQSMessagePositionOpened(): string {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function createExpectedSQSMessagePositionOpened(): any {
     // This is how we expect ETH Log message in leveragePositionOpenedEvent.json to be formatted on the SQS side
-    return JSON.stringify({
+    return {
       MessageBody: {
-        name: 'LeveragedPositionOpened',
-        contractType: 2,
+        name: 'PositionOpened',
+        contractType: 0,
         txHash: '0x1fe52317d52b452120708667eed57e3c19ad39268bfabcf60230978c50df426f',
         blockNumber: 6000003,
         data: {
-          nftId: '2',
-          user: '0x825cc02ec7B77d4432e82e7bCAf3B89a67a555F1',
+          nftId: 2,
+          user: '0x925cc02EC7b77d4432e82e7bCaf3B89a67a555F2',
           strategy: '0x825cc02ec7B77d4432e82e7bCAf3B89a67a555F1',
-          collateralAmount: '5000000',
-          wbtcToBorrow: '5000000',
-          liquidationFee: '5000000',
-          positionExpireBlock: '5000000',
-          sharesReceived: '5000000',
+          collateralAmount: '1',
+          wbtcToBorrow: '2',
+          positionExpireBlock: '3',
+          sharesReceived: '4',
         },
-        QueueUrl: 'https://sqs.us-east-1.amazonaws.com/240910251918/wbtc_engine_events_queue_demo',
       },
-    });
+    };
   }
 
   function validateSQSMessage(actualLog: string, expectedLog: string): boolean {
-    const actualMessage = JSON.stringify(actualLog);
-    const expectedMessage = JSON.stringify(expectedLog);
+    const actualMessage = JSON.parse(actualLog['MessageBody']);
+    const expectedMessage = expectedLog['MessageBody'];
 
-    return JSON.stringify(actualMessage) === JSON.stringify(expectedMessage);
+    return isEqual((actualMessage), (expectedMessage));
   }
 
   function initalizeMocks() {
@@ -79,17 +85,16 @@ describe('Leverage Events', function() {
     mockAWSS3 = new MockAWSS3('wbtc-engine-events-store', 'us-east-1');
   }
 
-  function setupNockInterceptors() {
-    mockEthereumNodeResponses();
+  function setupGenericNockInterceptors() {
     mockNewRelicLogEndpoint();
     mockAWSS3Endpoint();
     mockSQSEndpoint();
   }
 
-  function mockEthereumNodeResponses() {
+  function mockEthereumNodeResponses(syntheticEventFile: string) {
     mockEthereumNode.mockChainId();
     mockEthereumNode.mockBlockNumber('0x5B8D86');
-    mockEthereumNode.mockEventResponse('test/data/leveragePositionOpenedEvent.json');
+    mockEthereumNode.mockEventResponse(syntheticEventFile);
   }
 
   function mockNewRelicLogEndpoint() {

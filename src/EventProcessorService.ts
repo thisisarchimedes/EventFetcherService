@@ -2,7 +2,6 @@ import {ethers} from 'ethers';
 import rawEventDescriptors from './events.json';
 import {SQSService, Logger} from '@thisisarchimedes/backend-sdk';
 import dotenv from 'dotenv';
-import {IEventProcessorService} from './IEventProcessorService';
 import {
   ContractType,
   DecodedData,
@@ -11,50 +10,31 @@ import {
 import {SQSMessage} from './types/SQSMessage';
 import {EventData} from './types/EventData';
 import {ConfigService} from './services/config/ConfigService';
-import {EventFactory} from './onchain_events/EventFactory';
+import {EventFactory, EventFactoryUnknownEventError} from './onchain_events/EventFactory';
 import {EventFetcherRPC} from './services/blockchain/EventFetcherRPC';
+import {ALL_TOPICS} from './onchain_events/EventTopic';
 
 dotenv.config();
 
-const EVENT_DESCRIPTORS: EventDescriptor[] = rawEventDescriptors.map((event) => {
-  const obj: EventDescriptor = {
-    ...event,
-    signature: ethers.utils.id(
-        `${event.name}(${event.decodeData.map((param) => param.type).join(',')})`,
-    ),
-    contractType: event.contractType,
-  };
 
-  return obj;
-});
-
-export class EventProcessorService implements IEventProcessorService {
-  private readonly EVENT_DESCRIPTORS = EVENT_DESCRIPTORS;
+export class EventProcessorService {
   private readonly logger: Logger;
   private readonly configService: ConfigService;
-
   private readonly eventFactory: EventFactory;
-  private readonly mainProvider: ethers.providers.Provider;
-  private readonly altProvider: ethers.providers.Provider;
 
   private readonly sqsService: SQSService;
+  private readonly eventFetcher;
 
   constructor(
       logger: Logger,
       configService: ConfigService,
   ) {
+    this.sqsService = new SQSService();
     this.logger = logger;
     this.configService = configService;
-    this.eventFactory = new EventFactory(this.configService, this.logger);
 
-    this.sqsService = new SQSService();
-
-    this.mainProvider = new ethers.providers.JsonRpcProvider(
-        configService.getMainRPCURL(),
-    );
-    this.altProvider = new ethers.providers.JsonRpcProvider(
-        configService.getAlternativeRPCURL(),
-    );
+    this.eventFactory = new EventFactory(this.configService, this.logger, this.sqsService);
+    this.eventFetcher = new EventFetcherRPC(configService.getMainRPCURL(), configService.getAlternativeRPCURL());
   }
 
   public async execute(): Promise<void> {
@@ -65,10 +45,9 @@ export class EventProcessorService implements IEventProcessorService {
                         Env: ${this.configService.getEnvironment()}`);
 
       const startBlock = await this.getStartBlockNumber();
-      const endBlock = await this.getEndBlockNumber();
+      const endBlock = await this.eventFetcher.getCurrentBlockNumber();
 
-      await this.processAndQueueLeverageEvents(startBlock, endBlock);
-      await this.processPSPEvents(startBlock, endBlock);
+      await this.processEventsAtBlockRange(startBlock, endBlock);
 
       await this.configService.setLastScannedBlock(endBlock);
 
@@ -81,6 +60,57 @@ export class EventProcessorService implements IEventProcessorService {
     }
   }
 
+  private async processEventsAtBlockRange(startBlock: number, endBlock: number): Promise<void> {
+    for (
+      let currentStepStartBlock = startBlock + 1;
+      currentStepStartBlock <= endBlock;
+      currentStepStartBlock += this.configService.getEventsFetchPageSize()
+    ) {
+      const currentStepEndBlock = Math.min(
+          currentStepStartBlock + this.configService.getEventsFetchPageSize() - 1,
+          endBlock,
+      );
+
+      const eventLogGroup = await this.eventFetcher.getOnChainEvents(
+          currentStepStartBlock,
+          currentStepEndBlock,
+          ALL_TOPICS,
+      );
+
+      await this.processLogGroup(eventLogGroup);
+    }
+  }
+
+  private async processLogGroup(eventLogGroup: ethers.providers.Log[]): Promise<void> {
+    for (const event of eventLogGroup) {
+      try {
+        const evt = await this.eventFactory.createEvent(event);
+        evt.process();
+      } catch (error) {
+        if (error instanceof EventFactoryUnknownEventError) {
+          continue;
+        }
+      }
+    }
+  }
+
+  private async getStartBlockNumber(): Promise<number> {
+    const MaxNumberOfBlocksToProess = this.configService.getMaxNumberOfBlocksToProcess();
+    const currentBlockNumber = await this.eventFetcher.getCurrentBlockNumber();
+    const defaultBlockNumber = Math.max(currentBlockNumber - MaxNumberOfBlocksToProess, 0);
+    const lastBlockScanned = this.configService.getLastBlockScanned();
+
+    if (lastBlockScanned == 0 ||
+      currentBlockNumber - lastBlockScanned > MaxNumberOfBlocksToProess ||
+      lastBlockScanned > currentBlockNumber) {
+      return defaultBlockNumber;
+    }
+
+    return lastBlockScanned;
+  }
+}
+  // ////////////////////////////////////////////////////////////
+/*
   private async processAndQueueLeverageEvents(lastBlock: number, currentBlock: number) {
     const events: SQSMessage[] = await this.fetchAndProcessEvents(lastBlock, currentBlock);
 
@@ -114,37 +144,6 @@ export class EventProcessorService implements IEventProcessorService {
     }
   }
 
-  private async getEndBlockNumber(): Promise<number> {
-    const [alchemyBlock, infuraBlock] = await Promise.all([
-      this.mainProvider.getBlockNumber(),
-      this.altProvider.getBlockNumber(),
-    ]);
-    return Math.min(alchemyBlock, infuraBlock);
-  }
-
-  private async fetchLogsFromProviders(
-      filter: ethers.providers.Filter,
-  ): Promise<ethers.providers.Log[]> {
-    const [alchemyLogs, infuraLogs] = await Promise.all([
-      this.mainProvider.getLogs(filter),
-      this.altProvider.getLogs(filter),
-    ]);
-
-    return [...alchemyLogs, ...infuraLogs];
-  }
-
-  public deduplicateLogs(logs: ethers.providers.Log[]): ethers.providers.Log[] {
-    const uniqueLogs = new Map<string, ethers.providers.Log>();
-
-    for (const log of logs) {
-      const uniqueKey = log.transactionHash + log.logIndex;
-      if (!uniqueLogs.has(uniqueKey)) {
-        uniqueLogs.set(uniqueKey, log);
-      }
-    }
-
-    return Array.from(uniqueLogs.values());
-  }
 
   public decodeAndProcessLogs(
       logs: ethers.providers.Log[],
@@ -284,19 +283,5 @@ export class EventProcessorService implements IEventProcessorService {
       }
     }
   }
-
-  async getStartBlockNumber(): Promise<number> {
-    const MaxNumberOfBlocksToProess = this.configService.getMaxNumberOfBlocksToProcess();
-    const currentBlockNumber = await this.getEndBlockNumber();
-    const defaultBlockNumber = Math.max(currentBlockNumber - MaxNumberOfBlocksToProess, 0);
-    const lastBlockScanned = this.configService.getLastBlockScanned();
-
-    if (lastBlockScanned == 0 ||
-      currentBlockNumber - lastBlockScanned > MaxNumberOfBlocksToProess ||
-      lastBlockScanned > currentBlockNumber) {
-      return defaultBlockNumber;
-    }
-
-    return lastBlockScanned;
-  }
 }
+*/

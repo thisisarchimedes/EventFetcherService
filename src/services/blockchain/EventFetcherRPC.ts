@@ -11,16 +11,27 @@ export class EventFetcherRPC implements IEventFetcher {
     this.altProvider = new ethers.providers.JsonRpcProvider(altProviderRPCURL);
   }
 
-  public async getOnChainEvents(blockNumberFrom: number, blockNumberTo: number): Promise<ethers.providers.Log[]> {
+  public async getOnChainEvents(blockNumberFrom: number,
+      blockNumberTo: number,
+      topics: string[],
+  ): Promise<ethers.providers.Log[]> {
     const filter: ethers.providers.Filter = {
+      topics: topics,
       fromBlock: blockNumberFrom,
       toBlock: blockNumberTo,
     };
 
-    // TODO: add topics to the filter to only fetch the events we are interested in
-
     const logs = await this.fetchLogsFromBlockchain(filter);
     return logs;
+  }
+
+  public async getCurrentBlockNumber(): Promise<number> {
+    const [mainBlockNumber, altBlockNumber] = await Promise.all([
+      this.mainProvider.getBlockNumber(),
+      this.altProvider.getBlockNumber(),
+    ]);
+
+    return Math.min(mainBlockNumber, altBlockNumber);
   }
 
 
