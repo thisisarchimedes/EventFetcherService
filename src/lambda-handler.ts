@@ -8,22 +8,19 @@ export const handler = async (
     // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
     _context: any,
 ): Promise<void> => {
-  const environment = process.env.ENVIRONMENT as string;
-  const region = process.env.AWS_REGION as string;
-  const configService: ConfigServiceAWS = new ConfigServiceAWS(environment, region);
-  await configService.refreshConfig();
-
   Logger.initialize('Events fetcher');
-
-  const configService = new ConfigService();
-
-  const _appContext: EnvironmentContext = await configService.getEnvironmentContext();
   const logger = Logger.getInstance();
 
-  const eventProcessorService = new EventProcessorService(logger, configService);
+  try {
+    const environment = process.env.ENVIRONMENT as string;
+    const region = process.env.AWS_REGION as string;
+    const configService: ConfigServiceAWS = new ConfigServiceAWS(environment, region);
+    await configService.refreshConfig();
+
+    const eventProcessorService = new EventProcessorService(logger, configService);
 
     await eventProcessorService.execute();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (ex: any) {
     console.log('Error:', (ex as Error).message);
   } finally {
