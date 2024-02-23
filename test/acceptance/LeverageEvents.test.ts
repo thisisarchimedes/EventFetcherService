@@ -88,6 +88,36 @@ describe('Leverage Events', function() {
     };
   }
 
+  it('should process PositionLiquidated event and push messages to SQS', async function() {
+    mockEthereumNodeResponses('test/data/leveragePositionLiquidatedEvent.json');
+    await handler(0, 0);
+
+    const expectedSQSMessage = createExpectedSQSMessagePositionExpired();
+    const actualSQSMessage = mockSQS.getLatestMessage();
+
+    validateSQSMessage(actualSQSMessage, expectedSQSMessage);
+  });
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function createExpectedSQSMessagePositionExpired(): any {
+    // This is how we expect ETH Log message in leveragePositionClosedEvent.json to be formatted on the SQS side
+    return {
+      MessageBody: {
+        name: 'PositionLiquidated',
+        contractType: 2,
+        txHash: '0x1fe52317d52b452120708667eed57e3c19ad39268bfabcf60230978c50df426f',
+        blockNumber: 6000003,
+        data: {
+          nftId: 2,
+          strategy: '0x825cc02ec7B77d4432e82e7bCAf3B89a67a555F1',
+          wbtcDebtPaid: '1',
+          claimableAmount: '2',
+          liquidationFee: '3',
+        },
+      },
+    };
+  }
+
   function validateSQSMessage(actualLog: string, expectedLog: string): void {
     expect(actualLog).to.not.be.null;
 
