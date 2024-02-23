@@ -65,6 +65,9 @@ export class ConfigServiceAWS extends ConfigService {
         case 'PositionCloser':
           addresses.positionCloserAddress = contract.address;
           break;
+        case 'positionExpirator':
+          addresses.positionExpiratorAddress = contract.address;
+          break;
       }
     });
 

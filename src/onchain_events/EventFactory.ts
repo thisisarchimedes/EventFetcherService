@@ -1,19 +1,23 @@
 import {ethers} from 'ethers';
 import {ConfigService} from '../services/config/ConfigService';
 import {Logger, SQSService} from '@thisisarchimedes/backend-sdk';
+
+import {OnChainEvent} from './OnChainEvent';
 import {OnChainEventPSPDeposit} from './psp_events/OnChainEventPSPDeposit';
 import {OnChainEventPSPWithdraw} from './psp_events/OnChainEventPSPWithdraw';
-import {OnChainEvent} from './OnChainEvent';
 import {OnChainEventLeveragePositionOpened} from './leverage_events/OnChainEventLeveragePositionOpened';
 import {OnChainEventLeveragePositionClosed} from './leverage_events/OnChainEventLeveragePositionClosed';
+import {OnChainEventLeveragePositionLiquidated} from './leverage_events/OnChainEventLeveragePositionLiquidated';
+import {OnChainEventLeveragePositionExpired} from './leverage_events/OnChainEventLeveragePositionExpired';
+
 import {
   TOPIC_EVENT_LEVERAGE_POSITION_CLOSED,
+  TOPIC_EVENT_LEVERAGE_POSITION_EXPIRED,
   TOPIC_EVENT_LEVERAGE_POSITION_LIQUIDATED,
   TOPIC_EVENT_LEVERAGE_POSITION_OPENED,
   TOPIC_EVENT_PSP_DEPOSIT,
   TOPIC_EVENT_PSP_WITHDRAW,
 } from './EventTopic';
-import {OnChainEventLeveragePositionLiquidated} from './leverage_events/OnChainEventLeveragePositionLiquidated';
 
 export class EventFactoryUnknownEventError extends Error {
   constructor(message: string) {
@@ -74,6 +78,9 @@ export class EventFactory {
 
       case TOPIC_EVENT_LEVERAGE_POSITION_LIQUIDATED:
         return new OnChainEventLeveragePositionLiquidated(eventLog, this.logger, this.sqsService, this.configService);
+
+      case TOPIC_EVENT_LEVERAGE_POSITION_EXPIRED:
+        return new OnChainEventLeveragePositionExpired(eventLog, this.logger, this.sqsService, this.configService);
     }
 
     return undefined;
