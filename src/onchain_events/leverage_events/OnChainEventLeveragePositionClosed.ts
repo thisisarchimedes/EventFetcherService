@@ -2,7 +2,7 @@ import {ethers} from 'ethers';
 import {OnChainEventLeverage} from './OnChainEventLeverage';
 import {Logger, SQSService} from '@thisisarchimedes/backend-sdk';
 import {ConfigService} from '../../services/config/ConfigService';
-import {SQSMessage} from '../../types/EventFetcherSQSMessage';
+import {EventFetcherSQSMessage} from '../../types/EventFetcherSQSMessage';
 import {EventFetcherLogEntryMessage} from '../../types/NewRelicLogEntry';
 
 export class OnChainEventLeveragePositionClosed extends OnChainEventLeverage {
@@ -52,8 +52,8 @@ export class OnChainEventLeveragePositionClosed extends OnChainEventLeverage {
     this.debtAmount = decodedData[1];
   }
 
-  protected getSQSMessage(): SQSMessage {
-    const msg: SQSMessage = {
+  protected getSQSMessage(): EventFetcherSQSMessage {
+    const msg: EventFetcherSQSMessage = {
       name: 'PositionClosed',
       contractType: 1,
       txHash: this.txHash,
