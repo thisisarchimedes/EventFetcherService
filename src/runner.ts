@@ -1,8 +1,9 @@
 import {S3Service, SQSService, Logger} from '@thisisarchimedes/backend-sdk';
 import {EventProcessorService} from './EventProcessorService';
-import {ConfigService} from './services/configService';
+import {ConfigServiceLeverage} from './services/config/ConfigServiceLeverage';
 import {ethers} from 'ethers';
 import {EnvironmentContext} from './types/EnvironmentContext';
+import {ConfigServicePSP} from './services/config/ConfigServicePSP';
 
 const s3Service = new S3Service();
 const sqsService = new SQSService();
@@ -15,10 +16,10 @@ export const handler = async (
 ): Promise<void> => {
   Logger.initialize('Events fetcher');
 
-  const configService = new ConfigService();
-
+  const configService = new ConfigServiceLeverage();
   const _appContext: EnvironmentContext = await configService.getEnvironmentContext();
   const logger = Logger.getInstance();
+
 
   const mainrovider = new ethers.providers.JsonRpcProvider(
       _appContext.rpcAddress ?? '',
@@ -27,6 +28,11 @@ export const handler = async (
       _appContext.alternateRpcAddress ?? '',
   );
 
+  const pspBucketName = process.env.PSP_STRATEGY_CONFIG_BUCKET as string;
+  const pspFileName = process.env.PSP_STRATEGY_CONFIG_FILE as string;
+  const configServicePSP: ConfigServicePSP = new ConfigServicePSP(pspBucketName, pspFileName);
+  await configServicePSP.refreshStrategyConfig();
+
   const eventProcessorService = new EventProcessorService(
       mainrovider,
       altProvider,
@@ -34,6 +40,7 @@ export const handler = async (
       sqsService,
       logger,
       _appContext,
+      configServicePSP,
   );
 
   await eventProcessorService.execute();

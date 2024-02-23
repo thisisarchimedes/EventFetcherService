@@ -6,9 +6,13 @@ on:
         - main 
 
 env:
-  AWS_REGION: us-east-1
+  ENVIRONMENT: 'Demo'
+
+  AWS_REGION: 'us-east-1'
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
   PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
-  NEW_RELIC_API_KEY: ${{ secrets.NEW_RELIC_API_KEY }}
   API_DEVOPS_EVENT_CATCHER: ${{ vars.API_DEVOPS_EVENT_CATCHER }}
   DEVOPS_EVENTS_SECRET_TOKEN: ${{ secrets.DEVOPS_EVENTS_SECRET_TOKEN }}
 
@@ -26,15 +30,14 @@ jobs:
             - name: Use Node.js
               uses: actions/setup-node@v4
               with:
-                node-version: 'latest'
+                node-version: '20.x'
 
             - name: Install dependencies
               run: yarn install
 
-
             - name: Run acceptance tests
               run: |
-                echo "placeholder"
+                yarn test:acceptance
       
             - name: Slack Notification
               if: always()
