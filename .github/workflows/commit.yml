@@ -6,9 +6,9 @@ on:
       - 'main' 
 
 env:
-  ENVIRONMENT: ${{ vars.ENVIRONMENT }}
+  ENVIRONMENT: 'Demo'
 
-  AWS_REGION: ${{ vars.AWS_REGION }}
+  AWS_REGION: 'us-east-1'
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
