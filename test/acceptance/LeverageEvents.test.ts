@@ -92,14 +92,14 @@ describe('Leverage Events', function() {
     mockEthereumNodeResponses('test/data/leveragePositionLiquidatedEvent.json');
     await handler(0, 0);
 
-    const expectedSQSMessage = createExpectedSQSMessagePositionExpired();
+    const expectedSQSMessage = createExpectedSQSMessagePositionLiquidated();
     const actualSQSMessage = mockSQS.getLatestMessage();
 
     validateSQSMessage(actualSQSMessage, expectedSQSMessage);
   });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  function createExpectedSQSMessagePositionExpired(): any {
+  function createExpectedSQSMessagePositionLiquidated(): any {
     // This is how we expect ETH Log message in leveragePositionClosedEvent.json to be formatted on the SQS side
     return {
       MessageBody: {
