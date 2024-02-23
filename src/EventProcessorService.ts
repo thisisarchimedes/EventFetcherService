@@ -1,14 +1,6 @@
 import {ethers} from 'ethers';
-import rawEventDescriptors from './events.json';
 import {SQSService, Logger} from '@thisisarchimedes/backend-sdk';
 import dotenv from 'dotenv';
-import {
-  ContractType,
-  DecodedData,
-  EventDescriptor,
-} from './types/EventDescriptor';
-import {SQSMessage} from './types/SQSMessage';
-import {EventData} from './types/EventData';
 import {ConfigService} from './services/config/ConfigService';
 import {EventFactory, EventFactoryUnknownEventError} from './onchain_events/EventFactory';
 import {EventFetcherRPC} from './services/blockchain/EventFetcherRPC';
@@ -109,7 +101,7 @@ export class EventProcessorService {
     return lastBlockScanned;
   }
 }
-  // ////////////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////////////
 /*
   private async processAndQueueLeverageEvents(lastBlock: number, currentBlock: number) {
     const events: SQSMessage[] = await this.fetchAndProcessEvents(lastBlock, currentBlock);
