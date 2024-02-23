@@ -19,6 +19,7 @@
 # Notes
 
 [] Fix commit.yml and which env variables are needed and use in the script and secrets
+[] change template.yaml to a clearer name (it is the AWS SAM that deploys everything)
 
 
 --
