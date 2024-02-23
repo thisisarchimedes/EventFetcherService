@@ -73,7 +73,7 @@ jobs:
           ParameterKey=EventsFetchPageSize,ParameterValue="${{ secrets.EVENTS_FETCH_PAGE_SIZE }}" \
           ParameterKey=NewRelicAPIKey,ParameterValue="${{ secrets.NEW_RELIC_API_KEY }}" \
           ParameterKey=S3ForkKey,ParameterValue="${{ secrets.S3_FORK_KEY }}" \
-          ParameterKey=Environment,ParameterValue="staging" \
+          ParameterKey=Environment,ParameterValue="Demo" \
           ParameterKey=PSPStrategyConfigBucket,ParameterValue="${{ vars.PSP_STRATEGY_CONFIG_BUCKET }}" \
           ParameterKey=PSPStrategyConfigFile,ParameterValue="${{ vars.PSP_STRATEGY_CONFIG_FILE }}" \
           ParameterKey=NewRelicApiUrl,ParameterValue="${{ vars.NEW_RELIC_API_URL }}"
@@ -131,7 +131,7 @@ jobs:
           ParameterKey=EventsFetchPageSize,ParameterValue="${{ secrets.EVENTS_FETCH_PAGE_SIZE }}" \
           ParameterKey=NewRelicAPIKey,ParameterValue="${{ secrets.NEW_RELIC_API_KEY }}" \
           ParameterKey=S3ForkKey,ParameterValue="${{ secrets.S3_FORK_KEY_DEMO }}" \
-          ParameterKey=Environment,ParameterValue="demo"
+          ParameterKey=Environment,ParameterValue="Demo"
 
   report-devops-event-deploy:
       runs-on: ubuntu-latest

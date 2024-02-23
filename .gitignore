@@ -23,3 +23,5 @@ artifacts
 
 .nyc*
 .stryker
+
+coverage/*

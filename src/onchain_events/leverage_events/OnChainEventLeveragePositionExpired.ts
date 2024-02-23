@@ -2,7 +2,7 @@ import {ethers} from 'ethers';
 import {OnChainEventLeverage} from './OnChainEventLeverage';
 import {Logger, SQSService} from '@thisisarchimedes/backend-sdk';
 import {ConfigService} from '../../services/config/ConfigService';
-import {SQSMessage} from '../../types/EventFetcherSQSMessage';
+import {EventFetcherSQSMessage} from '../../types/EventFetcherSQSMessage';
 import {EventFetcherLogEntryMessage} from '../../types/NewRelicLogEntry';
 
 export class OnChainEventLeveragePositionExpired extends OnChainEventLeverage {
@@ -49,8 +49,8 @@ export class OnChainEventLeveragePositionExpired extends OnChainEventLeverage {
     this.claimableAmount = decodedData[0];
   }
 
-  protected getSQSMessage(): SQSMessage {
-    const msg: SQSMessage = {
+  protected getSQSMessage(): EventFetcherSQSMessage {
+    const msg: EventFetcherSQSMessage = {
       name: 'PositionExpired',
       contractType: 3,
       txHash: this.txHash,

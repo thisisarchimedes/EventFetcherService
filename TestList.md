@@ -1,3 +1,10 @@
+# Tests
+
+[] Detect PSP AdjustIn event and report to log
+[] Detect PSP AdjustOut event and report to log
+[] Detect PSP DoHardWork event and report to log
+
+
 # Refactor
 
 [] Improve Factory - for leverage check the correct address on each If condition
@@ -7,6 +14,7 @@
 [] Mock AppConfig so we don't need to manually change leverage addresses
 [] collect all event then process all async
 [] Go over different types and remove what isn't being used
+
 
 # Notes
 
