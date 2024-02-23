@@ -22,7 +22,7 @@ import {
 export class EventFactoryUnknownEventError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = 'EventFactoryInvalidEventError';
+    this.name = 'EventFactoryUnknownEventError';
   }
 }
 
@@ -38,6 +38,10 @@ export class EventFactory {
   }
 
   public async createEvent(eventLog: ethers.providers.Log): Promise<OnChainEvent> {
+    if (eventLog === undefined) {
+      throw new EventFactoryUnknownEventError('Event log has no topics');
+    }
+
     const results = await Promise.all([
       this.createPSPEvent(eventLog),
       this.createLeverageEvent(eventLog),
