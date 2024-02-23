@@ -104,23 +104,18 @@ describe('Inner logic functions', function() {
 
   it('should return the same logs if all are unique', async function() {
     eventFetcher = new EventFetcherAdapter();
+    eventFetcher.setEventArrayFromFile('test/data/depositEvent.json');
+    const logs: ethers.providers.Log[] = await eventFetcher.getOnChainEvents(100, 200);
+
+    expect(logs.length).to.equal(2);
+  });
+
+  it('should remove duplicate logs', async function() {
+    eventFetcher = new EventFetcherAdapter();
     eventFetcher.setEventArrayFromFile('test/data/duplicatedLogs.json');
     const logs: ethers.providers.Log[] = await eventFetcher.getOnChainEvents(100, 200);
 
     expect(logs.length).to.equal(1);
-  });
-
-  it('should remove duplicate logs', function() {
-    const logs = [
-      createMockLog('0x1', 1),
-      createMockLog('0x1', 1),
-      createMockLog('0x2', 2),
-    ];
-    const result = eventProcessorService.deduplicateLogs(logs);
-    expect(result).to.deep.equal([
-      createMockLog('0x1', 1),
-      createMockLog('0x2', 2),
-    ]);
   });
 
   it('should handle a mix of unique and duplicate logs correctly', function() {
