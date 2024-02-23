@@ -11,7 +11,7 @@ export class EventFetcherAdapter extends EventFetcher {
   }
   // eslint-disable-next-line require-await, @typescript-eslint/no-unused-vars
   public async getOnChainEvents(blockNumberFrom: number, blockNumberTo: number): Promise<ethers.providers.Log[]> {
-    return this.dedupLogsBasedOnTxHashLogIndexAndTopic0AndTopic0(this.events);
+    return this.dedupLogsBasedOnTxHashLogIndexAndTopic0(this.events);
   }
 
   public setEventArrayFromFile(fileName: string): void {

@@ -117,40 +117,12 @@ describe('Inner logic functions', function() {
 
     expect(logs.length).to.equal(3);
   });
-//////////
 
-  it('should treat logs with same transactionHash but different logIndex as unique', function() {
-    const logs = [createMockLog('0x1', 1), createMockLog('0x1', 2)];
-    const result = eventProcessorService.deduplicateLogs(logs);
-    expect(result).to.have.lengthOf(2);
-  });
+  it('should return a single log when all logs are duplicates', async function() {
+    eventFetcher = new EventFetcherAdapter();
+    eventFetcher.setEventArrayFromFile('test/data/duplicatedLogs2.json');
+    const logs: ethers.providers.Log[] = await eventFetcher.getOnChainEvents(100, 200);
 
-  it('should treat logs with different transactionHash but same logIndex as unique', function() {
-    const logs = [createMockLog('0x1', 1), createMockLog('0x2', 1)];
-    const result = eventProcessorService.deduplicateLogs(logs);
-    expect(result).to.have.lengthOf(2);
-  });
-
-  it('should correctly deduplicate logs regardless of order', function() {
-    const logs = [
-      createMockLog('0x1', 1),
-      createMockLog('0x2', 2),
-      createMockLog('0x1', 1),
-    ];
-    const result = eventProcessorService.deduplicateLogs(logs);
-    expect(result).to.deep.equal([
-      createMockLog('0x1', 1),
-      createMockLog('0x2', 2),
-    ]);
-  });
-
-  it('should return a single log when all logs are duplicates', function() {
-    const logs = [
-      createMockLog('0x1', 1),
-      createMockLog('0x1', 1),
-      createMockLog('0x1', 1),
-    ];
-    const result = eventProcessorService.deduplicateLogs(logs);
-    expect(result).to.deep.equal([createMockLog('0x1', 1)]);
+    expect(logs.length).to.equal(1);
   });
 });

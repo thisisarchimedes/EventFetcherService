@@ -43,6 +43,6 @@ export class EventFetcherRPC extends EventFetcher {
       this.altProvider.getLogs(filter),
     ]);
 
-    return this.dedupLogsBasedOnTxHashLogIndexAndTopic0AndTopic0([...alchemyLogs, ...infuraLogs]);
+    return this.dedupLogsBasedOnTxHashLogIndexAndTopic0([...alchemyLogs, ...infuraLogs]);
   }
 }

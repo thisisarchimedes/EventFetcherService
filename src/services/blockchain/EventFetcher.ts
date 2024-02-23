@@ -7,7 +7,7 @@ export abstract class EventFetcher {
         topics: string[]
     ): Promise<ethers.providers.Log[]>;
 
-    protected dedupLogsBasedOnTxHashLogIndexAndTopic0AndTopic0(logs: ethers.providers.Log[]): ethers.providers.Log[] {
+    protected dedupLogsBasedOnTxHashLogIndexAndTopic0(logs: ethers.providers.Log[]): ethers.providers.Log[] {
       const uniqueLogs = new Map<string, ethers.providers.Log>();
 
       for (const log of logs) {
