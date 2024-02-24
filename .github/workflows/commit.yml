@@ -47,7 +47,7 @@ jobs:
 
       - name: Run Tests
         run: |
-          yarn test:unit
+          yarn test
           
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
