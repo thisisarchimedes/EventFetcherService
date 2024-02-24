@@ -1,6 +1,7 @@
 import {expect} from 'chai';
 import {EventFetcherRPC} from '../../src/services/blockchain/EventFetcherRPC';
 import dotenv from 'dotenv';
+import {ALL_TOPICS} from '../../src/onchain_events/EventTopic';
 
 dotenv.config();
 
@@ -14,7 +15,7 @@ describe('Fetch on-chain events from blockchain', function() {
     const blockNumberFrom = 19184910;
     const blockNumberTo = 19184911;
 
-    const onChainEvents = await eventFetcher.getOnChainEvents(blockNumberFrom, blockNumberTo);
+    const onChainEvents = await eventFetcher.getOnChainEvents(blockNumberFrom, blockNumberTo, ALL_TOPICS);
     expect(onChainEvents).to.be.an('array');
   });
 
@@ -24,16 +25,17 @@ describe('Fetch on-chain events from blockchain', function() {
 
     const eventFetcher = new EventFetcherRPC(alchemyRPCURL, infuraRPCURL);
 
-    const blockNumberFrom = 19178316;
-    const blockNumberTo = 19178316;
+    const blockNumberFrom = 19000628;
+    const blockNumberTo = 19000630;
 
-    const onChainEvents = await eventFetcher.getOnChainEvents(blockNumberFrom, blockNumberTo);
+    const onChainEvents = await eventFetcher.getOnChainEvents(blockNumberFrom, blockNumberTo, ALL_TOPICS);
+    expect(onChainEvents.length).to.be.equal(1);
+
     // eslint-disable-next-line max-len
     const depositEvent = onChainEvents.find((event) => event.topics[0] === '0xdcbc1c05240f31ff3ad067ef1ee35ce4997762752e3a095284754544f4c709d7');
-
     expect(depositEvent).to.be.an('object');
     if (depositEvent) {
-      expect(depositEvent.blockHash).to.be.eq('0xb9fae1e0030443598e1d2e924d29c1f691535c8d03990fb95abf808591364986');
+      expect(depositEvent.blockHash).to.be.eq('0x777690569daf886809ac83b3e8c4c1eb5eba226aca41d3965b5f8395c559f45f');
     }
   });
 });

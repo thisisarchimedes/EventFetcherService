@@ -22,7 +22,7 @@ export class EventFetcherRPC extends EventFetcher {
     for (let i = 0; i < topics.length; i += 4) {
       const chunkTopics = topics.slice(i, i + 4);
       const filter: ethers.providers.Filter = {
-        topics: chunkTopics,
+        topics: [chunkTopics],
         fromBlock: blockNumberFrom,
         toBlock: blockNumberTo,
       };
