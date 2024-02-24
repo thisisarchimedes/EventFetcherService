@@ -61,6 +61,7 @@ Resources:
       Environment:
         Variables:
           ENVIRONMENT: !Ref Environment
+          NEW_RELIC_API_KEY: !Ref NewRelicApiKey
           
 Parameters:
   Environment:
@@ -72,3 +73,7 @@ Parameters:
     Type: String
     Description: Function Name Suffix
     Default: ''
+
+  NewRelicApiKey:
+    Type: String
+    Description: New Relic API Key

@@ -15,8 +15,8 @@ env:
 
   PSP_STRATEGY_CONFIG_BUCKET: ${{ vars.PSP_STRATEGY_CONFIG_BUCKET }}
   PSP_STRATEGY_CONFIG_FILE: ${{ vars.PSP_STRATEGY_CONFIG_FILE }}
-  NEW_RELIC_API_URL: ${{ vars.NEW_RELIC_API_URL }}
-
+  NEW_RELIC_API_KEY: ${{ secrets.NEW_RELIC_API_KEY }}
+  
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -66,7 +66,7 @@ jobs:
         run: |
           sam deploy --debug --template-file packaged.yaml --stack-name EventProcessorStack --capabilities CAPABILITY_IAM --parameter-overrides \
           ParameterKey=Environment,ParameterValue="Demo" \
-
+          ParameterKey=NewRelicApiKey,ParameterValue=${{ secrets.NEW_RELIC_API_KEY }}
 
   deploy_demo:
     runs-on: ubuntu-latest
@@ -114,6 +114,7 @@ jobs:
         run: |
           sam deploy --debug --template-file packaged.yaml --stack-name EventProcessorStackDemo --capabilities CAPABILITY_IAM --parameter-overrides \
           ParameterKey=Environment,ParameterValue="Demo" \
+          ParameterKey=NewRelicApiKey,ParameterValue=${{ secrets.NEW_RELIC_API_KEY }}
 
   report-devops-event-deploy:
       runs-on: ubuntu-latest
