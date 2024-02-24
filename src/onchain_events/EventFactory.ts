@@ -106,7 +106,6 @@ export class EventFactory {
     }
 
     const event = results.find((result) => result !== undefined);
-
     this.logger.info(`Event created: ${event?.getEventName()}`);
 
     return event as unknown as OnChainEvent;
