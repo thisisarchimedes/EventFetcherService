@@ -37,6 +37,13 @@ Resources:
                   - 'logs:TagResource'
                   - 'logs:PutLogEvents'
                 Resource: 'arn:aws:logs:*:*:*'
+        - PolicyName: LambdaAppConfigAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: 'appconfig:GetConfiguration'
+                Resource: '*'
 
   WBTCEventsFetcher:
     Type: AWS::Serverless::Function
