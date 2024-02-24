@@ -19,7 +19,7 @@ describe('Fetch on-chain events from blockchain', function() {
     expect(onChainEvents).to.be.an('array');
   });
 
-  it('should fetch deposit event of crvUSD/USDT strategy', async function() {
+  it('should fetch deposit event of a live strategy', async function() {
     const alchemyRPCURL = `https://eth-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`;
     const infuraRPCURL = `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`;
 
