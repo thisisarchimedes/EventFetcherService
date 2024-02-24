@@ -41,14 +41,17 @@ export class EventFetcherRPC extends EventFetcher {
     return Math.min(mainBlockNumber, altBlockNumber);
   }
 
-  private async fetchLogsFromBlockchain(
-      filter: ethers.providers.Filter,
-  ): Promise<ethers.providers.Log[]> {
-    const [alchemyLogs, infuraLogs] = await Promise.all([
-      this.mainProvider.getLogs(filter),
-      this.altProvider.getLogs(filter),
-    ]);
+  private async fetchLogsFromBlockchain(filter: ethers.providers.Filter): Promise<ethers.providers.Log[]> {
+    try {
+      const [mainLogs, altLogs] = await Promise.all([
+        this.mainProvider.getLogs(filter),
+        this.altProvider.getLogs(filter),
+      ]);
 
-    return this.dedupLogsBasedOnTxHashLogIndexAndTopic0([...alchemyLogs, ...infuraLogs]);
+      return this.dedupLogsBasedOnTxHashLogIndexAndTopic0([...mainLogs, ...altLogs]);
+    } catch (error) {
+      console.error('Error fetching logs:', error);
+      throw error;
+    }
   }
 }
