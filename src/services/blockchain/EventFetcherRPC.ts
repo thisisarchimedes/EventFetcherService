@@ -16,14 +16,20 @@ export class EventFetcherRPC extends EventFetcher {
       blockNumberTo: number,
       topics: string[],
   ): Promise<ethers.providers.Log[]> {
-    const filter: ethers.providers.Filter = {
-      topics: topics,
-      fromBlock: blockNumberFrom,
-      toBlock: blockNumberTo,
-    };
+    let allLogs: ethers.providers.Log[] = [];
 
-    const logs = await this.fetchLogsFromBlockchain(filter);
-    return logs;
+    // RPC URL supports up to 4 topics per request
+    for (let i = 0; i < topics.length; i += 4) {
+      const chunkTopics = topics.slice(i, i + 4);
+      const filter: ethers.providers.Filter = {
+        topics: chunkTopics,
+        fromBlock: blockNumberFrom,
+        toBlock: blockNumberTo,
+      };
+      const chunkLogs = await this.fetchLogsFromBlockchain(filter);
+      allLogs = allLogs.concat(chunkLogs);
+    }
+    return allLogs;
   }
 
   public async getCurrentBlockNumber(): Promise<number> {
