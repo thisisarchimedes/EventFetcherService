@@ -1,2 +1,1 @@
-*.ts linguist-language=TypeScript
-*/** linguist-vendored=false
+* linguist-language=TypeScript
