@@ -5,6 +5,8 @@ import {ConfigService} from '../../services/config/ConfigService';
 import {EventFetcherSQSMessage} from '../../types/EventFetcherSQSMessage';
 import {EventFetcherLogEntryMessageLeverage} from '../../types/NewRelicLogEntry';
 
+const ADDRESS_TOPIC_INDEX = 3;
+
 export class OnChainEventLeveragePositionClosed extends OnChainEventLeverage {
   private receivedAmount!: bigint;
   private debtAmount!: bigint;
@@ -18,7 +20,7 @@ export class OnChainEventLeveragePositionClosed extends OnChainEventLeverage {
   protected parseEventLog(eventLog: ethers.providers.Log): void {
     this.setUserAddressFromEventLog(eventLog);
     this.setNftIdFromEventLogTopic(eventLog);
-    this.setStrategyConfigFromEventLogTopic(eventLog);
+    this.setStrategyConfigFromEventLogTopic(eventLog, ADDRESS_TOPIC_INDEX);
 
     this.setPositionAmountsFromEventLogData(eventLog);
   }
@@ -40,14 +42,6 @@ export class OnChainEventLeveragePositionClosed extends OnChainEventLeverage {
 
   private setNftIdFromEventLogTopic(eventLog: ethers.providers.Log): void {
     this.nftId = Number(eventLog.topics[1]);
-  }
-
-  private setStrategyConfigFromEventLogTopic(eventLog: ethers.providers.Log): void {
-    const rawAddress = eventLog.topics[3];
-    const trimmedAddress = '0x' + rawAddress.slice(26);
-    const strategyAddress = ethers.utils.getAddress(trimmedAddress);
-
-    this.strategyConfig = this.findStrategyConfigBStrategyAddress(strategyAddress);
   }
 
   private setUserAddressFromEventLog(eventLog: ethers.providers.Log): void {

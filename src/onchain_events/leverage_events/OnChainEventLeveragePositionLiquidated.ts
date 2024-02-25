@@ -8,6 +8,8 @@ import {
   EventSpecificDataLeveragePositionLiquidated,
 } from '../../types/NewRelicLogEntry';
 
+const ADDRESS_TOPIC_INDEX = 2;
+
 export class OnChainEventLeveragePositionLiquidated extends OnChainEventLeverage {
   private debtPaid!: bigint;
   private claimableAmount!: bigint;
@@ -21,7 +23,7 @@ export class OnChainEventLeveragePositionLiquidated extends OnChainEventLeverage
 
   protected parseEventLog(eventLog: ethers.providers.Log): void {
     this.setNftIdFromEventLogTopic(eventLog);
-    this.setStrategyConfigFromEventLogTopic(eventLog);
+    this.setStrategyConfigFromEventLogTopic(eventLog, ADDRESS_TOPIC_INDEX);
     this.setPositionAmountsFromEventLogData(eventLog);
 
     this.userAddress = '0';
@@ -48,14 +50,6 @@ export class OnChainEventLeveragePositionLiquidated extends OnChainEventLeverage
 
   private setNftIdFromEventLogTopic(eventLog: ethers.providers.Log): void {
     this.nftId = Number(eventLog.topics[1]);
-  }
-
-  private setStrategyConfigFromEventLogTopic(eventLog: ethers.providers.Log): void {
-    const rawAddress = eventLog.topics[2];
-    const trimmedAddress = '0x' + rawAddress.slice(26);
-    const strategyAddress = ethers.utils.getAddress(trimmedAddress);
-
-    this.strategyConfig = this.findStrategyConfigBStrategyAddress(strategyAddress);
   }
 
   private setPositionAmountsFromEventLogData(eventLog: ethers.providers.Log): void {
