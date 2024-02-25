@@ -38,14 +38,21 @@ export class EventFactory {
   }
 
   public async createEvent(eventLog: ethers.providers.Log): Promise<OnChainEvent> {
+    let results: [OnChainEvent | undefined, OnChainEvent | undefined];
+
     if (eventLog === undefined) {
       throw new EventFactoryUnknownEventError('Event log has no topics');
     }
 
-    const results = await Promise.all([
-      this.createPSPEvent(eventLog),
-      this.createLeverageEvent(eventLog),
-    ]);
+    try {
+      results = await Promise.all([
+        this.createPSPEvent(eventLog),
+        this.createLeverageEvent(eventLog),
+      ]);
+    } catch (error) {
+      this.logger.error(`Error creating event: ${error}`);
+      throw error;
+    }
 
     const event = this.getEventObjectOrThrowError(results, eventLog);
 

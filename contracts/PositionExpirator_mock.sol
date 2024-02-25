@@ -5,18 +5,20 @@ contract PositionExpirator_mock {
   // Define the events according to the given specifications
 
   event PositionExpired(
-    uint256 indexed nftId,
-    address indexed user,
-    uint256 claimableAmount
+        uint256 indexed nftId, 
+        address indexed strategy, 
+        uint256 wbtcDebtPaid,
+        uint256 claimableAmount
   );
 
   // Function to emit the PositionExpired event
   function expirePosition(
     uint256 _nftId,
-    address _user,
+    address _strategy,
+    uint256 _wbtcDebtPaid,
     uint256 _claimableAmount
   ) external {
     // Emit the PositionExpired event with the provided parameters
-    emit PositionExpired(_nftId, _user, _claimableAmount);
+    emit PositionExpired(_nftId, _strategy, _wbtcDebtPaid, _claimableAmount);
   }
 }

@@ -2,7 +2,7 @@ import {ethers} from 'ethers';
 import {OnChainEventPSP} from './OnChainEventPSP';
 import {Logger, SQSService} from '@thisisarchimedes/backend-sdk';
 import {ConfigService} from '../../services/config/ConfigService';
-import {EventFetcherLogEntryMessage} from '../../types/NewRelicLogEntry';
+import {EventFetcherLogEntryMessagePSP} from '../../types/NewRelicLogEntry';
 
 export class OnChainEventPSPDeposit extends OnChainEventPSP {
   private depositAmount!: bigint;
@@ -13,11 +13,14 @@ export class OnChainEventPSPDeposit extends OnChainEventPSP {
   }
 
   protected logPSPEvent(): void {
-    const eventDetails: EventFetcherLogEntryMessage = {
+    const eventDetails: EventFetcherLogEntryMessagePSP = {
+      blockNumber: this.blockNumber,
+      txHash: this.txHash,
       event: this.eventName,
       user: this.userAddress,
       strategy: this.strategyConfig.strategyName,
-      depositAmount: this.depositAmount.toString(),
+      amountAddedToStrategy: this.depositAmount.toString(),
+      amountAddedToAdapter: BigInt(0).toString(),
     };
 
     this.logger.info(JSON.stringify(eventDetails));

@@ -7,7 +7,7 @@ import {EventFetcherAdapter} from '../adapters/EventFetcherAdapter';
 import {ConfigServiceAdapter} from '../adapters/ConfigServiceAdapter';
 
 import {EventFactory} from '../../src/onchain_events/EventFactory';
-import {EventFetcherLogEntryMessage} from '../../src/types/NewRelicLogEntry';
+import {EventFetcherLogEntryMessagePSP} from '../../src/types/NewRelicLogEntry';
 import {SQSServiceAdapter} from '../adapters/SQSServiceAdapter';
 import {OnChainEvent} from '../../src/onchain_events/OnChainEvent';
 
@@ -54,11 +54,14 @@ describe('PSP Events Logging', function() {
     expect(event.getEventName()).to.equal('Deposit');
 
     event.process();
-    const expectedLogMessage: EventFetcherLogEntryMessage = {
+    const expectedLogMessage: EventFetcherLogEntryMessagePSP = {
+      blockNumber: 18742061,
+      txHash: '0x1fe52317d52b452120708667eed57e3c19ad39268bfabcf60230978c50df426f',
       event: 'Deposit',
       user: '0x93B435e55881Ea20cBBAaE00eaEdAf7Ce366BeF2',
       strategy: 'Convex FRAXBP/msUSD Single Pool',
-      depositAmount: '5000000',
+      amountAddedToStrategy: BigInt(5000000).toString(),
+      amountAddedToAdapter: BigInt(0).toString(),
     };
 
     const actualLogMessage = JSON.parse(JSON.parse(logger.getLastMessageRawString().split('INFO: ')[1]));
@@ -87,11 +90,14 @@ describe('PSP Events Logging', function() {
     expect(event.getEventName()).to.equal('Withdraw');
 
     event.process();
-    const expectedLogMessage: EventFetcherLogEntryMessage = {
+    const expectedLogMessage: EventFetcherLogEntryMessagePSP = {
+      blockNumber: 18896084,
+      txHash: '0x41f9437497aee519b2c3d1013fcb40b39447a3d969cc2ddc445a1bcdb49f7600',
       event: 'Withdraw',
       user: '0x2222222222222222222222222222222222222222',
       strategy: 'Convex ETH+/ETH Single Pool',
-      depositAmount: '1',
+      amountAddedToStrategy: BigInt(-1n).toString(),
+      amountAddedToAdapter: BigInt(0).toString(),
     };
 
     const actualLogMessage = JSON.parse(JSON.parse(logger.getLastMessageRawString().split('INFO: ')[1]));
@@ -100,13 +106,16 @@ describe('PSP Events Logging', function() {
 
 
   function validateLogMessage(
-      actualLogMessage: EventFetcherLogEntryMessage,
-      expectedLogMessage: EventFetcherLogEntryMessage,
+      actualLogMessage: EventFetcherLogEntryMessagePSP,
+      expectedLogMessage: EventFetcherLogEntryMessagePSP,
   ) {
+    expect(actualLogMessage.blockNumber).to.equal(expectedLogMessage.blockNumber);
+    expect(actualLogMessage.txHash).to.equal(expectedLogMessage.txHash);
     expect(actualLogMessage.event).to.equal(expectedLogMessage.event);
     expect(actualLogMessage.user).to.equal(expectedLogMessage.user);
     expect(actualLogMessage.strategy).to.equal(expectedLogMessage.strategy);
-    expect(actualLogMessage.depositAmount).to.equal(expectedLogMessage.depositAmount);
+    expect(actualLogMessage.amountAddedToStrategy).to.equal(expectedLogMessage.amountAddedToStrategy);
+    expect(actualLogMessage.amountAddedToAdapter).to.equal(expectedLogMessage.amountAddedToAdapter);
   }
 });
 

@@ -3,7 +3,10 @@ import {OnChainEventLeverage} from './OnChainEventLeverage';
 import {Logger, SQSService} from '@thisisarchimedes/backend-sdk';
 import {ConfigService} from '../../services/config/ConfigService';
 import {EventFetcherSQSMessage} from '../../types/EventFetcherSQSMessage';
-import {EventFetcherLogEntryMessage} from '../../types/NewRelicLogEntry';
+import {
+  EventFetcherLogEntryMessageLeverage,
+  EventSpecificDataLeveragePositionLiquidated,
+} from '../../types/NewRelicLogEntry';
 
 export class OnChainEventLeveragePositionLiquidated extends OnChainEventLeverage {
   private debtPaid!: bigint;
@@ -25,12 +28,19 @@ export class OnChainEventLeveragePositionLiquidated extends OnChainEventLeverage
   }
 
   protected logLeverageEvent(): void {
-    const eventDetails: EventFetcherLogEntryMessage = {
+    const eventSpecificDetails: EventSpecificDataLeveragePositionLiquidated = {
+      liquidationFee: this.liquidationFee.toString(),
+    };
+
+    const eventDetails: EventFetcherLogEntryMessageLeverage = {
+      nftID: this.nftId,
+      blockNumber: this.blockNumber,
+      txHash: this.txHash,
       event: this.eventName,
-      user: this.userAddress,
       strategy: this.strategyConfig.strategyName,
-      depositAmount: this.claimableAmount.toString(),
-      borrowedAmount: this.liquidationFee.toString(),
+      collateralAddedToStrategy: (BigInt(this.claimableAmount) * -1n).toString(),
+      debtBorrowedFromProtocol: (BigInt(this.debtPaid) * -1n).toString(),
+      eventSpecificData: eventSpecificDetails,
     };
 
     this.logger.info(JSON.stringify(eventDetails));

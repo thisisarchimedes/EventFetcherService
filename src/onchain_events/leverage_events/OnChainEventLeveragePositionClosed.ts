@@ -3,7 +3,7 @@ import {OnChainEventLeverage} from './OnChainEventLeverage';
 import {Logger, SQSService} from '@thisisarchimedes/backend-sdk';
 import {ConfigService} from '../../services/config/ConfigService';
 import {EventFetcherSQSMessage} from '../../types/EventFetcherSQSMessage';
-import {EventFetcherLogEntryMessage} from '../../types/NewRelicLogEntry';
+import {EventFetcherLogEntryMessageLeverage} from '../../types/NewRelicLogEntry';
 
 export class OnChainEventLeveragePositionClosed extends OnChainEventLeverage {
   private receivedAmount!: bigint;
@@ -18,16 +18,21 @@ export class OnChainEventLeveragePositionClosed extends OnChainEventLeverage {
   protected parseEventLog(eventLog: ethers.providers.Log): void {
     this.setUserAddressFromEventLog(eventLog);
     this.setNftIdFromEventLogTopic(eventLog);
+    this.setStrategyConfigFromEventLogTopic(eventLog);
+
     this.setPositionAmountsFromEventLogData(eventLog);
   }
 
   protected logLeverageEvent(): void {
-    const eventDetails: EventFetcherLogEntryMessage = {
+    const eventDetails: EventFetcherLogEntryMessageLeverage = {
+      nftID: this.nftId,
+      blockNumber: this.blockNumber,
+      txHash: this.txHash,
       event: this.eventName,
       user: this.userAddress,
-      strategy: '',
-      depositAmount: this.receivedAmount.toString(),
-      borrowedAmount: this.debtAmount.toString(),
+      strategy: this.strategyConfig.strategyName,
+      collateralAddedToStrategy: (BigInt(this.receivedAmount) * -1n).toString(),
+      debtBorrowedFromProtocol: (BigInt(this.debtAmount) * -1n).toString(),
     };
 
     this.logger.info(JSON.stringify(eventDetails));
@@ -35,6 +40,14 @@ export class OnChainEventLeveragePositionClosed extends OnChainEventLeverage {
 
   private setNftIdFromEventLogTopic(eventLog: ethers.providers.Log): void {
     this.nftId = Number(eventLog.topics[1]);
+  }
+
+  private setStrategyConfigFromEventLogTopic(eventLog: ethers.providers.Log): void {
+    const rawAddress = eventLog.topics[3];
+    const trimmedAddress = '0x' + rawAddress.slice(26);
+    const strategyAddress = ethers.utils.getAddress(trimmedAddress);
+
+    this.strategyConfig = this.findStrategyConfigBStrategyAddress(strategyAddress);
   }
 
   private setUserAddressFromEventLog(eventLog: ethers.providers.Log): void {

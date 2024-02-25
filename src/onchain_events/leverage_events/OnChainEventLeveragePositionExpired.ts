@@ -3,10 +3,11 @@ import {OnChainEventLeverage} from './OnChainEventLeverage';
 import {Logger, SQSService} from '@thisisarchimedes/backend-sdk';
 import {ConfigService} from '../../services/config/ConfigService';
 import {EventFetcherSQSMessage} from '../../types/EventFetcherSQSMessage';
-import {EventFetcherLogEntryMessage} from '../../types/NewRelicLogEntry';
+import {EventFetcherLogEntryMessageLeverage} from '../../types/NewRelicLogEntry';
 
 export class OnChainEventLeveragePositionExpired extends OnChainEventLeverage {
   private claimableAmount!: bigint;
+  private debtPaid!: bigint;
 
   constructor(rawEventLog: ethers.providers.Log, logger: Logger, sqsService: SQSService, configService: ConfigService) {
     super(rawEventLog, logger, sqsService, configService);
@@ -16,16 +17,19 @@ export class OnChainEventLeveragePositionExpired extends OnChainEventLeverage {
 
   protected parseEventLog(eventLog: ethers.providers.Log): void {
     this.setNftIdFromEventLogTopic(eventLog);
-    this.setUserAddressFromEventLog(eventLog);
+    this.setStrategyConfigFromEventLogTopic(eventLog);
     this.setPositionAmountsFromEventLogData(eventLog);
   }
 
   protected logLeverageEvent(): void {
-    const eventDetails: EventFetcherLogEntryMessage = {
+    const eventDetails: EventFetcherLogEntryMessageLeverage = {
+      nftID: this.nftId,
+      blockNumber: this.blockNumber,
+      txHash: this.txHash,
       event: this.eventName,
-      user: this.userAddress,
-      strategy: '',
-      depositAmount: this.claimableAmount.toString(),
+      strategy: this.strategyConfig.strategyName,
+      collateralAddedToStrategy: (BigInt(this.claimableAmount) * -1n).toString(),
+      debtBorrowedFromProtocol: (BigInt(this.debtPaid) * -1n).toString(),
     };
 
     this.logger.info(JSON.stringify(eventDetails));
@@ -35,18 +39,21 @@ export class OnChainEventLeveragePositionExpired extends OnChainEventLeverage {
     this.nftId = Number(eventLog.topics[1]);
   }
 
-  private setUserAddressFromEventLog(eventLog: ethers.providers.Log): void {
+  private setStrategyConfigFromEventLogTopic(eventLog: ethers.providers.Log): void {
     const rawAddress = eventLog.topics[2];
     const trimmedAddress = '0x' + rawAddress.slice(26);
-    this.userAddress = ethers.utils.getAddress(trimmedAddress);
+    const strategyAddress = ethers.utils.getAddress(trimmedAddress);
+
+    this.strategyConfig = this.findStrategyConfigBStrategyAddress(strategyAddress);
   }
 
   private setPositionAmountsFromEventLogData(eventLog: ethers.providers.Log): void {
     const decodedData = ethers.utils.defaultAbiCoder.decode(
-        ['uint256'],
+        ['uint256', 'uint256'],
         eventLog.data);
 
-    this.claimableAmount = decodedData[0];
+    this.debtPaid = decodedData[0];
+    this.claimableAmount = decodedData[1];
   }
 
   protected getSQSMessage(): EventFetcherSQSMessage {
