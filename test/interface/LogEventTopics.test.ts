@@ -46,6 +46,7 @@ describe('Validating Topic hash calculation for leverage events', function() {
     const tx = await positionCloserMockContract.closePosition(
         nftId,
         user,
+        strategy,
         collateralAmount,
         wbtcToBorrow,
     );
@@ -74,8 +75,9 @@ describe('Validating Topic hash calculation for leverage events', function() {
 
     const tx = await PositionExpiratorMockContract.expirePosition(
         nftId,
-        user,
+        strategy,
         collateralAmount,
+        wbtcToBorrow,
     );
 
     const topic = await getTopic0Hash(tx);

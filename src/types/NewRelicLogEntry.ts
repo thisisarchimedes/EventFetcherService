@@ -20,3 +20,20 @@ export interface EventFetcherLogEntryMessagePSP extends EventFetcherLogEntryMess
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     eventSpecificData?: any;
 }
+
+export interface EventFetcherLogEntryMessageLeverage extends EventFetcherLogEntryMessage {
+    nftID: number;
+    collateralAddedToStrategy: string;
+    debtBorrowedFromProtocol: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    eventSpecificData?: any;
+}
+
+export interface EventSpecificDataLeveragePositionOpened {
+    positionExpireBlock: string;
+    sharesReceived: string;
+}
+
+export interface EventSpecificDataLeveragePositionLiquidated {
+    liquidationFee: string;
+}

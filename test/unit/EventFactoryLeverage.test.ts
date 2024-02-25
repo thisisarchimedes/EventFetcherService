@@ -6,7 +6,11 @@ import {EventFetcherAdapter} from '../adapters/EventFetcherAdapter';
 import {ConfigServiceAdapter} from '../adapters/ConfigServiceAdapter';
 
 import {EventFactory} from '../../src/onchain_events/EventFactory';
-import {EventFetcherLogEntryMessage} from '../../src/types/NewRelicLogEntry';
+import {
+  EventFetcherLogEntryMessageLeverage,
+  EventSpecificDataLeveragePositionLiquidated,
+  EventSpecificDataLeveragePositionOpened,
+} from '../../src/types/NewRelicLogEntry';
 import {SQSServiceAdapter} from '../adapters/SQSServiceAdapter';
 import {OnChainEvent} from '../../src/onchain_events/OnChainEvent';
 import {EventFetcherSQSMessage} from '../../src/types/SQSMessage';
@@ -31,12 +35,20 @@ describe('Leverage Events Logging & Queuing', function() {
     const eventSyntheticDataFileName: string = 'test/data/leveragePositionOpenedEvent.json';
     const expectedEventName: string = 'LeveragedPositionOpened';
 
-    const expectedLogMessage: EventFetcherLogEntryMessage = {
+    const eventSpecificDetails: EventSpecificDataLeveragePositionOpened = {
+      positionExpireBlock: '3',
+      sharesReceived: '4',
+    };
+    const expectedLogMessage: EventFetcherLogEntryMessageLeverage = {
+      nftID: 2,
+      blockNumber: 6000003,
+      txHash: '0x1fe52317d52b452120708667eed57e3c19ad39268bfabcf60230978c50df426f',
       event: 'LeveragedPositionOpened',
       user: '0x925cc02EC7b77d4432e82e7bCaf3B89a67a555F2',
       strategy: 'Convex FRAXBP/msUSD Single Pool',
-      depositAmount: '1',
-      borrowedAmount: '2',
+      collateralAddedToStrategy: BigInt(1).toString(),
+      debtBorrowedFromProtocol: BigInt(2).toString(),
+      eventSpecificData: eventSpecificDetails,
     };
 
     const expectedSqsMessage: EventFetcherSQSMessage = {
@@ -63,12 +75,15 @@ describe('Leverage Events Logging & Queuing', function() {
     const eventSyntheticDataFileName: string = 'test/data/leveragePositionClosedEvent.json';
     const expectedEventName: string = 'LeveragedPositionClosed';
 
-    const expectedLogMessage: EventFetcherLogEntryMessage = {
+    const expectedLogMessage: EventFetcherLogEntryMessageLeverage = {
+      nftID: 2,
+      blockNumber: 6000003,
+      txHash: '0x1fe52317d52b452120708667eed57e3c19ad39268bfabcf60230978c50df426f',
       event: 'LeveragedPositionClosed',
       user: '0x925cc02EC7b77d4432e82e7bCaf3B89a67a555F2',
-      strategy: '',
-      depositAmount: '1',
-      borrowedAmount: '2',
+      strategy: 'Convex FRAXBP/msUSD Single Pool',
+      collateralAddedToStrategy: BigInt(-1n).toString(),
+      debtBorrowedFromProtocol: (BigInt(2) * -1n).toString(),
     };
 
     const expectedSqsMessage: EventFetcherSQSMessage = {
@@ -92,12 +107,19 @@ describe('Leverage Events Logging & Queuing', function() {
     const eventSyntheticDataFileName: string = 'test/data/leveragePositionLiquidatedEvent.json';
     const expectedEventName: string = 'LeveragedPositionLiquidated';
 
-    const expectedLogMessage: EventFetcherLogEntryMessage = {
+    const eventSpecificDetails: EventSpecificDataLeveragePositionLiquidated = {
+      liquidationFee: BigInt(3).toString(),
+    };
+
+    const expectedLogMessage: EventFetcherLogEntryMessageLeverage = {
+      nftID: 2,
+      blockNumber: 6000003,
+      txHash: '0x1fe52317d52b452120708667eed57e3c19ad39268bfabcf60230978c50df426f',
       event: 'LeveragedPositionLiquidated',
-      user: '0',
       strategy: 'Convex FRAXBP/msUSD Single Pool',
-      depositAmount: '2',
-      borrowedAmount: '1',
+      collateralAddedToStrategy: (BigInt(2) * -1n).toString(),
+      debtBorrowedFromProtocol: (BigInt(1) * -1n).toString(),
+      eventSpecificData: eventSpecificDetails,
     };
 
     const expectedSqsMessage: EventFetcherSQSMessage = {
@@ -122,11 +144,14 @@ describe('Leverage Events Logging & Queuing', function() {
     const eventSyntheticDataFileName: string = 'test/data/leveragePositionExpiredEvent.json';
     const expectedEventName: string = 'LeveragedPositionExpired';
 
-    const expectedLogMessage: EventFetcherLogEntryMessage = {
+    const expectedLogMessage: EventFetcherLogEntryMessageLeverage = {
+      nftID: 2,
+      blockNumber: 6000003,
+      txHash: '0x1fe52317d52b452120708667eed57e3c19ad39268bfabcf60230978c50df426f',
       event: 'LeveragedPositionExpired',
-      user: '0x925cc02EC7b77d4432e82e7bCaf3B89a67a555F2',
-      strategy: '',
-      depositAmount: '1',
+      strategy: 'Convex FRAXBP/msUSD Single Pool',
+      debtBorrowedFromProtocol: (BigInt(1) * -1n).toString(),
+      collateralAddedToStrategy: (BigInt(2) * -1n).toString(),
     };
 
     const expectedSqsMessage: EventFetcherSQSMessage = {
@@ -136,8 +161,8 @@ describe('Leverage Events Logging & Queuing', function() {
       blockNumber: 6000003,
       data: {
         nftId: 2,
-        user: '0x925cc02EC7b77d4432e82e7bCaf3B89a67a555F2',
-        claimableAmount: '1',
+        user: '',
+        claimableAmount: '2',
       },
     };
 
@@ -189,7 +214,7 @@ describe('Leverage Events Logging & Queuing', function() {
 
   function testEventProcessing(
       event: OnChainEvent,
-      expectedLogMessage: EventFetcherLogEntryMessage,
+      expectedLogMessage: EventFetcherLogEntryMessageLeverage,
       expectedSqsMessage: EventFetcherSQSMessage,
   ) {
     event.process();
@@ -202,13 +227,19 @@ describe('Leverage Events Logging & Queuing', function() {
   }
 
   function validateLogMessage(
-      actualLogMessage: EventFetcherLogEntryMessage,
-      expectedLogMessage: EventFetcherLogEntryMessage,
+      actualLogMessage: EventFetcherLogEntryMessageLeverage,
+      expectedLogMessage: EventFetcherLogEntryMessageLeverage,
   ) {
+    expect(actualLogMessage.blockNumber).to.equal(expectedLogMessage.blockNumber);
+    expect(actualLogMessage.txHash).to.equal(expectedLogMessage.txHash);
     expect(actualLogMessage.event).to.equal(expectedLogMessage.event);
     expect(actualLogMessage.user).to.equal(expectedLogMessage.user);
     expect(actualLogMessage.strategy).to.equal(expectedLogMessage.strategy);
-    expect(actualLogMessage.depositAmount).to.equal(expectedLogMessage.depositAmount);
+    expect(actualLogMessage.nftID).to.equal(expectedLogMessage.nftID);
+    expect(actualLogMessage.collateralAddedToStrategy).to.equal(expectedLogMessage.collateralAddedToStrategy);
+    expect(actualLogMessage.debtBorrowedFromProtocol).to.equal(expectedLogMessage.debtBorrowedFromProtocol);
+    expect(JSON.stringify(actualLogMessage.eventSpecificData))
+        .to.equal(JSON.stringify(expectedLogMessage.eventSpecificData));
   }
 
   function validateSQSMessage(

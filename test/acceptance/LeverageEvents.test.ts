@@ -139,8 +139,8 @@ describe('Leverage Events', function() {
         blockNumber: 6000003,
         data: {
           nftId: 2,
-          user: '0x925cc02EC7b77d4432e82e7bCaf3B89a67a555F2',
-          claimableAmount: '1',
+          user: '',
+          claimableAmount: '2',
         },
       },
     };
