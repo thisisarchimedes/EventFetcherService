@@ -12,6 +12,7 @@ This repository contains the backend microservices infrastructure designed to fe
 2. Export the following environment variables
    ```bash
    ENVIRONMENT=Demo # Test/Production (need to match AWS AppConfig application name)
+   ## Environment is CASE SENSITIVE ##
    ```
    If you run Interface tests you also need
    ```bash
