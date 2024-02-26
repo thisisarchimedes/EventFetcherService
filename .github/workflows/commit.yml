@@ -7,7 +7,7 @@ on:
 
 env:
   ENVIRONMENT: ${{ vars.DEFAULT_ENVIRONMENT }}
-  DOTENV_VAULT_LOCAL: ${{ secrets.DOTENV_VAULT_LOCAL }}
+  DOTENV_KEY_LOCAL: ${{ secrets.DOTENV_KEY_LOCAL }}
 
   AWS_REGION: ${{ vars.AWS_REGION }}
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
