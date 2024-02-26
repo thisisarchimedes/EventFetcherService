@@ -6,9 +6,10 @@ on:
       - 'main' 
 
 env:
-  ENVIRONMENT: 'Demo'
+  ENVIRONMENT: ${{ vars.DEFAULT_ENVIRONMENT }}
+  DOTENV_VAULT_LOCAL: ${{ secrets.DOTENV_VAULT_LOCAL }}
 
-  AWS_REGION: 'us-east-1'
+  AWS_REGION: ${{ vars.AWS_REGION }}
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
@@ -47,6 +48,8 @@ jobs:
 
       - name: Run Tests
         run: |
+          yarn dotenvx decrypt 
+          set -o allexport && source .env.local && set +o allexport
           yarn test
           
       - name: SonarCloud Scan
