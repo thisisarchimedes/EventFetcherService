@@ -14,13 +14,20 @@ This repository contains the backend microservices infrastructure designed to fe
    ENVIRONMENT=Demo # Test/Production (need to match AWS AppConfig application name)
    ## Environment is CASE SENSITIVE ##
    ```
-   If you run Interface tests you also need
+   If you run tests you also need
    ```bash
    PAT_TOKEN - GitHub token required by the Backend SDK
    NEW_RELIC_API_KEY
    AWS_ACCESS_KEY_ID
    AWS_SECRET_ACCESS_KEY
    AWS_REGION=us-east-1
+
+   PSP_ACCEPTANCE_TEST_NODE= # The RPC URL of the node we test agains
+   S3_BUCKET_CONFIG=smart-contract-backend-config
+   PSP_STRATEGY_CONFIG_FILE=strategies-production.json # the PSP strategy configuration file locally
+
+   ALCHEMY_API_KEY= # Only the key (no need for the entire URL)
+   INFURA_API_KEY= # Only the key (no need for the entire URL)
    ```
 3. Run tests
    ```bash
@@ -41,3 +48,7 @@ yarn lint
 2. On PR open: Github runs Acceptance Stage (`acceptance.yml`) - Acceptance tests
 3. On PR merge: Githu runs Deploy Stage (`deploy.yml`) - Deploying project to different environments (including Production)
 4. Every day at 00:00 UTC we run nightly test (`nightly.yml`) - Running Unit and Acceptance tests + some more extensive coverage (Stryker)
+
+### Demo/Test/Production Runner 
+
+The code is run by AWS Lambda. Enrty point: `lambda-handler.ts`
