@@ -49,8 +49,8 @@ jobs:
 
       - name: Run Tests
         run: |
-          curl -fsS https://dotenvx.sh/ | sh
-          dotenvx run --  yarn test
+          sudo curl -fsS https://dotenvx.sh/ | sh
+          sudo dotenvx run --  yarn test
           #DOTENV_KEY=${{ secrets.DOTENV_KEY_LOCAL }} yarn dotenvx decrypt 
           #ls .env*
           #set -o allexport && source .env.local && set +o allexport
