@@ -8,6 +8,7 @@ on:
 env:
   ENVIRONMENT: ${{ vars.DEFAULT_ENVIRONMENT }}
   DOTENV_KEY: ${{ secrets.DOTENV_KEY_LOCAL }}
+  DOTENV_KEY_LOCAL: ${{ secrets.DOTENV_KEY_LOCAL }}
 
   AWS_REGION: ${{ vars.AWS_REGION }}
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -49,7 +50,7 @@ jobs:
       - name: Run Tests
         run: |
           curl -fsS https://dotenvx.sh/ | sh
-          dotenvx run -- `yarn install && yarn test`
+          dotenvx run --  yarn test
           #DOTENV_KEY=${{ secrets.DOTENV_KEY_LOCAL }} yarn dotenvx decrypt 
           #ls .env*
           #set -o allexport && source .env.local && set +o allexport
