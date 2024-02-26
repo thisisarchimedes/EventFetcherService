@@ -5,9 +5,7 @@
 
 This repository contains the backend microservices infrastructure designed to fetch events from the Leverage Engine smart contract. For a detailed explanation of the architecture, please refer to [Architecture design](https://www.notion.so/archimedesfi/Architectural-Proposal-for-Event-Processing-Micro-Service-327458f8dfec462c87758fbd509ef314)
 
-## Quick start
-
-### Run Locally
+## Run Locally
 
 0. Make sure Node.js and Yarn are installed
 1. Install requirements: `yarn install`
@@ -29,6 +27,7 @@ This repository contains the backend microservices infrastructure designed to fe
    yarn test:acceptance # acceptance test only
    yarn test:all # unit + acceptance+interface tests
    ```
+
 ### Linter
 ```bash
 yarn lint
