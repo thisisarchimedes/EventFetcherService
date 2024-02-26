@@ -48,6 +48,7 @@ jobs:
 
       - name: Run Tests
         run: |
+          echo DOTENV_KEY_LOCAL=$DOTENV_KEY_LOCAL > .env.keys 
           yarn dotenvx decrypt 
           set -o allexport && source .env.local && set +o allexport
           yarn test
