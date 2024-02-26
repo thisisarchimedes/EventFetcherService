@@ -12,8 +12,9 @@ This repository contains the backend microservices infrastructure designed to fe
 2. Export the following environment variables
    ```bash
    PAT_TOKEN - GitHub token required by the Backend SDK
+   
    ENVIRONMENT=Demo # Test/Production (need to match AWS AppConfig application name)
-   ## Environment is CASE SENSITIVE ##
+   ## Environment is CASE SENSITIVE - e.g.: "Demo" is not the same as "demo" ##
    ```
    If you run tests you also need
    ```bash
