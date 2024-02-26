@@ -49,7 +49,7 @@ jobs:
       - name: Run Tests
         run: |
           curl -fsS https://dotenvx.sh/ | sh
-          dotenvx run -- yarn test
+          dotenvx run -- `yarn install && yarn test`
           #DOTENV_KEY=${{ secrets.DOTENV_KEY_LOCAL }} yarn dotenvx decrypt 
           #ls .env*
           #set -o allexport && source .env.local && set +o allexport
