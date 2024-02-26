@@ -1,4 +1,5 @@
 # Tests
+[] Detect Leverage Claim evet
 
 [] Detect PSP AdjustIn event and report to log
 [] Detect PSP AdjustOut event and report to log
