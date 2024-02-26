@@ -37,6 +37,11 @@ jobs:
         with:
           node-version: '20.x'
 
+      - name: Install dotenvx
+        run: |
+            curl -fsS https://dotenvx.sh/ | sh
+            dotenvx run -- node build.js
+
       - name: Install dependencies
         run: yarn install
 
@@ -48,7 +53,6 @@ jobs:
 
       - name: Run Tests
         run: |
-          #echo DOTENV_KEY_LOCAL=${{ secrets.DOTENV_KEY_LOCAL }} > .env.keys 
           DOTENV_KEY=${{ secrets.DOTENV_KEY_LOCAL }} yarn dotenvx decrypt 
           set -o allexport && source .env.local && set +o allexport
           yarn test
