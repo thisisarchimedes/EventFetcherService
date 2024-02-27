@@ -11,7 +11,6 @@ dist/
 newrelic_agent.log
 
 node_modules
-.env
 coverage
 coverage.json
 typechain
@@ -25,3 +24,7 @@ artifacts
 .stryker
 
 coverage/*
+
+.env
+.env.keys
+.env.local

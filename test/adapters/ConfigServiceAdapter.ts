@@ -16,8 +16,8 @@ export class ConfigServiceAdapter extends ConfigService {
     await this.refreshPSPContractInfo();
 
     this.environment = 'local';
-    this.MainRPCURL = process.env.PSP_ACCEPTANCE_TEST_NODE as string;
-    this.AltRPCURL = process.env.PSP_ACCEPTANCE_TEST_NODE as string;
+    this.MainRPCURL = process.env.LOCAL_TEST_NODE as string;
+    this.AltRPCURL = process.env.LOCAL_TEST_NODE as string;
     this.EventFetchPageSize = 100;
     this.EventQueueURL = 'https://test-queue-url';
   }

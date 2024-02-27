@@ -7,30 +7,28 @@ This repository contains the backend microservices infrastructure designed to fe
 
 ## Run Locally
 
-0. Make sure Node.js and Yarn are installed
-1. Install requirements: `yarn install`
-2. Export the following environment variables
-   ```bash
-   PAT_TOKEN - GitHub token required by the Backend SDK
-   
-   ENVIRONMENT=Demo # Test/Production (need to match AWS AppConfig application name)
-   ## Environment is CASE SENSITIVE - e.g.: "Demo" is not the same as "demo" ##
-   ```
-   If you run tests you also need
-   ```bash
-   NEW_RELIC_API_KEY
-   AWS_ACCESS_KEY_ID
-   AWS_SECRET_ACCESS_KEY
-   AWS_REGION=us-east-1
+_*Install dependencies*_
+1. Make sure Node.js and Yarn are installed
+2. Install requirements: `yarn install`
 
-   PSP_ACCEPTANCE_TEST_NODE= # The RPC URL of the node we test agains
-   S3_BUCKET_CONFIG=smart-contract-backend-config
-   PSP_STRATEGY_CONFIG_FILE=strategies-production.json # the PSP strategy configuration file locally
+_*Get .env file*_
+```bash
+yarn dotenvx hub # open follow the link, Copy the keys to .env.keys locally
+set -o allexport && source .env.keys && set +o allexport # export .env.keys to local environment
+yarn dotenvx decrypt # decrypt .env.vault to .env
+set -o allexport && source .env && set +o allexport # export .env to local environment
+```
 
-   ALCHEMY_API_KEY= # Only the key (no need for the entire URL)
-   INFURA_API_KEY= # Only the key (no need for the entire URL)
-   ```
-3. Run tests
+_*Update .env*_
+```bash
+yarn dotenvx encrypt
+yarn dotenvx hub push # push the keys to the dotenvx hub
+```
+Next: 
+1. commit `.env.vault` to github **DO NOT COMMIT .evn.keys or .env to github**
+2. Update the repo Github Secrets `DOTENV_KEY`
+
+_*Run tests*_
    ```bash
    yarn test # runs unit and acceptance tests + convrage report
    yarn test:acceptance # acceptance test only
@@ -41,6 +39,32 @@ This repository contains the backend microservices infrastructure designed to fe
 ```bash
 yarn lint
 ```
+
+### Environment Variables
+
+Environment variables (if we don't run tests)
+```bash
+   PAT_TOKEN - GitHub token required by the Backend SDK
+   NEW_RELIC_API_KEY - required by the Backend SDK
+
+   ENVIRONMENT=Demo # Test/Production (need to match AWS AppConfig application name)
+   ## Environment is CASE SENSITIVE - e.g.: "Demo" is not the same as "demo" ##
+   ```
+
+Additional environment variables for testing
+   ```bash
+   NEW_RELIC_API_KEY
+   AWS_ACCESS_KEY_ID
+   AWS_SECRET_ACCESS_KEY
+   AWS_REGION=us-east-1
+
+   PSP_ACCEPTANCE_TEST_NODE= # The RPC URL of the node we test against
+   S3_BUCKET_CONFIG=smart-contract-backend-config
+   PSP_STRATEGY_CONFIG_FILE=strategies-production.json # the PSP strategy configuration file locally
+
+   ALCHEMY_API_KEY= # Only the key (no need for the entire URL)
+   INFURA_API_KEY= # Only the key (no need for the entire URL)
+   ```
 
 ## Continuous Deployment
 

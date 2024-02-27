@@ -6,9 +6,11 @@ on:
       - 'main' 
 
 env:
-  ENVIRONMENT: 'Demo'
+  ENVIRONMENT: ${{ vars.DEFAULT_ENVIRONMENT }}
+  DOTENV_KEY: ${{ secrets.DOTENV_KEY }}
 
-  AWS_REGION: 'us-east-1'
+
+  AWS_REGION: ${{ vars.AWS_REGION }}
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
@@ -34,7 +36,11 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: 20
+
+      - name: Install dotenvx
+        run: | 
+          curl -fsS https://dotenvx.sh/ | sh
 
       - name: Install dependencies
         run: yarn install
@@ -47,7 +53,7 @@ jobs:
 
       - name: Run Tests
         run: |
-          yarn test
+          AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} AWS_REGION=${{ vars.AWS_REGION }} DOTENV_KEY='${{ secrets.DOTENV_KEY }}' dotenvx run --  yarn test:acceptance
           
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
