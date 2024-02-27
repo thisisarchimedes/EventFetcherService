@@ -2,7 +2,7 @@
 # Interface
 
 [X] Read from DB (query RDS via Prism)
-[] Write a new entry to DB (RDS via Prism)
+[X] Write a new entry to DB (RDS via Prism)
 [] Generate NFT image in S3 bucket
 [] fetch USD price of WBTC
 [] fetch ETH price of WBTC
