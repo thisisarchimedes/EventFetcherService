@@ -1,0 +1,78 @@
+generator client {
+    provider      = "prisma-client-js"
+    binaryTargets = ["native", "rhel-openssl-1.0.x"]
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model OpenLeverage {
+    id                  Int     @id @default(autoincrement())
+    nftId               BigInt
+    txHash              String
+    user                String  @db.VarChar(42)
+    strategy            String  @db.VarChar(42)
+    collateralAmount    Decimal
+    wbtcToBorrow        Decimal
+    receivedShares      Decimal
+    positionExpireBlock Int
+    blockNumber         Int
+}
+
+model CloseLeverage {
+    id             Int     @id @default(autoincrement())
+    nftId          BigInt
+    txHash         String
+    user           String  @db.VarChar(42)
+    receivedAmount Decimal
+    wbtcDebtAmount Decimal
+    blockNumber    Int
+}
+
+model LiquidateLeverage {
+    id              Int     @id @default(autoincrement())
+    nftId           BigInt
+    txHash          String
+    strategy        String  @db.VarChar(42)
+    wbtcDebtPaid    Decimal
+    claimableAmount Decimal
+    liquidationFee  Decimal
+    blockNumber     Int
+}
+
+model ExpireLeverage {
+    id              Int     @id @default(autoincrement())
+    blockNumber     Int
+    nftId           BigInt
+    txHash          String
+    user            String  @db.VarChar(42)
+    claimableAmount  Decimal
+}
+
+enum PositionState {
+    UNINITIALIZED
+    LIVE
+    EXPIRED
+    LIQUIDATED
+    CLOSED
+}
+
+model LeveragePosition {
+    id                   Int           @id @default(autoincrement())
+    nftId                BigInt
+    user                 String        @db.VarChar(42)
+    collateralAmount     Decimal
+    debtAmount           Decimal
+    timestamp            Int
+    currentPositionValue Decimal
+    strategyShares       Decimal
+    strategy             String        @db.VarChar(42)
+    blockNumber          Int
+    positionExpireBlock  Int
+    positionState        PositionState
+    claimableAmount      Decimal       @default(0)
+
+    @@index([user])
+}
