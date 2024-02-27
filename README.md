@@ -87,8 +87,8 @@ Additional environment variables for testing
 1. On commit: Github runs Commit Stage (`commit.yml`) - Unit tests, Linter and tsc
 2. On PR open: Github runs Acceptance Stage (`acceptance.yml`) - Acceptance tests
 3. On PR merge: Githu runs Deploy Stage (`deploy.yml`) - Deploying project to different environments (including Production)
-
-The code is run by AWS Lambda. Enrty point: `lambda-handler.ts`
+4. The code is run by AWS Lambda. Enrty point: `lambda-handler.ts`
+5. Every day at 00:00 UTC we run nightly test (`nightly.yml`) - Running Unit and Acceptance tests + some more extensive coverage (Stryker)
 
 ## Troubleshoting
 
@@ -96,4 +96,3 @@ The code is run by AWS Lambda. Enrty point: `lambda-handler.ts`
 Check the following linkes
 - Github Action: https://dotenvx.com/docs/cis/github-actions#initial-setup
 - Local: https://dotenvx.com/docs/install#npm
-5. Every day at 00:00 UTC we run nightly test (`nightly.yml`) - Running Unit and Acceptance tests + some more extensive coverage (Stryker)
