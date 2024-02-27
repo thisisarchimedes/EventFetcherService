@@ -25,8 +25,8 @@ yarn dotenvx encrypt
 yarn dotenvx hub push # push the keys to the dotenvx hub
 ```
 Next: 
-1. commit `.env.vault` to github **DO NOT COMMIT .evn.keys or .env to github**
-2. Update the repo Github Secrets `DOTENV_KEY`
+- commit `.env.vault` to github _**DO NOT COMMIT .evn.keys or .env to github**_
+- Update the repo Github Secrets `DOTENV_KEY`
 
 _*Run tests*_
    ```bash
