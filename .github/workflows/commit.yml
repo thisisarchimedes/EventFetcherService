@@ -39,7 +39,9 @@ jobs:
           node-version: 20
 
       - name: Install dotenvx
-        run: curl -fsS https://dotenvx.sh/ | sh
+        run: | 
+          curl -fsS https://dotenvx.sh/ | sh
+          dotenvx --version
 
       - name: Install dependencies
         run: yarn install
