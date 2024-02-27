@@ -11,12 +11,12 @@ _*Install dependencies*_
 1. Make sure Node.js and Yarn are installed
 2. Install requirements: `yarn install`
 
-_*Get .env.local file*_
+_*Get .env file*_
 ```bash
 yarn dotenvx hub # open follow the link, Copy the keys to .env.keys locally
 set -o allexport && source .env.keys && set +o allexport # export .env.keys to local environment
 yarn dotenvx decrypt # decrypt .env.vault to .env
-set -o allexport && source .env.local && set +o allexport # export .env.local to local environment
+set -o allexport && source .env && set +o allexport # export .env to local environment
 ```
 
 _*Update .env*_
@@ -25,8 +25,8 @@ yarn dotenvx encrypt
 yarn dotenvx hub push # push the keys to the dotenvx hub
 ```
 Next: 
-1. commit `.env.vault` to github **DO NOT COMMIT .evn.keys or .env.local to github**
-2. Update the repo Github Secrets `DOTENV_KEY_LOCAL`
+1. commit `.env.vault` to github **DO NOT COMMIT .evn.keys or .env to github**
+2. Update the repo Github Secrets `DOTENV_KEY`
 
 _*Run tests*_
    ```bash

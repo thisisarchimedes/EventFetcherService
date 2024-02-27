@@ -11,7 +11,6 @@ export class ConfigServiceAWS extends ConfigService {
   constructor(environment: string, region: string) {
     super();
     this.environment = environment;
-    console.log('+++ ConfigServiceAWS', environment, region);
     this.appConfigClient = new AppConfigClient(environment, region);
   }
 
