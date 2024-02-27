@@ -1,5 +1,20 @@
 # Leverage events fetcher
 
+## Table of Contents
+
+1. [Overview](#overview)
+2. [Run Locally](#run-locally)
+   - [Install dependencies](#install-dependencies)
+   - [Get .env file](#get-env-file)
+   - [Update .env](#update-env)
+   - [Run tests](#run-tests)
+3. [Linter](#linter)
+4. [Environment Variables](#environment-variables)
+   - [For running](#environment-variables-if-we-dont-run-tests)
+   - [For testing](#additional-environment-variables-for-testing)
+5. [Continuous Deployment](#continuous-deployment)
+6. [Troubleshooting](#troubleshooting)
+   - [dotenvx doesn't work properly](#dotenvx-doesnt-work-properly)
 
 ## Overview
 
@@ -25,8 +40,8 @@ yarn dotenvx encrypt
 yarn dotenvx hub push # push the keys to the dotenvx hub
 ```
 Next: 
-1. commit `.env.vault` to github **DO NOT COMMIT .evn.keys or .env to github**
-2. Update the repo Github Secrets `DOTENV_KEY`
+- commit `.env.vault` to github _**DO NOT COMMIT .evn.keys or .env to github**_
+- Update the repo Github Secrets `DOTENV_KEY`
 
 _*Run tests*_
    ```bash
@@ -72,8 +87,12 @@ Additional environment variables for testing
 1. On commit: Github runs Commit Stage (`commit.yml`) - Unit tests, Linter and tsc
 2. On PR open: Github runs Acceptance Stage (`acceptance.yml`) - Acceptance tests
 3. On PR merge: Githu runs Deploy Stage (`deploy.yml`) - Deploying project to different environments (including Production)
-4. Every day at 00:00 UTC we run nightly test (`nightly.yml`) - Running Unit and Acceptance tests + some more extensive coverage (Stryker)
+4. The code is run by AWS Lambda. Enrty point: `lambda-handler.ts`
+5. Every day at 00:00 UTC we run nightly test (`nightly.yml`) - Running Unit and Acceptance tests + some more extensive coverage (Stryker)
 
-### Demo/Test/Production Runner 
+## Troubleshoting
 
-The code is run by AWS Lambda. Enrty point: `lambda-handler.ts`
+### dotenvx doesn't work properly
+Check the following linkes
+- Github Action: https://dotenvx.com/docs/cis/github-actions#initial-setup
+- Local: https://dotenvx.com/docs/install#npm
