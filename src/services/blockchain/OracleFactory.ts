@@ -1,6 +1,6 @@
 import {ConfigService} from '../config/ConfigService';
 import {Oracle} from './Oracle';
-import {OracleETHAsBTC} from './OracleETHAsBTC';
+import {OracleETHAsBTC} from './oracles/OracleETHAsBTC';
 import {isUndefined} from 'lodash';
 
 const ETH = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'.toLowerCase();

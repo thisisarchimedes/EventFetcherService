@@ -1,5 +1,5 @@
 import {ethers} from 'ethers';
-import {Oracle} from './Oracle';
+import {Oracle} from '../Oracle';
 
 const ORACLE_CHAINLINK_BTCETH = '0xdeb288F737066589598e9214E782fa5A8eD689e8';
 const ORACLE_DECIMALS = 8;
