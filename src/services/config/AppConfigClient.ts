@@ -1,6 +1,8 @@
 import {AppConfig, GetConfigurationCommandOutput} from '@aws-sdk/client-appconfig';
 
 export class AppConfigClient {
+  private readonly DEFAULT_APPCONFIG_ENVIRONMENT = 'env';
+
   private readonly appConfigClient: AppConfig;
   private readonly environment: string;
   private readonly clientId: string = 'EventFetcherService';
@@ -23,7 +25,7 @@ export class AppConfigClient {
     const params = {
       Application: this.environment,
       Configuration: configName,
-      Environment: this.environment,
+      Environment: this.DEFAULT_APPCONFIG_ENVIRONMENT,
       ClientId: this.clientId,
     };
 
