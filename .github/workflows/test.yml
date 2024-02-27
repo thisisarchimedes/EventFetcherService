@@ -12,6 +12,4 @@ jobs:
     - uses: actions/setup-node@v3
       with:
         node-version: 16
-    - run: node build.js
-      env:
-        DOTENV_KEY: ${{ secrets.DOTENV_KEY_LOCAL }}
+    - run: curl -fsS https://dotenvx.sh/ | sh
