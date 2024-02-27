@@ -11,18 +11,26 @@ export class ConfigServiceAWS extends ConfigService {
   constructor(environment: string, region: string) {
     super();
     this.environment = environment;
+    console.log('+++ ConfigServiceAWS', environment, region);
     this.appConfigClient = new AppConfigClient(environment, region);
   }
 
   public async refreshConfig(): Promise<void> {
-    await Promise.all([
+   /* await Promise.all([
       this.refreshLeverageContractAddresses(),
       this.refreshPSPContractInfo(),
       this.refreshLastScannedBlock(),
       this.refreshRPCURL(),
       this.refreshEventFetchPageSize(),
       this.refreshEventQueueURL(),
-    ]);
+    ]);*/
+    await this.refreshLeverageContractAddresses();
+    await this.refreshPSPContractInfo();
+    await this.refreshLastScannedBlock();
+    await this.refreshRPCURL();
+    await this.refreshEventFetchPageSize();
+    await this.refreshEventQueueURL();
+    
   }
 
   public async setLastScannedBlock(blockNumber: number): Promise<void> {
