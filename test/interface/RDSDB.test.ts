@@ -20,11 +20,13 @@ describe('RDS DB with Prisma', function() {
   });
 
   it('should write to RDS DB', async function() {
+    const nftId: bigint = BigInt(Math.floor(Math.random() * 1000000000));
+
     await prisma.openLeverage.create({
       data: {
         txHash: '0x123',
         blockNumber: 600000,
-        nftId: BigInt(139489340),
+        nftId: nftId,
         user: '0x123',
         strategy: '0x123',
         collateralAmount: Number(1),
@@ -36,12 +38,12 @@ describe('RDS DB with Prisma', function() {
 
     const openPosition = await prisma.openLeverage.findFirst({
       where: {
-        nftId: BigInt(139489340),
+        nftId: nftId,
       },
     });
 
     expect(openPosition).to.not.be.null;
-    expect(openPosition?.nftId).to.equal(BigInt(139489340));
+    expect(openPosition?.nftId).to.equal(nftId);
 
     await prisma.openLeverage.delete({
       where: {
