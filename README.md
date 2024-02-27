@@ -15,8 +15,6 @@
 5. [Continuous Deployment](#continuous-deployment)
 6. [Troubleshooting](#troubleshooting)
    - [dotenvx doesn't work properly](#dotenvx-doesnt-work-properly)
-   - [Demo/Test/Production Runner](#demotestproduction-runner)
-
 
 ## Overview
 
@@ -90,6 +88,8 @@ Additional environment variables for testing
 2. On PR open: Github runs Acceptance Stage (`acceptance.yml`) - Acceptance tests
 3. On PR merge: Githu runs Deploy Stage (`deploy.yml`) - Deploying project to different environments (including Production)
 
+The code is run by AWS Lambda. Enrty point: `lambda-handler.ts`
+
 ## Troubleshoting
 
 ### dotenvx doesn't work properly
@@ -97,7 +97,3 @@ Check the following linkes
 - Github Action: https://dotenvx.com/docs/cis/github-actions#initial-setup
 - Local: https://dotenvx.com/docs/install#npm
 5. Every day at 00:00 UTC we run nightly test (`nightly.yml`) - Running Unit and Acceptance tests + some more extensive coverage (Stryker)
-
-### Demo/Test/Production Runner 
-
-The code is run by AWS Lambda. Enrty point: `lambda-handler.ts`
