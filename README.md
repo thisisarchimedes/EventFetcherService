@@ -1,5 +1,22 @@
 # Leverage events fetcher
 
+## Table of Contents
+
+1. [Overview](#overview)
+2. [Run Locally](#run-locally)
+   - [Install dependencies](#install-dependencies)
+   - [Get .env file](#get-env-file)
+   - [Update .env](#update-env)
+   - [Run tests](#run-tests)
+3. [Linter](#linter)
+4. [Environment Variables](#environment-variables)
+   - [For running](#environment-variables-if-we-dont-run-tests)
+   - [For testing](#additional-environment-variables-for-testing)
+5. [Continuous Deployment](#continuous-deployment)
+6. [Troubleshooting](#troubleshooting)
+   - [dotenvx doesn't work properly](#dotenvx-doesnt-work-properly)
+   - [Demo/Test/Production Runner](#demotestproduction-runner)
+
 
 ## Overview
 
@@ -72,7 +89,14 @@ Additional environment variables for testing
 1. On commit: Github runs Commit Stage (`commit.yml`) - Unit tests, Linter and tsc
 2. On PR open: Github runs Acceptance Stage (`acceptance.yml`) - Acceptance tests
 3. On PR merge: Githu runs Deploy Stage (`deploy.yml`) - Deploying project to different environments (including Production)
-4. Every day at 00:00 UTC we run nightly test (`nightly.yml`) - Running Unit and Acceptance tests + some more extensive coverage (Stryker)
+
+## Troubleshoting
+
+### dotenvx doesn't work properly
+Check the following linkes
+- Github Action: https://dotenvx.com/docs/cis/github-actions#initial-setup
+- Local: https://dotenvx.com/docs/install#npm
+5. Every day at 00:00 UTC we run nightly test (`nightly.yml`) - Running Unit and Acceptance tests + some more extensive coverage (Stryker)
 
 ### Demo/Test/Production Runner 
 
