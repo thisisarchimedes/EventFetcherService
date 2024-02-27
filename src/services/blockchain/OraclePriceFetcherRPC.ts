@@ -27,8 +27,6 @@ export class OraclePriceFetcherRPC {
       'function latestAnswer() view returns (int256)',
     ], this.mainProvider);
 
-    //console.log(this.mainProvider);
-
     const price = await oracleContract.latestAnswer();
 
 
