@@ -54,7 +54,7 @@ jobs:
 
       - name: Run Tests
         run: |
-        DOTENV_KEY='${{ secrets.DOTENV_KEY }}' dotenvx run --  yarn test
+          DOTENV_KEY='${{ secrets.DOTENV_KEY }}' dotenvx run --  yarn test
           
           
       - name: SonarCloud Scan
