@@ -17,6 +17,7 @@ export abstract class ConfigService {
   protected EventFetchPageSize: number = 0;
   protected EventQueueURL: string = '';
   protected MaxNumberOfBlocksToProess: number = 1000;
+  protected leveragePositionDatabaseURL: string = '';
 
   abstract refreshConfig(): Promise<void>;
   abstract setLastScannedBlock(blockNumber: number): Promise<void>;
@@ -81,5 +82,9 @@ export abstract class ConfigService {
 
   public getMaxNumberOfBlocksToProcess(): number {
     return this.MaxNumberOfBlocksToProess;
+  }
+
+  public getLeveragePositionDatabaseURL(): string {
+    return this.leveragePositionDatabaseURL;
   }
 }

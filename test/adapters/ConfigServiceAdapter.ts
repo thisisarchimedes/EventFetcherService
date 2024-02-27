@@ -1,5 +1,6 @@
 import fs from 'fs';
 import util from 'util';
+import dotenv from 'dotenv';
 
 import {ConfigService, LeverageContractAddresses} from '../../src/services/config/ConfigService';
 import {ContractInfoLeverage} from '../../src/types/ContractInfoLeverage';
@@ -15,11 +16,14 @@ export class ConfigServiceAdapter extends ConfigService {
     await this.refreshLeverageContractAddresses();
     await this.refreshPSPContractInfo();
 
+    dotenv.config();
+
     this.environment = 'local';
     this.MainRPCURL = process.env.LOCAL_TEST_NODE as string;
     this.AltRPCURL = process.env.LOCAL_TEST_NODE as string;
     this.EventFetchPageSize = 100;
     this.EventQueueURL = 'https://test-queue-url';
+    this.leveragePositionDatabaseURL = process.env.DATABASE_URL as string;
   }
 
   public setLeverageAddressesFile(file: string): void {
