@@ -19,8 +19,6 @@ describe('Leverage DB Service', function() {
   });
 
   it('should record OpenLeverage event to DB', async function() {
-
-
     expect(actualItem).to.not.be.null;
     expect(actualItem).to.equal(expectedItem);
   });

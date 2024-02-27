@@ -6,6 +6,14 @@ import {isUndefined} from 'lodash';
 const ETH = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'.toLowerCase();
 const WBTC = '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599'.toLowerCase();
 
+export class UnsupportedTokenPairError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'UnsupportedTokenPairError';
+    Object.setPrototypeOf(this, UnsupportedTokenPairError.prototype);
+  }
+}
+
 export class OracleFactory {
   private readonly configService: ConfigService;
   private static oracleMap: { [key: string]: typeof Oracle } = {};
@@ -21,10 +29,10 @@ export class OracleFactory {
   getOracle(fromTokenAddress: string, toTokenAddress: string): Oracle {
     const key = `${fromTokenAddress.toLowerCase()}->${toTokenAddress.toLowerCase()}`;
 
-    const oracleType = OracleFactory.oracleMap[key];
-    if (isUndefined(oracleType)) {
-      throw new Error('Unsupported token pair for oracle');
+    const OracleType = OracleFactory.oracleMap[key];
+    if (isUndefined(OracleType)) {
+      throw new UnsupportedTokenPairError('Unsupported token pair for oracle');
     }
-    return new oracleType(this.configService);
+    return new OracleType(this.configService);
   }
 }
