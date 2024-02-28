@@ -36,13 +36,8 @@ set -o allexport && source .env && set +o allexport # export .env to local envir
 
 ### Update .env
 
-```bash
-yarn dotenvx encrypt
-yarn dotenvx hub push # push the keys to the dotenvx hub
-```
-Next: 
+- `yarn dotenvx encrypt`
 - commit `.env.vault` to github _**DO NOT COMMIT .evn.keys or .env to github**_
-- Update the repo Github Secrets `DOTENV_KEY`
 
 ### Run tests
 
