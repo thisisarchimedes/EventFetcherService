@@ -65,7 +65,7 @@ jobs:
         id: deploy
         run: |
           sam deploy --debug --template-file packaged.yaml --stack-name EventProcessorStack --capabilities CAPABILITY_IAM --parameter-overrides \
-          ParameterKey=Environment,ParameterValue="Demo" \
+          ParameterKey=Environment,ParameterValue="StableApp" \
           ParameterKey=NewRelicApiKey,ParameterValue=${{ secrets.NEW_RELIC_API_KEY }}
 
   deploy_demo:
@@ -113,7 +113,7 @@ jobs:
         id: deploy
         run: |
           sam deploy --debug --template-file packaged.yaml --stack-name EventProcessorStackDemo --capabilities CAPABILITY_IAM --parameter-overrides \
-          ParameterKey=Environment,ParameterValue="Demo" \
+          ParameterKey=Environment,ParameterValue="DemoApp" \
           ParameterKey=NewRelicApiKey,ParameterValue=${{ secrets.NEW_RELIC_API_KEY }}
 
   report-devops-event-deploy:

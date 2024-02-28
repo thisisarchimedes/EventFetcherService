@@ -16,7 +16,7 @@ describe('Config Service Test', function() {
   });
 
   async function initalizeObjectUnderTest(): Promise<void> {
-    configService = new ConfigServiceAWS('Demo', 'us-east-1');
+    configService = new ConfigServiceAWS('DemoApp', 'us-east-1');
     await configService.refreshConfig();
   }
 

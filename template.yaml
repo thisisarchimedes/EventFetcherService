@@ -67,7 +67,7 @@ Parameters:
   Environment:
     Type: String
     Description: Environment
-    Default: 'Demo'
+    Default: 'DemoApp'
 
   FunctionNameSuffix:
     Type: String

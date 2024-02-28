@@ -7,7 +7,7 @@ on:
 
 
 env:
-  ENVIRONMENT: 'Demo'
+  ENVIRONMENT: 'DemoApp'
 
   AWS_REGION: 'us-east-1'
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}

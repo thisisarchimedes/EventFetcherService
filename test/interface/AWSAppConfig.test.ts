@@ -8,7 +8,7 @@ describe('Config Service - Demo Environment', function() {
   let appConfigClient: AppConfigClient;
 
   beforeEach(function() {
-    appConfigClient = new AppConfigClient('Demo', 'us-east-1');
+    appConfigClient = new AppConfigClient('DemoApp', 'us-east-1');
   });
 
   it('should fetch PSP strategies via AWS AppConfig', async function() {
