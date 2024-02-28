@@ -2,15 +2,13 @@
 
 ## Table of Contents
 
-- [Leverage events fetcher](#leverage-events-fetcher)
-  - [Table of Contents](#table-of-contents)
-  - [Overview](#overview)
-  - [Run Locally](#run-locally)
-    - [Linter](#linter)
-    - [Environment Variables](#environment-variables)
-  - [Continuous Deployment](#continuous-deployment)
-  - [Troubleshoting](#troubleshoting)
-    - [dotenvx doesn't work properly](#dotenvx-doesnt-work-properly)
+- [Overview](#overview)
+- [Run Locally](#run-locally)
+  - [Linter](#linter)
+  - [Environment Variables](#environment-variables)
+- [Continuous Deployment](#continuous-deployment)
+- [Troubleshoting](#troubleshoting)
+  - [dotenvx doesn't work properly](#dotenvx-doesnt-work-properly)
 
 ## Overview
 
