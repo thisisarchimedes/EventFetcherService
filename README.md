@@ -51,6 +51,8 @@ yarn lint
 
 ### Environment Variables
 
+As appear in `.env`
+
 Environment variables (if we don't run tests)
 ```bash
    PAT_TOKEN - GitHub token required by the Backend SDK
