@@ -19,6 +19,8 @@ import {
   TOPIC_EVENT_PSP_WITHDRAW,
 } from './EventTopic';
 
+//const TEST_ADDRESS = '0x0000000000000000000000000000000000000000';
+
 export class EventFactoryUnknownEventError extends Error {
   constructor(message: string) {
     super(message);
@@ -63,6 +65,8 @@ export class EventFactory {
     if (this.isLogEventEmittedByPSPContract(eventLog) === false) {
       return undefined;
     }
+
+    console.log(eventLog.topics);
 
     switch (eventLog.topics[0]) {
       case TOPIC_EVENT_PSP_DEPOSIT:
@@ -119,8 +123,14 @@ export class EventFactory {
   }
 
   private isLogEventEmittedByPSPContract(eventLog: ethers.providers.Log): boolean {
-    const res = this.configService.getPSPStrategyInfoByAddress(eventLog.address);
+    const emitterAddress = eventLog.address;
 
+    // making tests easier - so we don't need to update synthetic data addresses every time we deploy
+    //if (TEST_ADDRESS === emitterAddress) {
+    //  return true;
+   // }
+
+    const res = this.configService.getPSPStrategyInfoByAddress(emitterAddress);
     if (res === undefined) {
       return false;
     }
@@ -129,6 +139,11 @@ export class EventFactory {
 
   private isLogEventEmittedByLeverageContract(eventLog: ethers.providers.Log): boolean {
     const emitterAddress = eventLog.address;
+
+    // making tests easier - so we don't need to update synthetic data addresses every time we deploy
+    //if (TEST_ADDRESS === emitterAddress) {
+    //  return true;
+    //}
 
     if (this.configService.getLeveragePositionOpenerAddress() === emitterAddress ||
       this.configService.getLeveragePositionCloserAddress() === emitterAddress ||

@@ -1,58 +1,58 @@
 [
   {
-    "address": "0x52723dAB9c335D148EC13D58333A74bEAa7277a1",
+    "address": "0x0000000000000000000000000000000000000000",
     "name": "ExpiredVault"
   },
   {
-    "address": "0xBcEF5d918e13827136Cf1A6921f9e63833D23E93",
+    "address": "0x0000000000000000000000000000000000000000",
     "name": "LeverageDepositor"
   },
   {
-    "address": "0x335f89547668d6D61759ce6eFB492180eC03013E",
+    "address": "0x0000000000000000000000000000000000000000",
     "name": "wbtcVault"
   },
   {
-    "address": "0xDB0AB274a3dD06a9B94E42BA94FF881dD7aDFF15",
+    "address": "0x0000000000000000000000000000000000000000",
     "name": "PositionToken"
   },
   {
-    "address": "0x613A73e39c2E800e32b1efFaE48131406cacB8eB",
+    "address": "0x0000000000000000000000000000000000000000",
     "name": "ProxyAdmin"
   },
   {
-    "address": "0x175b5b96C81c200AB07f1D6A23935673186325fa",
+    "address": "0x0000000000000000000000000000000000000000",
     "name": "LeveragedStrategy"
   },
   {
-    "address": "0x4AEDaE79Bb68f205844626Ce930a0D5E23a29d27",
+    "address": "0x0000000000000000000000000000000000000000",
     "name": "ProtocolParameters"
   },
   {
-    "address": "0x87AD59e3fd1FF30e9175Fe81e3a10fd96d048fFc",
+    "address": "0x0000000000000000000000000000000000000000",
     "name": "OracleManager"
   },
   {
-    "address": "0x5D137d65AF65E37f0dD0DD2FaC9b8d24039Abbaa",
+    "address": "0x0000000000000000000000000000000000000000",
     "name": "PositionOpener"
   },
   {
-    "address": "0x51bdb160c8057cD684ea71135A19dd6fEBFaB798",
+    "address": "0x0000000000000000000000000000000000000000",
     "name": "PositionCloser"
   },
   {
-    "address": "0x11632eFC0DBeb46cB84c6d28015d179E936f67ac",
+    "address": "0x0000000000000000000000000000000000000000",
     "name": "PositionLiquidator"
   },
   {
-    "address": "0x9d1E680678Aa89DA4CEc8D79a5062FffC525bf84",
+    "address": "0x0000000000000000000000000000000000000000",
     "name": "positionExpirator"
   },
   {
-    "address": "0x4392e157Cf26F054f8805ECA693A638754fde68d",
+    "address": "0x0000000000000000000000000000000000000000",
     "name": "PositionLedger"
   },
   {
-    "address": "0xCa9eD2E7728cCa7dd80a9d6fe3B8Df4116d22aFA",
+    "address": "0x0000000000000000000000000000000000000000",
     "name": "SwapManager"
   }
 ]

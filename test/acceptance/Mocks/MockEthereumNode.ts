@@ -18,9 +18,15 @@ export class MockEthereumNode extends Mock {
     this.baseUrl = baseUrl;
   }
 
-  public mockEventResponse(responsePath: string) {
+  public mockEventResponse(responsePath: string, address?: string) {
     const dataRaw = fs.readFileSync(responsePath, 'utf8');
-    const mockData: ethers.providers.Log[] = JSON.parse(dataRaw);
+    let mockData: ethers.providers.Log[] = JSON.parse(dataRaw);
+    if (address) {
+      mockData = mockData.map((log) => {
+        log.address = address;
+        return log;
+      });
+    }
 
     nock(this.baseUrl)
         .persist()

@@ -42,7 +42,7 @@ describe('PSP Events Logging', function() {
         const evt = await eventFactory.createEvent(event);
         onChainEvents.push(evt);
       } catch (e) {
-        if (e.message === 'Unknown strategy address') {
+        if (e.message.startsWith('Unknown strategy address')) {
           continue;
         }
       }
