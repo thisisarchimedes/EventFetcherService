@@ -2,19 +2,15 @@
 
 ## Table of Contents
 
-1. [Overview](#overview)
-2. [Run Locally](#run-locally)
-   - [Install dependencies](#install-dependencies)
-   - [Get .env file](#get-env-file)
-   - [Update .env](#update-env)
-   - [Run tests](#run-tests)
-3. [Linter](#linter)
-4. [Environment Variables](#environment-variables)
-   - [For running](#environment-variables-if-we-dont-run-tests)
-   - [For testing](#additional-environment-variables-for-testing)
-5. [Continuous Deployment](#continuous-deployment)
-6. [Troubleshooting](#troubleshooting)
-   - [dotenvx doesn't work properly](#dotenvx-doesnt-work-properly)
+- [Leverage events fetcher](#leverage-events-fetcher)
+  - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+  - [Run Locally](#run-locally)
+    - [Linter](#linter)
+    - [Environment Variables](#environment-variables)
+  - [Continuous Deployment](#continuous-deployment)
+  - [Troubleshoting](#troubleshoting)
+    - [dotenvx doesn't work properly](#dotenvx-doesnt-work-properly)
 
 ## Overview
 
@@ -62,7 +58,7 @@ Environment variables (if we don't run tests)
    PAT_TOKEN - GitHub token required by the Backend SDK
    NEW_RELIC_API_KEY - required by the Backend SDK
 
-   ENVIRONMENT=Demo # Test/Production (need to match AWS AppConfig application name)
+   ENVIRONMENT=DemoApp # Test/Production (need to match AWS AppConfig application name)
    ## Environment is CASE SENSITIVE - e.g.: "Demo" is not the same as "demo" ##
    ```
 
