@@ -4,10 +4,14 @@
 
 - [Overview](#overview)
 - [Run Locally](#run-locally)
+  - [Install dependencies](#install-dependencies)
+  - [Get .env file](#get-env-file)
+  - [Update .env](#update-env)
+  - [Run tests](#run-tests)
   - [Linter](#linter)
-  - [Environment Variables](#environment-variables)
+- [Environment Variables](#environment-variables)
 - [Continuous Deployment](#continuous-deployment)
-- [Troubleshoting](#troubleshoting)
+- [Troubleshooting](#troubleshooting)
   - [dotenvx doesn't work properly](#dotenvx-doesnt-work-properly)
 
 ## Overview
@@ -16,11 +20,12 @@ This repository contains the backend microservices infrastructure designed to fe
 
 ## Run Locally
 
-_*Install dependencies*_
+### Install dependencies
 1. Make sure Node.js and Yarn are installed
 2. Install requirements: `yarn install`
 
-_*Get .env file*_
+### Get .env file
+
 ```bash
 yarn dotenvx hub # open and follow the link printed, copy the keys to .env.keys locally
 set -o allexport && source .env.keys && set +o allexport # export .env.keys to local environment
@@ -28,7 +33,8 @@ yarn dotenvx decrypt # decrypt .env.vault to .env
 set -o allexport && source .env && set +o allexport # export .env to local environment
 ```
 
-_*Update .env*_
+### Update .env
+
 ```bash
 yarn dotenvx encrypt
 yarn dotenvx hub push # push the keys to the dotenvx hub
@@ -37,7 +43,8 @@ Next:
 - commit `.env.vault` to github _**DO NOT COMMIT .evn.keys or .env to github**_
 - Update the repo Github Secrets `DOTENV_KEY`
 
-_*Run tests*_
+### Run tests
+
    ```bash
    yarn test # runs unit and acceptance tests + convrage report
    yarn test:acceptance # acceptance test only
@@ -45,11 +52,12 @@ _*Run tests*_
    ```
 
 ### Linter
+
 ```bash
 yarn lint
 ```
 
-### Environment Variables
+## Environment Variables
 
 As appear in `.env`
 
