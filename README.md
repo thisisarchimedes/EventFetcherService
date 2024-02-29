@@ -24,10 +24,11 @@ This repository contains the backend microservices infrastructure designed to fe
 1. Make sure Node.js and Yarn are installed
 2. Install requirements: `yarn install`
 
+
 ### Get .env file
 
 ```bash
-yarn dotenvx login # need to do it only once 
+yarn dotenvx hub login # need to do it only once 
 yarn dotenvx open # open and follow the link printed, copy the keys to .env.keys locally
 set -o allexport && source .env.keys && set +o allexport # export .env.keys to local environment
 yarn dotenvx decrypt # decrypt .env.vault to .env
