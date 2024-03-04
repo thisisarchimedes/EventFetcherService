@@ -41,8 +41,8 @@ describe('PSP Events', function() {
   });
 
   it('should catch and report on Deposit event', async function() {
-    const ret = config.getPSPContractAddressByStrategyName('Convex FRAXBP/msUSD Single Pool');
-    mockEthereumNodeResponses('test/data/depositEvent.json', ret);
+    const strategyAddress = config.getPSPContractAddressByStrategyName('Convex FRAXBP/msUSD Single Pool');
+    mockEthereumNodeResponses('test/data/depositEvent.json', strategyAddress);
 
     await handler(0, 0);
 
@@ -67,10 +67,10 @@ describe('PSP Events', function() {
   }
 
   it('should catch and report on Withdraw event', async function() {
-    const ret = config.getPSPContractAddressByStrategyName('Convex FRAXBP/msUSD Single Pool');
+    const strategyAddress = config.getPSPContractAddressByStrategyName('Convex FRAXBP/msUSD Single Pool');
     mockEthereumNodeResponses(
         'test/data/withdrawEvent.json',
-        ret,
+        strategyAddress,
     );
 
     await handler(0, 0);
