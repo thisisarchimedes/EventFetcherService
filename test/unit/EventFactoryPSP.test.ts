@@ -77,7 +77,8 @@ describe('PSP Events Logging', function() {
   });
 
   it('should report on Withdraw event', async function() {
-    eventFetcher.setEventArrayFromFile('test/data/withdrawEvent.json');
+    const strategyAddress = config.getPSPContractAddressByStrategyName('Convex ETH+/ETH Single Pool');
+    eventFetcher.setEventArrayFromFile('test/data/withdrawEvent.json', strategyAddress);
     const eventsLog = await eventFetcher.getOnChainEvents(100, 200);
 
     const onChainEvents: OnChainEvent[] = [];
