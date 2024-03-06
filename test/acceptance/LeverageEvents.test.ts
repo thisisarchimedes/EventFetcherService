@@ -1,6 +1,7 @@
 import {expect} from 'chai';
 import nock from 'nock';
 import isEqual from 'lodash/isEqual';
+import url from 'url';
 
 import {LoggerAdapter} from '../adapters/LoggerAdapter';
 import {handler} from '../../src/lambda-handler';
@@ -9,6 +10,7 @@ import {MockEthereumNode} from './Mocks/MockEthereumNode';
 import {MockNewRelic} from './Mocks/MockNewRelic';
 import {MockSQS} from './Mocks/MockSQS';
 import {MockAWSS3} from './Mocks/MockAWSS3';
+import {ConfigServiceAdapter} from '../adapters/ConfigServiceAdapter';
 
 
 describe('Leverage Events', function() {
@@ -17,9 +19,13 @@ describe('Leverage Events', function() {
   let mockNewRelic: MockNewRelic;
   let mockSQS: MockSQS;
   let mockAWSS3: MockAWSS3;
+  let configService: ConfigServiceAdapter;
 
-  beforeEach(function() {
-    initalizeMocks();
+  beforeEach(async function() {
+    configService = new ConfigServiceAdapter();
+    await configService.refreshConfig();
+
+    await initalizeMocks();
     setupGenericNockInterceptors();
   });
 
@@ -28,7 +34,10 @@ describe('Leverage Events', function() {
   });
 
   it('should process PositionOpened event and push messages to SQS', async function() {
-    mockEthereumNodeResponses('test/data/leveragePositionOpenedEvent.json');
+    mockEthereumNodeResponses(
+        'test/data/leveragePositionOpenedEvent.json',
+        configService.getLeveragePositionOpenerAddress(),
+    );
     await handler(0, 0);
 
     const expectedSQSMessage = createExpectedSQSMessagePositionOpened();
@@ -60,11 +69,16 @@ describe('Leverage Events', function() {
   }
 
   it('should process PositionClosed event and push messages to SQS', async function() {
-    mockEthereumNodeResponses('test/data/leveragePositionClosedEvent.json');
+    mockEthereumNodeResponses(
+        'test/data/leveragePositionClosedEvent.json',
+        configService.getLeveragePositionCloserAddress(),
+    );
+    console.log(configService.getLeveragePositionCloserAddress(), 'xhere');
     await handler(0, 0);
 
     const expectedSQSMessage = createExpectedSQSMessagePositionClosed();
     const actualSQSMessage = mockSQS.getLatestMessage();
+    console.log(actualSQSMessage, 'here');
 
     validateSQSMessage(actualSQSMessage, expectedSQSMessage);
   });
@@ -89,7 +103,10 @@ describe('Leverage Events', function() {
   }
 
   it('should process PositionLiquidated event and push messages to SQS', async function() {
-    mockEthereumNodeResponses('test/data/leveragePositionLiquidatedEvent.json');
+    mockEthereumNodeResponses(
+        'test/data/leveragePositionLiquidatedEvent.json',
+        configService.getLeveragePositionLiquidatorAddress(),
+    );
     await handler(0, 0);
 
     const expectedSQSMessage = createExpectedSQSMessagePositionLiquidated();
@@ -119,7 +136,10 @@ describe('Leverage Events', function() {
   }
 
   it('should process PositionExpired event and push messages to SQS', async function() {
-    mockEthereumNodeResponses('test/data/leveragePositionExpiredEvent.json');
+    mockEthereumNodeResponses(
+        'test/data/leveragePositionExpiredEvent.json',
+        configService.getLeveragePositionExpiratorAddress(),
+    );
     await handler(0, 0);
 
     const expectedSQSMessage = createExpectedSQSMessagePositionExpired();
@@ -156,17 +176,22 @@ describe('Leverage Events', function() {
     expect(res).to.be.true;
   }
 
-  function initalizeMocks() {
+  async function initalizeMocks() {
     logger = new LoggerAdapter('local_logger.txt');
 
-    mockEthereumNode = new MockEthereumNode('http://ec2-52-4-114-208.compute-1.amazonaws.com:8545');
+    mockEthereumNode = new MockEthereumNode(configService.getMainRPCURL());
 
     const newRelicApiUrl: string = 'https://log-api.newrelic.com';
+
     mockNewRelic = new MockNewRelic(newRelicApiUrl, logger);
 
-    mockSQS = new MockSQS('https://sqs.us-east-1.amazonaws.com/');
+    const queueUrl = new URL(configService.getEventQueueURL());
+    mockSQS = new MockSQS(queueUrl.protocol + '//' + queueUrl.hostname);
 
-    mockAWSS3 = new MockAWSS3('wbtc-engine-events-store', 'us-east-1');
+    mockAWSS3 = new MockAWSS3(
+        (await configService.getLastBlockScannedParameters()).bucket,
+        configService.getAwsRegion(),
+    );
   }
 
   function setupGenericNockInterceptors() {
@@ -175,10 +200,10 @@ describe('Leverage Events', function() {
     mockSQSEndpoint();
   }
 
-  function mockEthereumNodeResponses(syntheticEventFile: string) {
+  function mockEthereumNodeResponses(syntheticEventFile: string, address?: string) {
     mockEthereumNode.mockChainId();
     mockEthereumNode.mockBlockNumber('0x5B8D86');
-    mockEthereumNode.mockEventResponse(syntheticEventFile);
+    mockEthereumNode.mockEventResponse(syntheticEventFile, address);
   }
 
   function mockNewRelicLogEndpoint() {

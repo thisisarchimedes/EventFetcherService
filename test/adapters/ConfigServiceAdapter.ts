@@ -18,11 +18,19 @@ export class ConfigServiceAdapter extends ConfigService {
   private leverageAddressesFile: string;
   private pspInfoFile: string;
   private readonly appConfigClient: AppConfigClient;
+  private readonly awsRegion: string;
 
   constructor() {
     super();
     this.environment = ENVIRONMENT;
-    this.appConfigClient = new AppConfigClient(this.environment, AWS_REGION);
+    this.awsRegion = AWS_REGION;
+    this.appConfigClient = new AppConfigClient(this.environment, this.awsRegion);
+  }
+
+  public getAwsRegion = (): string => this.awsRegion;
+
+  public async getLastBlockScannedParameters():Promise<{bucket: string, key: string}> {
+    return JSON.parse(await this.appConfigClient.fetchConfigRawString('LastBlockScannedS3FileURL'));
   }
 
   public async refreshConfig(): Promise<void> {
@@ -33,7 +41,7 @@ export class ConfigServiceAdapter extends ConfigService {
     this.MainRPCURL = process.env.LOCAL_TEST_NODE as string;
     this.AltRPCURL = process.env.LOCAL_TEST_NODE as string;
     this.EventFetchPageSize = 100;
-    this.EventQueueURL = 'https://test-queue-url';
+    this.EventQueueURL = await this.appConfigClient.fetchConfigRawString('NewEventsQueueURL');
   }
 
   public setLeverageAddressesFile(file: string): void {
