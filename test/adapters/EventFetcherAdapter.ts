@@ -14,10 +14,16 @@ export class EventFetcherAdapter extends EventFetcher {
     return this.dedupLogsBasedOnTxHashLogIndexAndTopic0(this.events);
   }
 
-  public setEventArrayFromFile(fileName: string): void {
+  public setEventArrayFromFile(fileName: string, strategyOverride?: string): void {
     try {
       const data = fs.readFileSync(fileName, 'utf8');
       this.events = JSON.parse(data) as ethers.providers.Log[];
+      if (strategyOverride) {
+        this.events = this.events.map((event) => {
+          event.address = strategyOverride;
+          return event;
+        });
+      }
     } catch (err) {
       console.error(`Error reading file from disk: ${err}`);
     }
