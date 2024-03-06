@@ -7,15 +7,26 @@
   "scripts": {
     "start": "node --loader ts-node/esm index.ts",
     "lint": "npx eslint --ext .ts,.tsx -c .eslintrc.cjs .",
-    "test": "npx nyc --reporter=lcov --reporter=text hardhat test",
+    "test": "npx nyc --reporter=lcov --reporter=text hardhat test test/unit/*.test.ts test/acceptance/*.test.ts",
+    "test:acceptance": "npx nyc --reporter=lcov --reporter=text hardhat test test/acceptance/*.test.ts",
+    "test:all": "npx nyc --reporter=lcov --reporter=text hardhat test",
     "build": "rm -rf dist && npx tsc && mv dist/src/* dist/ && rm -r dist/src"
   },
   "dependencies": {
+    "@aws-sdk/client-appconfig": "^3.515.0",
+    "@dotenvx/dotenvx": "^0.20.2",
     "@thisisarchimedes/backend-sdk": "1.0.59",
-    "aws-sdk": "^2.1483.0",
-    "dotenv": "^16.3.1",
+    "aws-sdk": "^2.1561.0",
+    "aws-sdk-client-mock": "^3.0.1",
+    "aws-sdk-mock": "^5.9.0",
+    "dotenv": "^16.4.4",
     "eslint-plugin-promise": "^6.1.1",
     "ethers": "^5.7.2",
+    "fast-diff": "^1.3.0",
+    "fp-ts": "^2.16.2",
+    "lodash": "^4.17.21",
+    "mock-aws-s3": "^4.0.2",
+    "nock": "^13.5.1",
     "nyc": "^15.1.0"
   },
   "devDependencies": {
@@ -24,6 +35,7 @@
     "@stryker-mutator/core": "^8.0.0",
     "@stryker-mutator/mocha-runner": "^8.0.0",
     "@types/chai-as-promised": "^7.1.8",
+    "@types/lodash": "^4.14.202",
     "@types/mocha": "^10.0.4",
     "@types/node": "^20.8.9",
     "@types/sinon": "^17.0.1",

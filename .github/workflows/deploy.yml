@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'src/**'
 
 env:
   AWS_REGION: us-east-1
@@ -13,6 +11,10 @@ env:
   API_DEVOPS_EVENT_CATCHER: ${{ vars.API_DEVOPS_EVENT_CATCHER }}
   DEVOPS_EVENTS_SECRET_TOKEN: ${{ secrets.DEVOPS_EVENTS_SECRET_TOKEN }}
 
+  PSP_STRATEGY_CONFIG_BUCKET: ${{ vars.PSP_STRATEGY_CONFIG_BUCKET }}
+  PSP_STRATEGY_CONFIG_FILE: ${{ vars.PSP_STRATEGY_CONFIG_FILE }}
+  NEW_RELIC_API_KEY: ${{ secrets.NEW_RELIC_API_KEY }}
+  
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -61,15 +63,8 @@ jobs:
         id: deploy
         run: |
           sam deploy --debug --template-file packaged.yaml --stack-name EventProcessorStack --capabilities CAPABILITY_IAM --parameter-overrides \
-          ParameterKey=NewEventsQueueUrl,ParameterValue="${{ secrets.NEW_EVENTS_QUEUE_URL }}" \
-          ParameterKey=S3Bucket,ParameterValue="${{ secrets.S3_BUCKET }}" \
-          ParameterKey=S3BucketConfig,ParameterValue="${{ secrets.S3_BUCKET_CONFIG }}" \
-          ParameterKey=S3LastBlockKey,ParameterValue="${{ secrets.S3_LAST_BLOCK_KEY }}" \
-          ParameterKey=S3DeploymentAddressKey,ParameterValue="${{ secrets.S3_DEPLOYMENT_ADDRESS_KEY }}" \
-          ParameterKey=EventsFetchPageSize,ParameterValue="${{ secrets.EVENTS_FETCH_PAGE_SIZE }}" \
-          ParameterKey=NewRelicAPIKey,ParameterValue="${{ secrets.NEW_RELIC_API_KEY }}" \
-          ParameterKey=S3ForkKey,ParameterValue="${{ secrets.S3_FORK_KEY }}" \
-          ParameterKey=Environment,ParameterValue="stable"
+          ParameterKey=Environment,ParameterValue="StableApp" \
+          ParameterKey=NewRelicApiKey,ParameterValue=${{ secrets.NEW_RELIC_API_KEY }}
 
   deploy_demo:
     runs-on: ubuntu-latest
@@ -116,15 +111,8 @@ jobs:
         id: deploy
         run: |
           sam deploy --debug --template-file packaged.yaml --stack-name EventProcessorStackDemo --capabilities CAPABILITY_IAM --parameter-overrides \
-          ParameterKey=NewEventsQueueUrl,ParameterValue="${{ secrets.NEW_EVENTS_QUEUE_URL_DEMO }}" \
-          ParameterKey=S3Bucket,ParameterValue="${{ secrets.S3_BUCKET_DEMO }}" \
-          ParameterKey=S3BucketConfig,ParameterValue="${{ secrets.S3_BUCKET_CONFIG }}" \
-          ParameterKey=S3LastBlockKey,ParameterValue="${{ secrets.S3_LAST_BLOCK_KEY }}" \
-          ParameterKey=S3DeploymentAddressKey,ParameterValue="${{ secrets.S3_DEPLOYMENT_ADDRESS_KEY_DEMO }}" \
-          ParameterKey=EventsFetchPageSize,ParameterValue="${{ secrets.EVENTS_FETCH_PAGE_SIZE }}" \
-          ParameterKey=NewRelicAPIKey,ParameterValue="${{ secrets.NEW_RELIC_API_KEY }}" \
-          ParameterKey=S3ForkKey,ParameterValue="${{ secrets.S3_FORK_KEY_DEMO }}" \
-          ParameterKey=Environment,ParameterValue="demo"
+          ParameterKey=Environment,ParameterValue="DemoApp" \
+          ParameterKey=NewRelicApiKey,ParameterValue=${{ secrets.NEW_RELIC_API_KEY }}
 
   report-devops-event-deploy:
       runs-on: ubuntu-latest
@@ -161,9 +149,3 @@ jobs:
           env:
             SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
   
-        - name: SonarCloud Scan
-          uses: SonarSource/sonarcloud-github-action@master
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }}
-      

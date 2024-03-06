@@ -37,6 +37,13 @@ Resources:
                   - 'logs:TagResource'
                   - 'logs:PutLogEvents'
                 Resource: 'arn:aws:logs:*:*:*'
+        - PolicyName: LambdaAppConfigAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: 'appconfig:GetConfiguration'
+                Resource: '*'
 
   WBTCEventsFetcher:
     Type: AWS::Serverless::Function
@@ -53,56 +60,20 @@ Resources:
             Schedule: rate(1 minute)
       Environment:
         Variables:
-          NEW_EVENTS_QUEUE_URL: !Ref NewEventsQueueUrl
-          S3_LAST_BLOCK_KEY: !Ref S3LastBlockKey
-          S3_DEPLOYMENT_ADDRESS_KEY: !Ref S3DeploymentAddressKey
-          EVENTS_FETCH_PAGE_SIZE: !Ref EventsFetchPageSize
-          NEW_RELIC_API_KEY: !Ref NewRelicAPIKey
-          S3_BUCKET: !Ref S3Bucket
-          S3_BUCKET_CONFIG: !Ref S3BucketConfig
           ENVIRONMENT: !Ref Environment
-          S3_FORK_KEY: !Ref S3ForkKey
-
+          NEW_RELIC_API_KEY: !Ref NewRelicApiKey
+          
 Parameters:
-  NewEventsQueueUrl:
-    Type: String
-    Description: SQS Queue URL
-
-  S3LastBlockKey:
-    Type: String
-    Description: S3 Key for Last Block Number
-
-  S3DeploymentAddressKey:
-    Type: String
-    Description: S3 Key for Deployment Address
-
-  EventsFetchPageSize:
-    Type: Number
-    Default: 1000
-    Description: Events Fetch Page Size
-
-  NewRelicAPIKey:
-    Type: String
-    Description: New Relic License Key
-
-  S3Bucket:
-    Type: String
-    Description: S3 Bucket Name
-
-  S3BucketConfig:
-    Type: String
-    Description: S3 Bucket Config Name
-
   Environment:
     Type: String
     Description: Environment
-    Default: 'local'
-
-  S3ForkKey:
-    Type: String
-    Description: S3 Key for test RPC URL
+    Default: 'DemoApp'
 
   FunctionNameSuffix:
     Type: String
     Description: Function Name Suffix
     Default: ''
+
+  NewRelicApiKey:
+    Type: String
+    Description: New Relic API Key

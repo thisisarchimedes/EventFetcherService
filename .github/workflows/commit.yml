@@ -6,11 +6,18 @@ on:
       - 'main' 
 
 env:
-  AWS_REGION: us-east-1
+  ENVIRONMENT: ${{ vars.DEFAULT_ENVIRONMENT }}
+  DOTENV_KEY: ${{ secrets.DOTENV_KEY }}
+
+
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
   PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
-  NEW_RELIC_API_KEY: ${{ secrets.NEW_RELIC_API_KEY }}
   API_DEVOPS_EVENT_CATCHER: ${{ vars.API_DEVOPS_EVENT_CATCHER }}
   DEVOPS_EVENTS_SECRET_TOKEN: ${{ secrets.DEVOPS_EVENTS_SECRET_TOKEN }}
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -29,7 +36,11 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 'latest'
+          node-version: 20
+
+      - name: Install dotenvx
+        run: | 
+          curl -fsS https://dotenvx.sh/ | sh
 
       - name: Install dependencies
         run: yarn install
@@ -37,9 +48,12 @@ jobs:
       - name: Lint Code
         run: yarn eslint src/**/*.ts --ext .js,.jsx,.ts,.tsx --ignore-pattern /devops/
 
+      - name: Build
+        run: yarn tsc
+
       - name: Run Tests
         run: |
-          yarn test
+          AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} AWS_REGION=${{ vars.AWS_REGION }} DOTENV_KEY='${{ secrets.DOTENV_KEY }}' dotenvx run --  yarn test:acceptance
           
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
