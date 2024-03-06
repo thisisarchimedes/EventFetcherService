@@ -13,7 +13,7 @@ import {
 } from '../../src/types/NewRelicLogEntry';
 import {SQSServiceAdapter} from '../adapters/SQSServiceAdapter';
 import {OnChainEvent} from '../../src/onchain_events/OnChainEvent';
-import {EventFetcherSQSMessage} from '../../src/types/SQSMessage';
+import {EventFetcherSQSMessage} from '../../src/types/EventFetcherSQSMessage';
 
 describe('Leverage Events Logging & Queuing', function() {
   let logger: LoggerAdapter;
@@ -67,7 +67,11 @@ describe('Leverage Events Logging & Queuing', function() {
       },
     };
 
-    const event: OnChainEvent = await testEventGeneration(eventSyntheticDataFileName, expectedEventName);
+    const event: OnChainEvent = await testEventGeneration(
+        eventSyntheticDataFileName,
+        expectedEventName,
+        configService.getLeveragePositionOpenerAddress(),
+    );
     testEventProcessing(event, expectedLogMessage, expectedSqsMessage);
   });
 
@@ -99,7 +103,11 @@ describe('Leverage Events Logging & Queuing', function() {
       },
     };
 
-    const event: OnChainEvent = await testEventGeneration(eventSyntheticDataFileName, expectedEventName);
+    const event: OnChainEvent = await testEventGeneration(
+        eventSyntheticDataFileName,
+        expectedEventName,
+        configService.getLeveragePositionCloserAddress(),
+    );
     testEventProcessing(event, expectedLogMessage, expectedSqsMessage);
   });
 
@@ -136,7 +144,11 @@ describe('Leverage Events Logging & Queuing', function() {
       },
     };
 
-    const event: OnChainEvent = await testEventGeneration(eventSyntheticDataFileName, expectedEventName);
+    const event: OnChainEvent = await testEventGeneration(
+        eventSyntheticDataFileName,
+        expectedEventName,
+        configService.getLeveragePositionLiquidatorAddress(),
+    );
     testEventProcessing(event, expectedLogMessage, expectedSqsMessage);
   });
 
@@ -166,7 +178,11 @@ describe('Leverage Events Logging & Queuing', function() {
       },
     };
 
-    const event: OnChainEvent = await testEventGeneration(eventSyntheticDataFileName, expectedEventName);
+    const event: OnChainEvent = await testEventGeneration(
+        eventSyntheticDataFileName,
+        expectedEventName,
+        configService.getLeveragePositionExpiratorAddress(),
+    );
     testEventProcessing(event, expectedLogMessage, expectedSqsMessage);
   });
 
@@ -188,8 +204,9 @@ describe('Leverage Events Logging & Queuing', function() {
   async function testEventGeneration(
       eventFileName: string,
       expetedEventName: string,
+      contractAddress: string,
   ): Promise<OnChainEvent> {
-    eventFetcher.setEventArrayFromFile(eventFileName);
+    eventFetcher.setEventArrayFromFile(eventFileName, contractAddress);
     const eventsLog = await eventFetcher.getOnChainEvents(100, 200);
 
     const onChainEvents: OnChainEvent[] = [];
@@ -198,6 +215,7 @@ describe('Leverage Events Logging & Queuing', function() {
         const evt = await eventFactory.createEvent(event);
         onChainEvents.push(evt);
       } catch (e) {
+        console.log(e);
         if (e.message === 'Unknown contract address') {
           continue;
         }

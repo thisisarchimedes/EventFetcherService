@@ -1,12 +1,18 @@
 import fs from 'fs';
 import util from 'util';
+import dotenv from 'dotenv';
 
 import {ConfigService, LeverageContractAddresses} from '../../src/services/config/ConfigService';
 import {ContractInfoLeverage} from '../../src/types/ContractInfoLeverage';
 import {ContractInfoPSP} from '../../src/types/ContractInfoPSP';
-import { AppConfigClient } from '../../src/services/config/AppConfigClient';
+import {AppConfigClient} from '../../src/services/config/AppConfigClient';
 
 const readFile = util.promisify(fs.readFile);
+
+dotenv.config();
+
+const ENVIRONMENT = process.env.ENVIRONMENT!;
+const AWS_REGION = process.env.AWS_REGION!;
 
 export class ConfigServiceAdapter extends ConfigService {
   private leverageAddressesFile: string;
@@ -15,8 +21,8 @@ export class ConfigServiceAdapter extends ConfigService {
 
   constructor() {
     super();
-    this.environment = 'DemoApp';
-    this.appConfigClient = new AppConfigClient(this.environment, 'us-east-1');
+    this.environment = ENVIRONMENT;
+    this.appConfigClient = new AppConfigClient(this.environment, AWS_REGION);
   }
 
   public async refreshConfig(): Promise<void> {
@@ -112,6 +118,5 @@ export class ConfigServiceAdapter extends ConfigService {
 
     return addresses;
   }
-
 }
 

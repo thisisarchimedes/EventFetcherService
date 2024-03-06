@@ -10,12 +10,8 @@ import {EventFactory} from '../../src/onchain_events/EventFactory';
 import {EventFetcherLogEntryMessagePSP} from '../../src/types/NewRelicLogEntry';
 import {SQSServiceAdapter} from '../adapters/SQSServiceAdapter';
 import {OnChainEvent} from '../../src/onchain_events/OnChainEvent';
-import {ConfigServiceAWS} from '../../src/services/config/ConfigServiceAWS';
 
 dotenv.config();
-
-const ENVIRONMENT = process.env.ENVIRONMENT!;
-const AWS_REGION = process.env.AWS_REGION!;
 
 describe('PSP Events Logging', function() {
   let logger: LoggerAdapter;
@@ -23,7 +19,6 @@ describe('PSP Events Logging', function() {
   let configService: ConfigServiceAdapter;
   let eventFactory: EventFactory;
   let sqsService: SQSServiceAdapter;
-  const config: ConfigServiceAWS = new ConfigServiceAWS(ENVIRONMENT, AWS_REGION);
 
   beforeEach(async function() {
     logger = new LoggerAdapter('local_logger.txt');
@@ -34,13 +29,12 @@ describe('PSP Events Logging', function() {
     configService.setLeverageAddressesFile('test/data/leverageAddresses.json');
     configService.setPSPInfoFile('test/data/strategies.json');
     await configService.refreshConfig();
-    await config.refreshConfig();
 
     eventFactory = new EventFactory(configService, logger as unknown as Logger, sqsService);
   });
 
   it('should report on Deposit event', async function() {
-    const strategyAddress = config.getPSPContractAddressByStrategyName('Convex FRAXBP/msUSD Single Pool');
+    const strategyAddress = configService.getPSPContractAddressByStrategyName('Convex FRAXBP/msUSD Single Pool');
     eventFetcher.setEventArrayFromFile('test/data/depositEvent.json', strategyAddress);
     const eventsLog = await eventFetcher.getOnChainEvents(100, 200);
 
@@ -77,7 +71,7 @@ describe('PSP Events Logging', function() {
   });
 
   it('should report on Withdraw event', async function() {
-    const strategyAddress = config.getPSPContractAddressByStrategyName('Convex ETH+/ETH Single Pool');
+    const strategyAddress = configService.getPSPContractAddressByStrategyName('Convex ETH+/ETH Single Pool');
     eventFetcher.setEventArrayFromFile('test/data/withdrawEvent.json', strategyAddress);
     const eventsLog = await eventFetcher.getOnChainEvents(100, 200);
 
