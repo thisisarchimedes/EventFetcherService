@@ -7,6 +7,9 @@ import {ContractInfoPSP} from '../../src/types/ContractInfoPSP';
 
 dotenv.config();
 
+const ENVIRONMENT = process.env.ENVIRONMENT!;
+const AWS_REGION = process.env.AWS_REGION!;
+
 describe('Config Service Test', function() {
   let configService: ConfigServiceAWS;
   const ADDRESS_LENGTH = 42;
@@ -16,7 +19,7 @@ describe('Config Service Test', function() {
   });
 
   async function initalizeObjectUnderTest(): Promise<void> {
-    configService = new ConfigServiceAWS('DemoApp', 'us-east-1');
+    configService = new ConfigServiceAWS(ENVIRONMENT, AWS_REGION);
     await configService.refreshConfig();
   }
 

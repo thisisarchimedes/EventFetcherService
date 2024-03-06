@@ -10,7 +10,7 @@ import {S3Service, SQSService, Logger} from '@thisisarchimedes/backend-sdk';
 import {ConfigService} from '../../src/services/config/ConfigService';
 import {ConfigServiceAdapter} from '../adapters/ConfigServiceAdapter';
 import {EventFetcherAdapter} from '../adapters/EventFetcherAdapter';
-import {EventFactory} from '../../src/onchain_events/EventFactory';
+import {EventFactory, EventFactoryUnknownEventError} from '../../src/onchain_events/EventFactory';
 
 
 chai.use(sinonChai);
@@ -74,9 +74,10 @@ describe('Inner logic functions', function() {
     eventFactory = new EventFactory(configService, loggerStub, sqsStub);
   });
 
-  it('should return an empty array for no logs', async function() {
+  it('should throw for no logs', async function() {
     const logs = [];
-    await expect(eventFactory.createEvent(logs[0])).to.be.rejectedWith('Event log has no topics');
+    await expect(() => eventFactory.createEvent(logs[0])).to
+        .throw(EventFactoryUnknownEventError, 'Event log has no topics');
   });
 
   it('should return the same logs if all are unique', async function() {
