@@ -38,8 +38,6 @@ export class EventProcessorService {
 
       const startBlock = await this.getStartBlockNumber();
       const endBlock = await this.eventFetcher.getCurrentBlockNumber();
-      console.log('startBlock:', startBlock);
-      console.log('endBlock:', endBlock);
 
       await this.processEventsAtBlockRange(startBlock, endBlock);
 

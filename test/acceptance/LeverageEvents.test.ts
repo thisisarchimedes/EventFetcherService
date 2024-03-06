@@ -73,12 +73,10 @@ describe('Leverage Events', function() {
         'test/data/leveragePositionClosedEvent.json',
         configService.getLeveragePositionCloserAddress(),
     );
-    console.log(configService.getLeveragePositionCloserAddress(), 'xhere');
     await handler(0, 0);
 
     const expectedSQSMessage = createExpectedSQSMessagePositionClosed();
     const actualSQSMessage = mockSQS.getLatestMessage();
-    console.log(actualSQSMessage, 'here');
 
     validateSQSMessage(actualSQSMessage, expectedSQSMessage);
   });

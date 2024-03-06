@@ -215,7 +215,6 @@ describe('Leverage Events Logging & Queuing', function() {
         const evt = await eventFactory.createEvent(event);
         onChainEvents.push(evt);
       } catch (e) {
-        console.log(e);
         if (e.message === 'Unknown contract address') {
           continue;
         }
