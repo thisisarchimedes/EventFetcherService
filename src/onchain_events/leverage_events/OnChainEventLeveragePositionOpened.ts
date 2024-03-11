@@ -5,7 +5,7 @@ import {
   EventFetcherLogEntryMessageLeverage,
   EventSpecificDataLeveragePositionOpened,
 } from '../../types/NewRelicLogEntry';
-import {EventFetcherMessage} from '../../types/EventFetcherSQSMessage';
+import {EventFetcherMessage} from '../../types/EventFetcherMessage';
 
 const ADDRESS_TOPIC_INDEX = 3;
 

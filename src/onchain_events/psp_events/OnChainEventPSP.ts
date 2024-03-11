@@ -1,7 +1,7 @@
 import {Logger, ethers} from '@thisisarchimedes/backend-sdk';
 import {OnChainEvent} from '../OnChainEvent';
 import {ConfigService} from '../../services/config/ConfigService';
-import {EventFetcherMessage} from '../../types/EventFetcherSQSMessage';
+import {EventFetcherMessage} from '../../types/EventFetcherMessage';
 
 export abstract class OnChainEventPSP extends OnChainEvent {
   constructor(rawEventLog: ethers.Log, logger: Logger, configService: ConfigService) {

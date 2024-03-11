@@ -4,11 +4,10 @@ import {ConfigService} from './services/config/ConfigService';
 import {EventFactory, EventFactoryUnknownEventError} from './onchain_events/EventFactory';
 import {EventFetcherRPC} from './services/blockchain/EventFetcherRPC';
 import {ALL_TOPICS} from './onchain_events/EventTopic';
-import {EventFetcherMessage} from './types/EventFetcherSQSMessage';
+import {EventFetcherMessage} from './types/EventFetcherMessage';
 import {LedgerBuilder} from './LedgerBuilder';
 
 dotenv.config();
-
 
 export class EventProcessorService {
   private readonly logger: Logger;
@@ -36,7 +35,6 @@ export class EventProcessorService {
     try {
       this.logger.info('Executing the event fetcher workflow...');
       this.logger.info(`RPC: ${this.configService.getMainRPCURL()}\n
-                        SQS queue: ${this.configService.getEventQueueURL()}\n
                         Env: ${this.configService.getEnvironment()}`);
 
       const startBlock = await this.getStartBlockNumber();
@@ -55,7 +53,9 @@ export class EventProcessorService {
     }
   }
 
-  private async processEventsAtBlockRange(startBlock: number, endBlock: number): Promise<void> {
+  private async processEventsAtBlockRange(startBlock: number, endBlock: number): Promise<EventFetcherMessage[]> {
+    let events: EventFetcherMessage[] = [];
+
     for (
       let currentStepStartBlock = startBlock + 1;
       currentStepStartBlock <= endBlock;
@@ -72,21 +72,33 @@ export class EventProcessorService {
           ALL_TOPICS,
       );
 
-      await this.processLogGroup(eventLogGroup);
+      events = [
+        ...events,
+        ...this.processLogGroup(eventLogGroup),
+      ];
     }
+
+    return events;
   }
 
-  private async processLogGroup(eventLogGroup: ethers.Log[]): Promise<EventFetcherMessage | undefined> {
-    for (const event of eventLogGroup) {
+  private processLogGroup(eventLogGroup: ethers.Log[]): EventFetcherMessage[] {
+    const events: EventFetcherMessage[] = [];
+
+    for (const eventLog of eventLogGroup) {
       try {
-        const evt = await this.eventFactory.createEvent(event);
-        return evt.process();
+        const evt = this.eventFactory.createEvent(eventLog);
+        const event = evt.process();
+        if (event) {
+          events.push(event);
+        }
       } catch (error) {
         if (error instanceof EventFactoryUnknownEventError) {
           continue;
         }
       }
     }
+
+    return events;
   }
 
   private async getStartBlockNumber(): Promise<number> {

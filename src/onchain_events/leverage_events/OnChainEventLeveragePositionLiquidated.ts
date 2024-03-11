@@ -1,7 +1,7 @@
 import {OnChainEventLeverage} from './OnChainEventLeverage';
 import {Logger, ethers} from '@thisisarchimedes/backend-sdk';
 import {ConfigService} from '../../services/config/ConfigService';
-import {EventFetcherMessage} from '../../types/EventFetcherSQSMessage';
+import {EventFetcherMessage} from '../../types/EventFetcherMessage';
 import {
   EventFetcherLogEntryMessageLeverage,
   EventSpecificDataLeveragePositionLiquidated,

@@ -1,5 +1,5 @@
 import {OnChainEvent} from '../OnChainEvent';
-import {EventFetcherMessage} from '../../types/EventFetcherSQSMessage';
+import {EventFetcherMessage} from '../../types/EventFetcherMessage';
 import {ethers} from '@thisisarchimedes/backend-sdk';
 
 export abstract class OnChainEventLeverage extends OnChainEvent {

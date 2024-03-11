@@ -13,7 +13,7 @@ import {
 import {MultiPoolStrategies} from './MultiPoolStrategies';
 import {LeveragePosition, PrismaClient} from '@prisma/client';
 import {ConfigService} from './services/config/ConfigService';
-import {EventFetcherMessage} from './types/EventFetcherSQSMessage';
+import {EventFetcherMessage} from './types/EventFetcherMessage';
 
 const WBTC_DECIMALS = 8;
 

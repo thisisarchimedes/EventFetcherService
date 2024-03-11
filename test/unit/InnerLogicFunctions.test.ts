@@ -1,11 +1,10 @@
 import {expect} from 'chai';
-import {Contract} from 'ethers';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
 import chai from 'chai';
 
-import {S3Service, SQSService, Logger} from '@thisisarchimedes/backend-sdk';
+import {S3Service, Logger, ethers} from '@thisisarchimedes/backend-sdk';
 
 import {ConfigService} from '../../src/services/config/ConfigService';
 import {ConfigServiceAdapter} from '../adapters/ConfigServiceAdapter';
@@ -17,12 +16,11 @@ chai.use(sinonChai);
 chai.use(chaiAsPromised);
 
 describe('Inner logic functions', function() {
-  let positionOpenerMockContract: Contract;
-  let positionCloserMockContract: Contract;
-  let positionLiquidatorMockContract: Contract;
-  let positionExpiratorMockContract: Contract;
+  let positionOpenerMockContract: ethers.Contract;
+  let positionCloserMockContract: ethers.Contract;
+  let positionLiquidatorMockContract: ethers.Contract;
+  let positionExpiratorMockContract: ethers.Contract;
   let s3Stub: sinon.SinonStubbedInstance<S3Service>;
-  let sqsStub: sinon.SinonStubbedInstance<SQSService>;
   let loggerStub: sinon.SinonStubbedInstance<Logger>;
   let configService: ConfigService;
   let eventFactory: EventFactory;
