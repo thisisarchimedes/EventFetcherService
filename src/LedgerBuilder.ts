@@ -12,19 +12,10 @@ import {
 } from './types/LedgerBuilder';
 import {MultiPoolStrategies} from './MultiPoolStrategies';
 import {LeveragePosition, PrismaClient} from '@prisma/client';
+import {ConfigService} from './services/config/ConfigService';
+import {EventFetcherMessage} from './types/EventFetcherSQSMessage';
 
 const WBTC_DECIMALS = 8;
-
-export type LedgerBuilderParams = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  eventRecords: any[],
-  s3Service: S3Service,
-  prisma: PrismaClient,
-  multiPoolStrategies: MultiPoolStrategies,
-  alchemyProvider: ethers.JsonRpcProvider,
-  infuraProvider: ethers.JsonRpcProvider,
-  logger: Logger
-};
 
 type EventProcessor = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -32,30 +23,24 @@ type EventProcessor = {
 };
 
 export class LedgerBuilder {
-  private readonly alchemyProvider!: ethers.JsonRpcProvider;
-  private readonly infuraProvider!: ethers.JsonRpcProvider;
-
   private readonly prisma: PrismaClient;
   private readonly multiPoolStrategies: MultiPoolStrategies;
 
   private readonly s3Service: S3Service;
   private readonly GENERIC_NFT_SOURCE = `Generic.png`;
 
-  private readonly logger: Logger;
-
   constructor(
-      params: LedgerBuilderParams,
+      private readonly configService: ConfigService,
+      private readonly logger: Logger,
+      private readonly alchemyProvider: ethers.JsonRpcProvider,
+      private readonly infuraProvider: ethers.JsonRpcProvider,
   ) {
-    this.logger = params.logger;
-
-    this.prisma = params.prisma;
-    this.multiPoolStrategies = params.multiPoolStrategies;
-    this.alchemyProvider = params.alchemyProvider;
-    this.infuraProvider = params.infuraProvider;
-    this.s3Service = params.s3Service;
+    this.prisma = new PrismaClient();
+    this.multiPoolStrategies = new MultiPoolStrategies(alchemyProvider);
+    this.s3Service = new S3Service();
   }
 
-  async processEvents(events: any[]): Promise<void> {
+  async processEvents(events: EventFetcherMessage[]): Promise<void> {
     const eventProcessors: EventProcessor = {
       'PositionOpened': this.processOpenPositionEvent,
       'PositionClosed': this.processClosePosition,
@@ -65,19 +50,13 @@ export class LedgerBuilder {
     };
 
     try {
-      for (const message of events) {
-        if (!message.body) {
-          continue;
-        }
-
-        this.logger.info(`Parsing message: ${message.body}`);
-        const parsedData = JSON.parse(message.body);
+      for (const event of events) {
+        this.logger.info(`Received event: ${event}`);
         let eventProcessed = false;
-        this.logger.info(`parsedData.name: ${parsedData.name}`);
 
-        const processor = eventProcessors[parsedData.name as keyof typeof eventProcessors];
+        const processor = eventProcessors[event.name as keyof typeof eventProcessors];
         if (processor) {
-          eventProcessed = await processor.call(this, parsedData);
+          eventProcessed = await processor.call(this, event);
         } else {
           this.logger.warning('Unknown event type');
         }

@@ -1,12 +1,11 @@
-import {ethers} from 'ethers';
 import {OnChainEventLeverage} from './OnChainEventLeverage';
-import {Logger, SQSService} from '@thisisarchimedes/backend-sdk';
+import {Logger, ethers} from '@thisisarchimedes/backend-sdk';
 import {ConfigService} from '../../services/config/ConfigService';
-import {EventFetcherSQSMessage} from '../../types/EventFetcherSQSMessage';
 import {
   EventFetcherLogEntryMessageLeverage,
   EventSpecificDataLeveragePositionOpened,
 } from '../../types/NewRelicLogEntry';
+import {EventFetcherMessage} from '../../types/EventFetcherSQSMessage';
 
 const ADDRESS_TOPIC_INDEX = 3;
 
@@ -16,13 +15,13 @@ export class OnChainEventLeveragePositionOpened extends OnChainEventLeverage {
   private positionExpireBlock!: number;
   private sharesReceived!: bigint;
 
-  constructor(rawEventLog: ethers.providers.Log, logger: Logger, sqsService: SQSService, configService: ConfigService) {
-    super(rawEventLog, logger, sqsService, configService);
+  constructor(rawEventLog: ethers.Log, logger: Logger, configService: ConfigService) {
+    super(rawEventLog, logger, configService);
     this.eventName = 'LeveragedPositionOpened';
     this.parseEventLog(rawEventLog);
   }
 
-  protected parseEventLog(eventLog: ethers.providers.Log): void {
+  protected parseEventLog(eventLog: ethers.Log): void {
     this.setUserAddressFromEventLog(eventLog);
     this.setStrategyConfigFromEventLogTopic(eventLog, ADDRESS_TOPIC_INDEX);
     this.setNftIdFromEventLogTopic(eventLog);
@@ -51,18 +50,19 @@ export class OnChainEventLeveragePositionOpened extends OnChainEventLeverage {
     this.logger.info(JSON.stringify(eventDetails));
   }
 
-  private setNftIdFromEventLogTopic(eventLog: ethers.providers.Log): void {
+  private setNftIdFromEventLogTopic(eventLog: ethers.Log): void {
     this.nftId = Number(eventLog.topics[1]);
   }
 
-  private setUserAddressFromEventLog(eventLog: ethers.providers.Log): void {
+  private setUserAddressFromEventLog(eventLog: ethers.Log): void {
     const rawAddress = eventLog.topics[2];
     const trimmedAddress = '0x' + rawAddress.slice(26);
-    this.userAddress = ethers.utils.getAddress(trimmedAddress);
+    this.userAddress = ethers.getAddress(trimmedAddress);
   }
 
-  private setPositionAmountsFromEventLogData(eventLog: ethers.providers.Log): void {
-    const decodedData = ethers.utils.defaultAbiCoder.decode(
+  private setPositionAmountsFromEventLogData(eventLog: ethers.Log): void {
+    const abiCoder = ethers.AbiCoder.defaultAbiCoder();
+    const decodedData = abiCoder.decode(
         ['uint256', 'uint256', 'uint256', 'uint256'],
         eventLog.data);
 
@@ -72,8 +72,8 @@ export class OnChainEventLeveragePositionOpened extends OnChainEventLeverage {
     this.sharesReceived = decodedData[3];
   }
 
-  protected getSQSMessage(): EventFetcherSQSMessage {
-    const msg: EventFetcherSQSMessage = {
+  protected getMessage(): EventFetcherMessage {
+    const msg: EventFetcherMessage = {
       name: 'PositionOpened',
       contractType: 0,
       txHash: this.txHash,

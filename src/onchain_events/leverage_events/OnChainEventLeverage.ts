@@ -1,30 +1,23 @@
-import {ethers} from 'ethers';
-
 import {OnChainEvent} from '../OnChainEvent';
-import {EventFetcherSQSMessage} from '../../types/EventFetcherSQSMessage';
+import {EventFetcherMessage} from '../../types/EventFetcherSQSMessage';
+import {ethers} from '@thisisarchimedes/backend-sdk';
 
 export abstract class OnChainEventLeverage extends OnChainEvent {
   protected nftId!: number;
 
-  public process(): void {
+  public process(): EventFetcherMessage|undefined {
     this.logLeverageEvent();
-    this.sendSqsLeverageEvent();
+    return this.getMessage();
   }
 
-  protected abstract getSQSMessage(): EventFetcherSQSMessage;
+  protected abstract getMessage(): EventFetcherMessage;
   protected abstract logLeverageEvent(): void;
 
-  protected setStrategyConfigFromEventLogTopic(eventLog: ethers.providers.Log, addressTopicIndex: number): void {
+  protected setStrategyConfigFromEventLogTopic(eventLog: ethers.Log, addressTopicIndex: number): void {
     const rawAddress = eventLog.topics[addressTopicIndex];
     const trimmedAddress = '0x' + rawAddress.slice(26);
-    const strategyAddress = ethers.utils.getAddress(trimmedAddress);
+    const strategyAddress = ethers.getAddress(trimmedAddress);
 
     this.strategyConfig = this.findStrategyConfigBStrategyAddress(strategyAddress);
-  }
-
-  private sendSqsLeverageEvent(): void {
-    const sqsMessage = JSON.stringify(this.getSQSMessage());
-    const queueUrl = this.configService.getEventQueueURL();
-    this.sqsService.sendMessage(queueUrl, sqsMessage);
   }
 }

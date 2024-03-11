@@ -1,10 +1,11 @@
-import {ethers} from 'ethers';
-import {SQSService, Logger} from '@thisisarchimedes/backend-sdk';
+import {Logger, ethers} from '@thisisarchimedes/backend-sdk';
 import dotenv from 'dotenv';
 import {ConfigService} from './services/config/ConfigService';
 import {EventFactory, EventFactoryUnknownEventError} from './onchain_events/EventFactory';
 import {EventFetcherRPC} from './services/blockchain/EventFetcherRPC';
 import {ALL_TOPICS} from './onchain_events/EventTopic';
+import {EventFetcherMessage} from './types/EventFetcherSQSMessage';
+import {LedgerBuilder} from './LedgerBuilder';
 
 dotenv.config();
 
@@ -13,20 +14,22 @@ export class EventProcessorService {
   private readonly logger: Logger;
   private readonly configService: ConfigService;
   private readonly eventFactory: EventFactory;
+  private readonly ledgerBuilder: LedgerBuilder;
 
-  private readonly sqsService: SQSService;
   private readonly eventFetcher;
 
   constructor(
       logger: Logger,
       configService: ConfigService,
   ) {
-    this.sqsService = new SQSService();
     this.logger = logger;
     this.configService = configService;
+    this.eventFactory = new EventFactory(this.configService, this.logger);
 
-    this.eventFactory = new EventFactory(this.configService, this.logger, this.sqsService);
-    this.eventFetcher = new EventFetcherRPC(configService.getMainRPCURL(), configService.getAlternativeRPCURL());
+    const mainRpcProvider = new ethers.JsonRpcProvider(configService.getMainRPCURL());
+    const altRpcProvider = new ethers.JsonRpcProvider(configService.getAlternativeRPCURL());
+    this.eventFetcher = new EventFetcherRPC(mainRpcProvider, altRpcProvider);
+    this.ledgerBuilder = new LedgerBuilder(configService, this.logger, mainRpcProvider, altRpcProvider);
   }
 
   public async execute(): Promise<void> {
@@ -73,11 +76,11 @@ export class EventProcessorService {
     }
   }
 
-  private async processLogGroup(eventLogGroup: ethers.providers.Log[]): Promise<void> {
+  private async processLogGroup(eventLogGroup: ethers.Log[]): Promise<EventFetcherMessage | undefined> {
     for (const event of eventLogGroup) {
       try {
         const evt = await this.eventFactory.createEvent(event);
-        evt.process();
+        return evt.process();
       } catch (error) {
         if (error instanceof EventFactoryUnknownEventError) {
           continue;

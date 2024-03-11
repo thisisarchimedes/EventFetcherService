@@ -1,14 +1,13 @@
-import {ethers} from 'ethers';
 import {OnChainEventPSP} from './OnChainEventPSP';
-import {Logger, SQSService} from '@thisisarchimedes/backend-sdk';
+import {Logger, ethers} from '@thisisarchimedes/backend-sdk';
 import {ConfigService} from '../../services/config/ConfigService';
 import {EventFetcherLogEntryMessagePSP} from '../../types/NewRelicLogEntry';
 
 export class OnChainEventPSPWithdraw extends OnChainEventPSP {
   private withdrawAmount!: bigint;
 
-  constructor(rawEventLog: ethers.providers.Log, logger: Logger, sqsService: SQSService, configService: ConfigService) {
-    super(rawEventLog, logger, sqsService, configService);
+  constructor(rawEventLog: ethers.Log, logger: Logger, configService: ConfigService) {
+    super(rawEventLog, logger, configService);
     this.eventName = 'Withdraw';
   }
 
@@ -26,7 +25,8 @@ export class OnChainEventPSPWithdraw extends OnChainEventPSP {
     this.logger.info(JSON.stringify(eventDetails));
   }
 
-  protected setAmountFromEventLogData(eventLog: ethers.providers.Log): void {
-    this.withdrawAmount = BigInt((ethers.utils.defaultAbiCoder.decode(['uint256', 'uint256'], eventLog.data))[0]);
+  protected setAmountFromEventLogData(eventLog: ethers.Log): void {
+    const abiCoder = ethers.AbiCoder.defaultAbiCoder();
+    this.withdrawAmount = BigInt((abiCoder.decode(['uint256', 'uint256'], eventLog.data))[0]);
   }
 }
