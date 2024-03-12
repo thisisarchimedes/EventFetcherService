@@ -26,13 +26,14 @@ export class OracleFactory {
     this.oracleMap[`${ETH}->${WBTC}`] = OracleETHAsBTC;
   }
 
-  getOracle(fromTokenAddress: string, toTokenAddress: string): Oracle {
+  public getOracle(fromTokenAddress: string, toTokenAddress: string): Oracle {
     const key = `${fromTokenAddress.toLowerCase()}->${toTokenAddress.toLowerCase()}`;
 
     const OracleType = OracleFactory.oracleMap[key];
     if (isUndefined(OracleType)) {
       throw new UnsupportedTokenPairError('Unsupported token pair for oracle');
     }
-    return new OracleType(this.configService);
+
+    return new (OracleType as new (configService: ConfigService) => Oracle)(this.configService);
   }
 }

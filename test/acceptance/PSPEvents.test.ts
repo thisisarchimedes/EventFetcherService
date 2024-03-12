@@ -85,7 +85,6 @@ describe('PSP Events', function() {
   }
 
   function initalizeMocks() {
-
     logger = new LoggerAdapter('local_logger.txt');
 
     mockEthereumNode = new MockEthereumNode('http://ec2-52-4-114-208.compute-1.amazonaws.com:8545');
@@ -97,7 +96,6 @@ describe('PSP Events', function() {
 
     const {bucket} = JSON.parse(await appConfigClient.fetchConfigRawString('LastBlockScannedS3FileURL'));
     mockAWSS3 = new MockAWSS3(bucket, AWS_REGION);
-
   }
 
   function setupGenericNockInterceptors() {

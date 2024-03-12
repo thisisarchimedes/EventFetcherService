@@ -1,7 +1,6 @@
 import {expect} from 'chai';
 import nock from 'nock';
 import isEqual from 'lodash/isEqual';
-import url from 'url';
 
 import {LoggerAdapter} from '../adapters/LoggerAdapter';
 import {handler} from '../../src/lambda-handler';
