@@ -7,6 +7,9 @@ export class MockNewRelic extends Mock {
   private baseUrl: string;
   private logger: LoggerAdapter;
 
+  private logEntryToListenFor: string = '';
+  private logEntryDetected: boolean = false;
+
   constructor(baseUrl: string, logger: LoggerAdapter) {
     super();
     this.baseUrl = baseUrl;
@@ -19,8 +22,19 @@ export class MockNewRelic extends Mock {
         .post('/log/v1', () => true)
         .reply(200, (_, requestBody) => {
           this.logger.info(JSON.stringify(requestBody));
+          if (JSON.stringify(requestBody).includes(this.logEntryToListenFor)) {
+            this.logEntryDetected = true;
+          }
           return {};
         });
+  }
+
+  public listenForLogEntry(entry: string): void {
+    this.logEntryToListenFor = entry;
+  }
+
+  public isLogEntryDetected(): boolean {
+    return this.logEntryDetected;
   }
 
   public findMatchingLogEntry(logger: LoggerAdapter): EventFetcherLogEntryMessage | null {

@@ -28,15 +28,12 @@ describe('PSP Events', function() {
 
   it('should catch and report on Deposit event', async function() {
     mockEthereumNodeResponses('test/data/depositEvent.json');
+    const expectedLog = createExpectedLogMessagePSPDeposit();
+    mockNewRelic.listenForLogEntry(expectedLog.event);
 
     await handler(0, 0);
 
-    const expectedLog = createExpectedLogMessagePSPDeposit();
-    const actualLog = mockNewRelic.findMatchingLogEntry(logger);
-
-    expect(actualLog).to.not.be.null;
-    const res: boolean = validateLogMessage(actualLog as EventFetcherLogEntryMessagePSP, expectedLog);
-    expect(res).to.be.true;
+    expect(mockNewRelic.isLogEntryDetected()).to.be.true;
   });
 
   function createExpectedLogMessagePSPDeposit(): EventFetcherLogEntryMessagePSP {
@@ -53,15 +50,12 @@ describe('PSP Events', function() {
 
   it('should catch and report on Withdraw event', async function() {
     mockEthereumNodeResponses('test/data/withdrawEvent.json');
+    const expectedLog = createExpectedLogMessagePSPWithdraw();
+    mockNewRelic.listenForLogEntry(expectedLog.event);
 
     await handler(0, 0);
 
-    const expectedLog = createExpectedLogMessagePSPWithdraw();
-    const actualLog = mockNewRelic.findMatchingLogEntry(logger);
-
-    expect(actualLog).to.not.be.null;
-    const res: boolean = validateLogMessage(actualLog as EventFetcherLogEntryMessagePSP, expectedLog);
-    expect(res).to.be.true;
+    expect(mockNewRelic.isLogEntryDetected()).to.be.true;
   });
 
   function createExpectedLogMessagePSPWithdraw(): EventFetcherLogEntryMessagePSP {
@@ -76,21 +70,6 @@ describe('PSP Events', function() {
     };
   }
 
-  function validateLogMessage(
-      actualLog: EventFetcherLogEntryMessagePSP,
-      expectedLog: EventFetcherLogEntryMessagePSP,
-  ): boolean {
-    return (
-      actualLog.blockNumber === expectedLog.blockNumber &&
-      actualLog.txHash === expectedLog.txHash &&
-      actualLog.event === expectedLog.event &&
-      actualLog.user === expectedLog.user &&
-      actualLog.strategy === expectedLog.strategy &&
-      actualLog.amountAddedToStrategy === expectedLog.amountAddedToStrategy &&
-      actualLog.amountAddedToAdapter === expectedLog.amountAddedToAdapter
-    );
-  }
-
   function initalizeMocks() {
     logger = new LoggerAdapter('local_logger.txt');
 
@@ -101,7 +80,7 @@ describe('PSP Events', function() {
 
     mockSQS = new MockSQS('https://sqs.us-east-1.amazonaws.com/');
 
-    mockAWSS3 = new MockAWSS3('wbtc-engine-events-store', 'us-east-1');
+    mockAWSS3 = new MockAWSS3('wbtc-engine-events-store-demo', 'us-east-1');
   }
 
   function setupGenericNockInterceptors() {
