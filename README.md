@@ -2,19 +2,17 @@
 
 ## Table of Contents
 
-1. [Overview](#overview)
-2. [Run Locally](#run-locally)
-   - [Install dependencies](#install-dependencies)
-   - [Get .env file](#get-env-file)
-   - [Update .env](#update-env)
-   - [Run tests](#run-tests)
-3. [Linter](#linter)
-4. [Environment Variables](#environment-variables)
-   - [For running](#environment-variables-if-we-dont-run-tests)
-   - [For testing](#additional-environment-variables-for-testing)
-5. [Continuous Deployment](#continuous-deployment)
-6. [Troubleshooting](#troubleshooting)
-   - [dotenvx doesn't work properly](#dotenvx-doesnt-work-properly)
+- [Overview](#overview)
+- [Run Locally](#run-locally)
+  - [Install dependencies](#install-dependencies)
+  - [Get .env file](#get-env-file)
+  - [Update .env](#update-env)
+  - [Run tests](#run-tests)
+  - [Linter](#linter)
+- [Environment Variables](#environment-variables)
+- [Continuous Deployment](#continuous-deployment)
+- [Troubleshooting](#troubleshooting)
+  - [dotenvx doesn't work properly](#dotenvx-doesnt-work-properly)
 
 ## Overview
 
@@ -22,28 +20,28 @@ This repository contains the backend microservices infrastructure designed to fe
 
 ## Run Locally
 
-_*Install dependencies*_
+### Install dependencies
 1. Make sure Node.js and Yarn are installed
 2. Install requirements: `yarn install`
 
-_*Get .env file*_
+
+### Get .env file
+
 ```bash
-yarn dotenvx hub # open and follow the link printed, copy the keys to .env.keys locally
+yarn dotenvx hub login # need to do it only once 
+yarn dotenvx open # open and follow the link printed, copy the keys to .env.keys locally
 set -o allexport && source .env.keys && set +o allexport # export .env.keys to local environment
 yarn dotenvx decrypt # decrypt .env.vault to .env
 set -o allexport && source .env && set +o allexport # export .env to local environment
 ```
 
-_*Update .env*_
-```bash
-yarn dotenvx encrypt
-yarn dotenvx hub push # push the keys to the dotenvx hub
-```
-Next: 
-- commit `.env.vault` to github _**DO NOT COMMIT .evn.keys or .env to github**_
-- Update the repo Github Secrets `DOTENV_KEY`
+### Update .env
 
-_*Run tests*_
+- `yarn dotenvx encrypt`
+- commit `.env.vault` to github _**DO NOT COMMIT .evn.keys or .env to github**_
+
+### Run tests
+
    ```bash
    yarn test # runs unit and acceptance tests + convrage report
    yarn test:acceptance # acceptance test only
@@ -51,18 +49,21 @@ _*Run tests*_
    ```
 
 ### Linter
+
 ```bash
 yarn lint
 ```
 
-### Environment Variables
+## Environment Variables
+
+As appear in `.env`
 
 Environment variables (if we don't run tests)
 ```bash
    PAT_TOKEN - GitHub token required by the Backend SDK
    NEW_RELIC_API_KEY - required by the Backend SDK
 
-   ENVIRONMENT=Demo # Test/Production (need to match AWS AppConfig application name)
+   ENVIRONMENT=DemoApp # Test/Production (need to match AWS AppConfig application name)
    ## Environment is CASE SENSITIVE - e.g.: "Demo" is not the same as "demo" ##
    ```
 

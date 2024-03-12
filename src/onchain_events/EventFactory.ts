@@ -19,6 +19,8 @@ import {
   TOPIC_EVENT_PSP_WITHDRAW,
 } from './EventTopic';
 
+// const TEST_ADDRESS = '0x0000000000000000000000000000000000000000';
+
 export class EventFactoryUnknownEventError extends Error {
   constructor(message: string) {
     super(message);
@@ -37,7 +39,7 @@ export class EventFactory {
     this.sqsService = sqsService;
   }
 
-  public async createEvent(eventLog: ethers.providers.Log): Promise<OnChainEvent> {
+  public createEvent(eventLog: ethers.providers.Log): OnChainEvent {
     let results: [OnChainEvent | undefined, OnChainEvent | undefined];
 
     if (eventLog === undefined) {
@@ -45,10 +47,7 @@ export class EventFactory {
     }
 
     try {
-      results = await Promise.all([
-        this.createPSPEvent(eventLog),
-        this.createLeverageEvent(eventLog),
-      ]);
+      results=[this.createPSPEvent(eventLog), this.createLeverageEvent(eventLog)];
     } catch (error) {
       this.logger.error(`Error creating event: ${error}`);
       throw error;
@@ -119,8 +118,14 @@ export class EventFactory {
   }
 
   private isLogEventEmittedByPSPContract(eventLog: ethers.providers.Log): boolean {
-    const res = this.configService.getPSPStrategyInfoByAddress(eventLog.address);
+    const emitterAddress = eventLog.address;
 
+    // making tests easier - so we don't need to update synthetic data addresses every time we deploy
+    // if (TEST_ADDRESS === emitterAddress) {
+    //  return true;
+    // }
+
+    const res = this.configService.getPSPStrategyInfoByAddress(emitterAddress);
     if (res === undefined) {
       return false;
     }
@@ -129,6 +134,11 @@ export class EventFactory {
 
   private isLogEventEmittedByLeverageContract(eventLog: ethers.providers.Log): boolean {
     const emitterAddress = eventLog.address;
+
+    // making tests easier - so we don't need to update synthetic data addresses every time we deploy
+    // if (TEST_ADDRESS === emitterAddress) {
+    //  return true;
+    // }
 
     if (this.configService.getLeveragePositionOpenerAddress() === emitterAddress ||
       this.configService.getLeveragePositionCloserAddress() === emitterAddress ||

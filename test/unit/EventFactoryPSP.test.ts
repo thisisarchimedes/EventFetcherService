@@ -1,5 +1,5 @@
+import dotenv from 'dotenv';
 import {Logger} from '@thisisarchimedes/backend-sdk';
-
 import {expect} from 'chai';
 
 import {LoggerAdapter} from '../adapters/LoggerAdapter';
@@ -11,6 +11,7 @@ import {EventFetcherLogEntryMessagePSP} from '../../src/types/NewRelicLogEntry';
 import {SQSServiceAdapter} from '../adapters/SQSServiceAdapter';
 import {OnChainEvent} from '../../src/onchain_events/OnChainEvent';
 
+dotenv.config();
 
 describe('PSP Events Logging', function() {
   let logger: LoggerAdapter;
@@ -33,7 +34,8 @@ describe('PSP Events Logging', function() {
   });
 
   it('should report on Deposit event', async function() {
-    eventFetcher.setEventArrayFromFile('test/data/depositEvent.json');
+    const strategyAddress = configService.getPSPContractAddressByStrategyName('Convex FRAXBP/msUSD Single Pool');
+    eventFetcher.setEventArrayFromFile('test/data/depositEvent.json', strategyAddress);
     const eventsLog = await eventFetcher.getOnChainEvents(100, 200);
 
     const onChainEvents: OnChainEvent[] = [];
@@ -42,7 +44,7 @@ describe('PSP Events Logging', function() {
         const evt = await eventFactory.createEvent(event);
         onChainEvents.push(evt);
       } catch (e) {
-        if (e.message === 'Unknown strategy address') {
+        if (e.message.startsWith('Unknown strategy address')) {
           continue;
         }
       }
@@ -69,7 +71,8 @@ describe('PSP Events Logging', function() {
   });
 
   it('should report on Withdraw event', async function() {
-    eventFetcher.setEventArrayFromFile('test/data/withdrawEvent.json');
+    const strategyAddress = configService.getPSPContractAddressByStrategyName('Convex ETH+/ETH Single Pool');
+    eventFetcher.setEventArrayFromFile('test/data/withdrawEvent.json', strategyAddress);
     const eventsLog = await eventFetcher.getOnChainEvents(100, 200);
 
     const onChainEvents: OnChainEvent[] = [];

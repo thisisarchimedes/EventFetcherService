@@ -1,3 +1,4 @@
+import dotenv from 'dotenv';
 import {expect} from 'chai';
 import nock from 'nock';
 
@@ -9,6 +10,13 @@ import {MockEthereumNode} from './Mocks/MockEthereumNode';
 import {MockNewRelic} from './Mocks/MockNewRelic';
 import {MockSQS} from './Mocks/MockSQS';
 import {MockAWSS3} from './Mocks/MockAWSS3';
+import {ConfigServiceAWS} from '../../src/services/config/ConfigServiceAWS';
+import {AppConfigClient} from '../../src/services/config/AppConfigClient';
+
+dotenv.config();
+
+const ENVIRONMENT = process.env.ENVIRONMENT!;
+const AWS_REGION = process.env.AWS_REGION!;
 
 describe('PSP Events', function() {
   let logger: LoggerAdapter;
@@ -16,9 +24,15 @@ describe('PSP Events', function() {
   let mockNewRelic: MockNewRelic;
   let mockSQS: MockSQS;
   let mockAWSS3: MockAWSS3;
+  const config: ConfigServiceAWS = new ConfigServiceAWS(ENVIRONMENT, AWS_REGION);
+  const appConfigClient: AppConfigClient = new AppConfigClient(ENVIRONMENT, AWS_REGION);
 
-  beforeEach(function() {
-    initalizeMocks();
+  // before(async function() {
+  // });
+
+  beforeEach(async function() {
+    await config.refreshConfig();
+    await initalizeMocks();
     setupGenericNockInterceptors();
   });
 
@@ -64,13 +78,14 @@ describe('PSP Events', function() {
       txHash: '0x41f9437497aee519b2c3d1013fcb40b39447a3d969cc2ddc445a1bcdb49f7600',
       event: 'Withdraw',
       user: '0x2222222222222222222222222222222222222222',
-      strategy: 'Convex ETH+/ETH Single Pool',
-      amountAddedToStrategy: BigInt(-1n).toString(),
-      amountAddedToAdapter: BigInt(0).toString(),
+      strategy: 'Convex FRAXBP/msUSD Single Pool',
+      amountAddedToStrategy: (-1n).toString(),
+      amountAddedToAdapter: (0n).toString(),
     };
   }
 
   function initalizeMocks() {
+
     logger = new LoggerAdapter('local_logger.txt');
 
     mockEthereumNode = new MockEthereumNode('http://ec2-52-4-114-208.compute-1.amazonaws.com:8545');
@@ -80,7 +95,9 @@ describe('PSP Events', function() {
 
     mockSQS = new MockSQS('https://sqs.us-east-1.amazonaws.com/');
 
-    mockAWSS3 = new MockAWSS3('wbtc-engine-events-store-demo', 'us-east-1');
+    const {bucket} = JSON.parse(await appConfigClient.fetchConfigRawString('LastBlockScannedS3FileURL'));
+    mockAWSS3 = new MockAWSS3(bucket, AWS_REGION);
+
   }
 
   function setupGenericNockInterceptors() {
@@ -89,10 +106,10 @@ describe('PSP Events', function() {
     mockSQSEndpoint();
   }
 
-  function mockEthereumNodeResponses(syntheticEventFile: string) {
+  function mockEthereumNodeResponses(syntheticEventFile: string, address?: string) {
     mockEthereumNode.mockChainId();
     mockEthereumNode.mockBlockNumber('0x5B8D86');
-    mockEthereumNode.mockEventResponse(syntheticEventFile);
+    mockEthereumNode.mockEventResponse(syntheticEventFile, address);
   }
 
   function mockNewRelicLogEndpoint() {
