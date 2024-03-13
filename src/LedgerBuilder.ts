@@ -1,6 +1,5 @@
 import {
   S3Service,
-  ethers,
   Logger,
 } from '@thisisarchimedes/backend-sdk';
 import {
@@ -12,8 +11,8 @@ import {
 } from './types/LedgerBuilder';
 import {MultiPoolStrategies} from './MultiPoolStrategies';
 import {LeveragePosition, PrismaClient} from '@prisma/client';
-import {ConfigService} from './services/config/ConfigService';
 import {EventFetcherMessage} from './types/EventFetcherMessage';
+import {ethers} from 'ethers';
 
 const WBTC_DECIMALS = 8;
 
@@ -23,20 +22,16 @@ type EventProcessor = {
 };
 
 export class LedgerBuilder {
-  private readonly prisma: PrismaClient;
-  private readonly multiPoolStrategies: MultiPoolStrategies;
-
   private readonly s3Service: S3Service;
   private readonly GENERIC_NFT_SOURCE = `Generic.png`;
 
   constructor(
-      private readonly configService: ConfigService,
       private readonly logger: Logger,
-      private readonly alchemyProvider: ethers.JsonRpcProvider,
-      private readonly infuraProvider: ethers.JsonRpcProvider,
+      private readonly alchemyProvider: ethers.providers.JsonRpcProvider,
+      private readonly infuraProvider: ethers.providers.JsonRpcProvider,
+      private readonly prisma: PrismaClient,
+      private readonly multiPoolStrategies: MultiPoolStrategies,
   ) {
-    this.prisma = new PrismaClient();
-    this.multiPoolStrategies = new MultiPoolStrategies(alchemyProvider);
     this.s3Service = new S3Service();
   }
 
@@ -51,7 +46,7 @@ export class LedgerBuilder {
 
     try {
       for (const event of events) {
-        this.logger.info(`Received event: ${event}`);
+        this.logger.info(`Received event: ${JSON.stringify(event)}`);
         let eventProcessed = false;
 
         const processor = eventProcessors[event.name as keyof typeof eventProcessors];
@@ -99,14 +94,14 @@ export class LedgerBuilder {
           user: event.data.user.toLowerCase(),
           strategy: event.data.strategy.toLowerCase(),
           collateralAmount: Number(
-              ethers.formatUnits(event.data.collateralAmount, WBTC_DECIMALS),
+              ethers.utils.formatUnits(event.data.collateralAmount, WBTC_DECIMALS),
           ),
           wbtcToBorrow: Number(
-              ethers.formatUnits(event.data.wbtcToBorrow, WBTC_DECIMALS),
+              ethers.utils.formatUnits(event.data.wbtcToBorrow, WBTC_DECIMALS),
           ),
           positionExpireBlock: Number(event.data.positionExpireBlock),
           receivedShares: Number(
-              ethers.formatUnits(
+              ethers.utils.formatUnits(
                   event.data.sharesReceived,
                   strategyData.assetDecimals,
               ),
@@ -149,13 +144,13 @@ export class LedgerBuilder {
       );
     const currentPositionValue =
       Number(
-          ethers.formatUnits(
+          ethers.utils.formatUnits(
               strategyData.assetPerShare,
               strategyData.assetDecimals,
           ),
       ) *
       Number(
-          ethers.formatUnits(
+          ethers.utils.formatUnits(
               event.data.sharesReceived,
               strategyData.assetDecimals,
           ),
@@ -169,19 +164,19 @@ export class LedgerBuilder {
             user: event.data.user.toLowerCase(),
             strategy: event.data.strategy.toLowerCase(),
             collateralAmount: Number(
-                ethers.formatUnits(event.data.collateralAmount, WBTC_DECIMALS),
+                ethers.utils.formatUnits(event.data.collateralAmount, WBTC_DECIMALS),
             ),
             positionExpireBlock: Number(
                 event.data.positionExpireBlock,
             ),
             strategyShares: Number(
-                ethers.formatUnits(
+                ethers.utils.formatUnits(
                     event.data.sharesReceived,
                     strategyData.assetDecimals,
                 ),
             ),
             debtAmount: Number(
-                ethers.formatUnits(event.data.wbtcToBorrow, WBTC_DECIMALS),
+                ethers.utils.formatUnits(event.data.wbtcToBorrow, WBTC_DECIMALS),
             ),
             positionState: 'LIVE',
             timestamp: blockTimestamp,
@@ -220,10 +215,10 @@ export class LedgerBuilder {
           nftId: BigInt(event.data.nftId),
           user: event.data.user.toLowerCase(),
           receivedAmount: Number(
-              ethers.formatUnits(event.data.receivedAmount, WBTC_DECIMALS),
+              ethers.utils.formatUnits(event.data.receivedAmount, WBTC_DECIMALS),
           ),
           wbtcDebtAmount: Number(
-              ethers.formatUnits(event.data.wbtcDebtAmount, WBTC_DECIMALS),
+              ethers.utils.formatUnits(event.data.wbtcDebtAmount, WBTC_DECIMALS),
           ),
         },
       });
@@ -281,13 +276,13 @@ export class LedgerBuilder {
           nftId: BigInt(event.data.nftId),
           strategy: event.data.strategy.toLowerCase(),
           claimableAmount: Number(
-              ethers.formatUnits(event.data.claimableAmount, WBTC_DECIMALS),
+              ethers.utils.formatUnits(event.data.claimableAmount, WBTC_DECIMALS),
           ),
           wbtcDebtPaid: Number(
-              ethers.formatUnits(event.data.wbtcDebtPaid, WBTC_DECIMALS),
+              ethers.utils.formatUnits(event.data.wbtcDebtPaid, WBTC_DECIMALS),
           ),
           liquidationFee: Number(
-              ethers.formatUnits(event.data.liquidationFee, WBTC_DECIMALS),
+              ethers.utils.formatUnits(event.data.liquidationFee, WBTC_DECIMALS),
           ),
         },
       });
@@ -316,7 +311,7 @@ export class LedgerBuilder {
           positionState: 'LIQUIDATED',
           currentPositionValue: 0,
           claimableAmount: Number(
-              ethers.formatUnits(event.data.claimableAmount, WBTC_DECIMALS),
+              ethers.utils.formatUnits(event.data.claimableAmount, WBTC_DECIMALS),
           ),
           strategyShares: 0,
         },
@@ -388,7 +383,7 @@ export class LedgerBuilder {
           nftId: BigInt(event.data.nftId),
           user: event.data.user.toLowerCase(),
           claimableAmount: Number(
-              ethers.formatUnits(event.data.claimableAmount, WBTC_DECIMALS),
+              ethers.utils.formatUnits(event.data.claimableAmount, WBTC_DECIMALS),
           ),
         },
       });
@@ -415,7 +410,7 @@ export class LedgerBuilder {
           positionState: 'EXPIRED',
           currentPositionValue: 0,
           claimableAmount: Number(
-              ethers.formatUnits(event.data.claimableAmount, WBTC_DECIMALS),
+              ethers.utils.formatUnits(event.data.claimableAmount, WBTC_DECIMALS),
           ),
         },
       });

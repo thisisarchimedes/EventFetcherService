@@ -13,10 +13,10 @@ export abstract class OnChainEventLeverage extends OnChainEvent {
   protected abstract getMessage(): EventFetcherMessage;
   protected abstract logLeverageEvent(): void;
 
-  protected setStrategyConfigFromEventLogTopic(eventLog: ethers.Log, addressTopicIndex: number): void {
+  protected setStrategyConfigFromEventLogTopic(eventLog: ethers.providers.Log, addressTopicIndex: number): void {
     const rawAddress = eventLog.topics[addressTopicIndex];
     const trimmedAddress = '0x' + rawAddress.slice(26);
-    const strategyAddress = ethers.getAddress(trimmedAddress);
+    const strategyAddress = ethers.utils.getAddress(trimmedAddress);
 
     this.strategyConfig = this.findStrategyConfigBStrategyAddress(strategyAddress);
   }

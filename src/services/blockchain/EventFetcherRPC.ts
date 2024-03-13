@@ -1,11 +1,10 @@
-import {ethers} from '@thisisarchimedes/backend-sdk';
+import {ethers} from 'ethers';
 import {EventFetcher} from './EventFetcher';
-
 
 export class EventFetcherRPC extends EventFetcher {
   constructor(
-    private readonly mainProvider: ethers.JsonRpcProvider,
-    private readonly altProvider: ethers.JsonRpcProvider,
+    private readonly mainProvider: ethers.providers.JsonRpcProvider,
+    private readonly altProvider: ethers.providers.JsonRpcProvider,
   ) {
     super();
   }
@@ -13,14 +12,14 @@ export class EventFetcherRPC extends EventFetcher {
   public async getOnChainEvents(blockNumberFrom: number,
       blockNumberTo: number,
       topics: string[],
-  ): Promise<ethers.Log[]> {
+  ): Promise<ethers.providers.Log[]> {
     // RPC URL supports up to 4 topics per request
     const MAX_TOPICS_PER_REQUEST = 4;
-    let allLogs: ethers.Log[] = [];
+    let allLogs: ethers.providers.Log[] = [];
 
     for (let i = 0; i < topics.length; i += MAX_TOPICS_PER_REQUEST) {
       const chunkTopics = topics.slice(i, i + MAX_TOPICS_PER_REQUEST);
-      const filter: ethers.Filter = {
+      const filter: ethers.providers.Filter = {
         topics: [chunkTopics],
         fromBlock: blockNumberFrom,
         toBlock: blockNumberTo,
@@ -40,7 +39,7 @@ export class EventFetcherRPC extends EventFetcher {
     return Math.min(mainBlockNumber, altBlockNumber);
   }
 
-  private async fetchLogsFromBlockchain(filter: ethers.Filter): Promise<ethers.Log[]> {
+  private async fetchLogsFromBlockchain(filter: ethers.providers.Filter): Promise<ethers.providers.Log[]> {
     try {
       const [mainLogs, altLogs] = await Promise.all([
         this.mainProvider.getLogs(filter),

@@ -110,11 +110,6 @@ describe('Config Service Test', function() {
     const pageSize: number = configService.getEventsFetchPageSize();
     expect(pageSize).to.be.gte(100);
   });
-
-  it('should retrieve event queue URL from AWS', function() {
-    const url: string = configService.getEventQueueURL();
-    expect(url.startsWith('https://')).to.be.true;
-  });
 });
 
 

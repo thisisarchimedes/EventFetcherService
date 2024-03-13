@@ -1,4 +1,4 @@
-import {Logger, ethers} from '@thisisarchimedes/backend-sdk';
+import {Logger} from '@thisisarchimedes/backend-sdk';
 import dotenv from 'dotenv';
 import {ConfigService} from './services/config/ConfigService';
 import {EventFactory, EventFactoryUnknownEventError} from './onchain_events/EventFactory';
@@ -6,6 +6,9 @@ import {EventFetcherRPC} from './services/blockchain/EventFetcherRPC';
 import {ALL_TOPICS} from './onchain_events/EventTopic';
 import {EventFetcherMessage} from './types/EventFetcherMessage';
 import {LedgerBuilder} from './LedgerBuilder';
+import {ethers} from 'ethers';
+import {PrismaClient} from '@prisma/client';
+import {MultiPoolStrategies} from './MultiPoolStrategies';
 
 dotenv.config();
 
@@ -25,10 +28,12 @@ export class EventProcessorService {
     this.configService = configService;
     this.eventFactory = new EventFactory(this.configService, this.logger);
 
-    const mainRpcProvider = new ethers.JsonRpcProvider(configService.getMainRPCURL());
-    const altRpcProvider = new ethers.JsonRpcProvider(configService.getAlternativeRPCURL());
+    const mainRpcProvider = new ethers.providers.JsonRpcProvider(configService.getMainRPCURL());
+    const altRpcProvider = new ethers.providers.JsonRpcProvider(configService.getAlternativeRPCURL());
+    const prisma = new PrismaClient();
+    const multiPoolStrategies = new MultiPoolStrategies(mainRpcProvider);
     this.eventFetcher = new EventFetcherRPC(mainRpcProvider, altRpcProvider);
-    this.ledgerBuilder = new LedgerBuilder(configService, this.logger, mainRpcProvider, altRpcProvider);
+    this.ledgerBuilder = new LedgerBuilder(this.logger, mainRpcProvider, altRpcProvider, prisma, multiPoolStrategies);
   }
 
   public async execute(): Promise<void> {
@@ -81,7 +86,7 @@ export class EventProcessorService {
     return events;
   }
 
-  private processLogGroup(eventLogGroup: ethers.Log[]): EventFetcherMessage[] {
+  private processLogGroup(eventLogGroup: ethers.providers.Log[]): EventFetcherMessage[] {
     const events: EventFetcherMessage[] = [];
 
     for (const eventLog of eventLogGroup) {

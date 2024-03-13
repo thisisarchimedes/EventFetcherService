@@ -11,7 +11,6 @@ import {
   EventSpecificDataLeveragePositionLiquidated,
   EventSpecificDataLeveragePositionOpened,
 } from '../../src/types/NewRelicLogEntry';
-import {SQSServiceAdapter} from '../adapters/SQSServiceAdapter';
 import {OnChainEvent} from '../../src/onchain_events/OnChainEvent';
 import {EventFetcherMessage} from '../../src/types/EventFetcherMessage';
 
@@ -20,7 +19,6 @@ describe('Leverage Events Logging & Queuing', function() {
   let eventFetcher: EventFetcherAdapter;
   let configService: ConfigServiceAdapter;
   let eventFactory: EventFactory;
-  let sqsService: SQSServiceAdapter;
 
   const LOCAL_LOGGER: string = 'local_logger.txt';
   const LEVERAGE_ADDRESS_FILE: string = 'test/data/leverageAddresses.json';
@@ -190,7 +188,6 @@ describe('Leverage Events Logging & Queuing', function() {
   function setupTestEnvironment() {
     logger = new LoggerAdapter(LOCAL_LOGGER);
     eventFetcher = new EventFetcherAdapter();
-    sqsService = new SQSServiceAdapter();
     configService = new ConfigServiceAdapter();
   }
 
@@ -198,7 +195,7 @@ describe('Leverage Events Logging & Queuing', function() {
     configService.setLeverageAddressesFile(LEVERAGE_ADDRESS_FILE);
     configService.setPSPInfoFile(PSP_INFO_FILE);
     await configService.refreshConfig();
-    eventFactory = new EventFactory(configService, logger as unknown as Logger, sqsService);
+    eventFactory = new EventFactory(configService, logger as unknown as Logger);
   }
 
   async function testEventGeneration(
@@ -234,13 +231,12 @@ describe('Leverage Events Logging & Queuing', function() {
       expectedLogMessage: EventFetcherLogEntryMessageLeverage,
       expectedMessage: EventFetcherMessage,
   ) {
-    event.process();
+    const eventResult = event.process();
 
     const actualLogMessage = JSON.parse(JSON.parse(logger.getLastMessageRawString().split('INFO: ')[1]));
     validateLogMessage(actualLogMessage, expectedLogMessage);
 
-    const actualSqsMessage = JSON.parse(sqsService.getLatestMessage());
-    validateSQSMessage(actualSqsMessage, expectedMessage);
+    validateMessage(eventResult!, expectedMessage);
   }
 
   function validateLogMessage(
@@ -259,7 +255,7 @@ describe('Leverage Events Logging & Queuing', function() {
         .to.equal(JSON.stringify(expectedLogMessage.eventSpecificData));
   }
 
-  function validateSQSMessage(
+  function validateMessage(
       actualLogMessage: EventFetcherMessage,
       expectedLogMessage: EventFetcherMessage,
   ) {

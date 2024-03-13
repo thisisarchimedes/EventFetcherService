@@ -13,7 +13,7 @@ export abstract class OnChainEvent {
   protected logger: Logger;
   protected configService: ConfigService;
 
-  constructor(rawEventLog: ethers.Log, logger: Logger, configService: ConfigService) {
+  constructor(rawEventLog: ethers.providers.Log, logger: Logger, configService: ConfigService) {
     this.logger = logger;
     this.configService = configService;
 

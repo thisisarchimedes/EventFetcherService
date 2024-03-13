@@ -1,5 +1,5 @@
 import {ConfigService} from '../services/config/ConfigService';
-import {Logger, ethers} from '@thisisarchimedes/backend-sdk';
+import {Logger} from '@thisisarchimedes/backend-sdk';
 
 import {OnChainEvent} from './OnChainEvent';
 import {OnChainEventPSPDeposit} from './psp_events/OnChainEventPSPDeposit';
@@ -17,6 +17,7 @@ import {
   TOPIC_EVENT_PSP_DEPOSIT,
   TOPIC_EVENT_PSP_WITHDRAW,
 } from './EventTopic';
+import { ethers } from 'ethers';
 
 export class EventFactoryUnknownEventError extends Error {
   constructor(message: string) {
@@ -34,7 +35,7 @@ export class EventFactory {
     this.logger = logger;
   }
 
-  public createEvent(eventLog: ethers.Log): OnChainEvent {
+  public createEvent(eventLog: ethers.providers.Log): OnChainEvent {
     let results: [OnChainEvent | undefined, OnChainEvent | undefined];
 
     if (eventLog === undefined) {
@@ -53,7 +54,7 @@ export class EventFactory {
     return event;
   }
 
-  private createPSPEvent(eventLog: ethers.Log): OnChainEvent | undefined {
+  private createPSPEvent(eventLog: ethers.providers.Log): OnChainEvent | undefined {
     if (this.isLogEventEmittedByPSPContract(eventLog) === false) {
       return undefined;
     }
@@ -69,7 +70,7 @@ export class EventFactory {
     return undefined;
   }
 
-  private createLeverageEvent(eventLog: ethers.Log): OnChainEvent | undefined {
+  private createLeverageEvent(eventLog: ethers.providers.Log): OnChainEvent | undefined {
     if (this.isLogEventEmittedByLeverageContract(eventLog) === false) {
       return undefined;
     }
@@ -92,7 +93,7 @@ export class EventFactory {
   }
 
   private getEventObjectOrThrowError(results: [OnChainEvent | undefined, OnChainEvent | undefined],
-      eventLog: ethers.Log): OnChainEvent {
+      eventLog: ethers.providers.Log): OnChainEvent {
     if (results.every((result) => result === undefined)) {
       const errorMessage = `Unknown event topic, ${eventLog.topics[0]}`;
       this.logger.error(errorMessage);
@@ -112,7 +113,7 @@ export class EventFactory {
     return event as unknown as OnChainEvent;
   }
 
-  private isLogEventEmittedByPSPContract(eventLog: ethers.Log): boolean {
+  private isLogEventEmittedByPSPContract(eventLog: ethers.providers.Log): boolean {
     const emitterAddress = eventLog.address;
 
     const res = this.configService.getPSPStrategyInfoByAddress(emitterAddress);
@@ -122,7 +123,7 @@ export class EventFactory {
     return true;
   }
 
-  private isLogEventEmittedByLeverageContract(eventLog: ethers.Log): boolean {
+  private isLogEventEmittedByLeverageContract(eventLog: ethers.providers.Log): boolean {
     const emitterAddress = eventLog.address;
 
     if (this.configService.getLeveragePositionOpenerAddress() === emitterAddress ||

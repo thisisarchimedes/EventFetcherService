@@ -1,18 +1,18 @@
+import {ethers} from 'ethers';
 import {StrategyData} from './types/LedgerBuilder';
 import {
   Contracts,
   CoinGeckoClient,
-  ethers,
   EthereumAddress,
 } from '@thisisarchimedes/backend-sdk';
 export class MultiPoolStrategies {
-  private readonly alchemyProvider: ethers.Provider;
+  private readonly alchemyProvider: ethers.providers.Provider;
   private strategyDatas: Record<string, StrategyData>;
   private coingeckoTokenIds: Record<string, string>;
   private tokenPricesInBTC: Record<string, number>;
   private readonly coinGeckoClient: CoinGeckoClient;
 
-  constructor(rpcProvider: ethers.JsonRpcProvider) {
+  constructor(rpcProvider: ethers.providers.JsonRpcProvider) {
     this.alchemyProvider = rpcProvider;
     this.strategyDatas = {};
     this.coingeckoTokenIds = {};
@@ -33,14 +33,14 @@ export class MultiPoolStrategies {
 
     const underlyingAsset = await strategyContract.asset();
     // eslint-disable-next-line new-cap
-    const assetContract = Contracts.general.ERC20(
+    const assetContract = Contracts.general.erc20(
         new EthereumAddress(strategy),
         this.alchemyProvider,
     );
 
     const assetDecimals = await assetContract.decimals();
     const assetPerShare = await strategyContract.convertToAssets(
-        ethers.parseUnits('1', assetDecimals),
+        ethers.utils.parseUnits('1', assetDecimals),
     );
 
     return {

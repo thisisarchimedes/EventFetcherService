@@ -20,6 +20,8 @@ export class EventFetcherAdapter extends EventFetcher {
       this.events = JSON.parse(data) as ethers.providers.Log[];
       if (strategyOverride) {
         this.events = this.events.map((event) => {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           event.address = strategyOverride;
           return event;
         });

@@ -1,7 +1,14 @@
-export type OpenPositionEvent = {
+import {BigNumber} from 'ethers';
+import {ContractType} from './EventDescriptor';
+
+export type BaseEvent = {
   name: string;
+  contractType: ContractType;
   txHash: string;
   blockNumber: number;
+}
+
+export type OpenPositionEvent = BaseEvent & {
   data: {
       nftId: string;
       user: string;
@@ -12,10 +19,8 @@ export type OpenPositionEvent = {
       sharesReceived: string;
   };
 };
-export type ClosePositionEvent = {
-  name: string;
-  txHash: string;
-  blockNumber: number;
+
+export type ClosePositionEvent = BaseEvent & {
   data: {
       nftId: string;
       user: string;
@@ -23,10 +28,8 @@ export type ClosePositionEvent = {
       wbtcDebtAmount: string;
   };
 };
-export type LiquidatePositionEvent = {
-  name: string;
-  txHash: string;
-  blockNumber: number;
+
+export type LiquidatePositionEvent = BaseEvent & {
   data: {
       nftId: string;
       strategy: string;
@@ -36,10 +39,7 @@ export type LiquidatePositionEvent = {
   };
 };
 
-export type ExpirePositionEvent = {
-  name: string;
-  txHash: string;
-  blockNumber: number;
+export type ExpirePositionEvent = BaseEvent & {
   data: {
       nftId: string;
       user: string;
@@ -47,10 +47,7 @@ export type ExpirePositionEvent = {
   };
 };
 
-export type ClaimEvent = {
-  name: string;
-  txHash: string;
-  blockNumber: number;
+export type ClaimEvent = BaseEvent & {
   data: {
       claimer: string;
       nftId: string;
@@ -59,7 +56,7 @@ export type ClaimEvent = {
 };
 
 export type StrategyData = {
-  assetPerShare: bigint;
+  assetPerShare: BigNumber;
   underlyingAsset: string;
-  assetDecimals: bigint;
+  assetDecimals: number;
 };

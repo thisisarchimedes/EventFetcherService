@@ -3,6 +3,8 @@ import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
 import chai from 'chai';
+import hre from 'hardhat';
+import '@nomiclabs/hardhat-ethers';
 
 import {S3Service, Logger, ethers} from '@thisisarchimedes/backend-sdk';
 
@@ -10,7 +12,6 @@ import {ConfigService} from '../../src/services/config/ConfigService';
 import {ConfigServiceAdapter} from '../adapters/ConfigServiceAdapter';
 import {EventFetcherAdapter} from '../adapters/EventFetcherAdapter';
 import {EventFactory, EventFactoryUnknownEventError} from '../../src/onchain_events/EventFactory';
-
 
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
@@ -28,25 +29,25 @@ describe('Inner logic functions', function() {
 
   beforeEach(async function() {
     // Deploy a mock contract for the tests
-    const PositionOpenerFactory = await ethers.getContractFactory(
+    const PositionOpenerFactory = await hre.ethers.getContractFactory(
         'PositionOpener_mock',
     );
 
     positionOpenerMockContract = await PositionOpenerFactory.deploy();
     await positionOpenerMockContract.deployed();
 
-    const PositionCloserFactory = await ethers.getContractFactory(
+    const PositionCloserFactory = await hre.ethers.getContractFactory(
         'PositionCloser_mock',
     );
 
     positionCloserMockContract = await PositionCloserFactory.deploy();
     await positionCloserMockContract.deployed();
 
-    const PositionLiquidatorFactory = await ethers.getContractFactory(
+    const PositionLiquidatorFactory = await hre.ethers.getContractFactory(
         'PositionLiquidator_mock',
     );
 
-    const PositionExpiratorFactory = await ethers.getContractFactory(
+    const PositionExpiratorFactory = await hre.ethers.getContractFactory(
         'PositionExpirator_mock',
     );
 
@@ -56,20 +57,16 @@ describe('Inner logic functions', function() {
     positionLiquidatorMockContract = await PositionLiquidatorFactory.deploy();
     await positionLiquidatorMockContract.deployed();
 
-    // Stub the S3Service and SQSService and their methods
     s3Stub = sinon.createStubInstance(S3Service);
     s3Stub.getObject.resolves();
     s3Stub.putObject.resolves(undefined);
-
-    sqsStub = sinon.createStubInstance(SQSService);
-    sqsStub.sendMessage.resolves(undefined);
 
     // Stub the Logger
     loggerStub = sinon.createStubInstance(Logger);
 
     configService = new ConfigServiceAdapter();
 
-    eventFactory = new EventFactory(configService, loggerStub, sqsStub);
+    eventFactory = new EventFactory(configService, loggerStub);
   });
 
   it('should throw for no logs', async function() {

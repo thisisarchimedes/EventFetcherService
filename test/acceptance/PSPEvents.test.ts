@@ -8,7 +8,6 @@ import {handler} from '../../src/lambda-handler';
 
 import {MockEthereumNode} from './Mocks/MockEthereumNode';
 import {MockNewRelic} from './Mocks/MockNewRelic';
-import {MockSQS} from './Mocks/MockSQS';
 import {MockAWSS3} from './Mocks/MockAWSS3';
 import {ConfigServiceAWS} from '../../src/services/config/ConfigServiceAWS';
 import {AppConfigClient} from '../../src/services/config/AppConfigClient';
@@ -22,7 +21,6 @@ describe('PSP Events', function() {
   let logger: LoggerAdapter;
   let mockEthereumNode: MockEthereumNode;
   let mockNewRelic: MockNewRelic;
-  let mockSQS: MockSQS;
   let mockAWSS3: MockAWSS3;
   const config: ConfigServiceAWS = new ConfigServiceAWS(ENVIRONMENT, AWS_REGION);
   const appConfigClient: AppConfigClient = new AppConfigClient(ENVIRONMENT, AWS_REGION);
@@ -118,8 +116,6 @@ describe('PSP Events', function() {
     const newRelicApiUrl: string = 'https://log-api.newrelic.com';
     mockNewRelic = new MockNewRelic(newRelicApiUrl, logger);
 
-    mockSQS = new MockSQS('https://sqs.us-east-1.amazonaws.com/');
-
     const {bucket} = JSON.parse(await appConfigClient.fetchConfigRawString('LastBlockScannedS3FileURL'));
 
     mockAWSS3 = new MockAWSS3(bucket, AWS_REGION);
@@ -128,7 +124,6 @@ describe('PSP Events', function() {
   function setupGenericNockInterceptors() {
     mockNewRelicLogEndpoint();
     mockAWSS3Endpoint();
-    mockSQSEndpoint();
   }
 
   function mockEthereumNodeResponses(syntheticEventFile: string, address?: string) {
@@ -144,10 +139,6 @@ describe('PSP Events', function() {
   function mockAWSS3Endpoint() {
     mockAWSS3.mockChangeLastProcessedBlockNumber();
     mockAWSS3.mockGetLastProcessedBlockNumber(7000000);
-  }
-
-  function mockSQSEndpoint() {
-    mockSQS.mockSQSSendMessage();
   }
 
   function cleanupNock() {

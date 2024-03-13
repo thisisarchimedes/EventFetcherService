@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: Deploys a Lambda function to fetch and queue WBTC engine events every minute.
+Description: Deploys a Lambda function to fetch and process contracts events to the DB.
 
 Globals:
   Function:
