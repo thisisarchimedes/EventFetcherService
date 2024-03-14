@@ -17,7 +17,7 @@ import {
   TOPIC_EVENT_PSP_DEPOSIT,
   TOPIC_EVENT_PSP_WITHDRAW,
 } from './EventTopic';
-import { ethers } from 'ethers';
+import {ethers} from 'ethers';
 
 export class EventFactoryUnknownEventError extends Error {
   constructor(message: string) {
