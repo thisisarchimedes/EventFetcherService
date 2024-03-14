@@ -18,6 +18,7 @@ Resources:
               Service: lambda.amazonaws.com
             Action: sts:AssumeRole
       Policies:
+        - PolicyName: LambdaS3FullAccess
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
