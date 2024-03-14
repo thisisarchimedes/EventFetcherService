@@ -46,12 +46,12 @@ describe('PSP Events', function() {
 
     expect(mockNewRelic.isLogEntryDetected()).to.be.true;
 
-    // const expectedLog = createExpectedLogMessagePSPDeposit();
-    // const actualLog = mockNewRelic.findMatchingLogEntry(logger);
+    const expectedLog = createExpectedLogMessagePSPDeposit();
+    const actualLog = mockNewRelic.findMatchingLogEntry(logger);
 
-    // expect(actualLog).to.not.be.null;
-    // const res: boolean = validateLogMessage(actualLog as EventFetcherLogEntryMessagePSP, expectedLog);
-    // expect(res).to.be.true;
+    expect(actualLog).to.not.be.null;
+    const res: boolean = validateLogMessage(actualLog as EventFetcherLogEntryMessagePSP, expectedLog);
+    expect(res).to.be.true;
   });
 
   function createExpectedLogMessagePSPDeposit(): EventFetcherLogEntryMessagePSP {
@@ -77,12 +77,12 @@ describe('PSP Events', function() {
 
     expect(mockNewRelic.isLogEntryDetected()).to.be.true;
 
-    // const expectedLog = createExpectedLogMessagePSPWithdraw();
-    // const actualLog = mockNewRelic.findMatchingLogEntry(logger);
+    const expectedLog = createExpectedLogMessagePSPWithdraw();
+    const actualLog = mockNewRelic.findMatchingLogEntry(logger);
 
-    // expect(actualLog).to.not.be.null;
-    // const res: boolean = validateLogMessage(actualLog as EventFetcherLogEntryMessagePSP, expectedLog);
-    // expect(res).to.be.true;
+    expect(actualLog).to.not.be.null;
+    const res: boolean = validateLogMessage(actualLog as EventFetcherLogEntryMessagePSP, expectedLog);
+    expect(res).to.be.true;
   });
 
   function createExpectedLogMessagePSPWithdraw(): EventFetcherLogEntryMessagePSP {
@@ -131,5 +131,20 @@ describe('PSP Events', function() {
 
   function cleanupNock() {
     nock.cleanAll();
+  }
+
+  function validateLogMessage(
+      actualLog: EventFetcherLogEntryMessagePSP,
+      expectedLog: EventFetcherLogEntryMessagePSP,
+  ): boolean {
+    return (
+      actualLog.blockNumber === expectedLog.blockNumber &&
+    actualLog.txHash === expectedLog.txHash &&
+    actualLog.event === expectedLog.event &&
+    actualLog.user === expectedLog.user &&
+    actualLog.strategy === expectedLog.strategy &&
+    actualLog.amountAddedToStrategy === expectedLog.amountAddedToStrategy &&
+    actualLog.amountAddedToAdapter === expectedLog.amountAddedToAdapter
+    );
   }
 });
