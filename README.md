@@ -1,18 +1,24 @@
 # Leverage events fetcher
 
+Service that fetches on-chain events and process them to build a offchain leverage ledger.
+
+The ledger is used in front-end to display the leverage position of a user and also to calculate the liquidation.
+
 ## Table of Contents
 
-- [Overview](#overview)
-- [Run Locally](#run-locally)
-  - [Install dependencies](#install-dependencies)
-  - [Get .env file](#get-env-file)
-  - [Update .env](#update-env)
-  - [Run tests](#run-tests)
-  - [Linter](#linter)
-- [Environment Variables](#environment-variables)
-- [Continuous Deployment](#continuous-deployment)
-- [Troubleshooting](#troubleshooting)
-  - [dotenvx doesn't work properly](#dotenvx-doesnt-work-properly)
+- [Leverage events fetcher](#leverage-events-fetcher)
+  - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+  - [Run Locally](#run-locally)
+    - [Install dependencies](#install-dependencies)
+    - [Get .env file](#get-env-file)
+    - [Update .env](#update-env)
+    - [Run tests](#run-tests)
+    - [Linter](#linter)
+  - [Environment Variables](#environment-variables)
+  - [Continuous Deployment](#continuous-deployment)
+  - [Troubleshoting](#troubleshoting)
+    - [dotenvx doesn't work properly](#dotenvx-doesnt-work-properly)
 
 ## Overview
 

@@ -44,8 +44,6 @@ export class ConfigServiceAdapter extends ConfigService {
     this.MainRPCURL = process.env.LOCAL_TEST_NODE as string;
     this.AltRPCURL = process.env.LOCAL_TEST_NODE as string;
     this.EventFetchPageSize = 100;
-    this.EventQueueURL = await this.appConfigClient.fetchConfigRawString('NewEventsQueueURL');
-    this.leveragePositionDatabaseURL = process.env.DATABASE_URL as string;
   }
 
   public setLeverageAddressesFile(file: string): void {

@@ -1,12 +1,13 @@
-import {ethers} from 'ethers';
 import {OnChainEventLeverage} from './OnChainEventLeverage';
-import {Logger, SQSService} from '@thisisarchimedes/backend-sdk';
+import {Logger} from '@thisisarchimedes/backend-sdk';
 import {ConfigService} from '../../services/config/ConfigService';
-import {EventFetcherSQSMessage} from '../../types/EventFetcherSQSMessage';
 import {
   EventFetcherLogEntryMessageLeverage,
   EventSpecificDataLeveragePositionOpened,
 } from '../../types/NewRelicLogEntry';
+import {EventFetcherMessage} from '../../types/EventFetcherMessage';
+import {ethers} from 'ethers';
+import {ContractType} from '../../types/EventDescriptor';
 
 const ADDRESS_TOPIC_INDEX = 3;
 
@@ -16,8 +17,8 @@ export class OnChainEventLeveragePositionOpened extends OnChainEventLeverage {
   private positionExpireBlock!: number;
   private sharesReceived!: bigint;
 
-  constructor(rawEventLog: ethers.providers.Log, logger: Logger, sqsService: SQSService, configService: ConfigService) {
-    super(rawEventLog, logger, sqsService, configService);
+  constructor(rawEventLog: ethers.providers.Log, logger: Logger, configService: ConfigService) {
+    super(rawEventLog, logger, configService);
     this.eventName = 'LeveragedPositionOpened';
     this.parseEventLog(rawEventLog);
   }
@@ -72,10 +73,10 @@ export class OnChainEventLeveragePositionOpened extends OnChainEventLeverage {
     this.sharesReceived = decodedData[3];
   }
 
-  protected getSQSMessage(): EventFetcherSQSMessage {
-    const msg: EventFetcherSQSMessage = {
+  protected getMessage(): EventFetcherMessage {
+    const msg: EventFetcherMessage = {
       name: 'PositionOpened',
-      contractType: 0,
+      contractType: ContractType.Opener,
       txHash: this.txHash,
       blockNumber: this.blockNumber,
       data: {

@@ -16,7 +16,7 @@
     "@aws-sdk/client-appconfig": "^3.515.0",
     "@dotenvx/dotenvx": "^0.20.2",
     "@prisma/client": "^5.10.2",
-    "@thisisarchimedes/backend-sdk": "1.0.59",
+    "@thisisarchimedes/backend-sdk": "1.0.79",
     "aws-sdk": "^2.1561.0",
     "aws-sdk-client-mock": "^3.0.1",
     "aws-sdk-mock": "^5.9.0",

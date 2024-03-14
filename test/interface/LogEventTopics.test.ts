@@ -1,6 +1,6 @@
 import {expect} from 'chai';
-import {ethers} from 'hardhat';
-import {Contract} from 'ethers';
+import {ethers} from 'ethers';
+import hre from 'hardhat';
 
 import {
   TOPIC_EVENT_LEVERAGE_POSITION_CLOSED,
@@ -24,7 +24,7 @@ describe('Validating Topic hash calculation for leverage events', function() {
   });
 
   it('should have the expected topic[0] for PositionOpened event', async function() {
-    const positionOpenerMockContract: Contract = await deployMockContract('PositionOpener_mock');
+    const positionOpenerMockContract: ethers.Contract = await deployMockContract('PositionOpener_mock');
 
     const tx = await positionOpenerMockContract.openPosition(
         nftId,
@@ -41,7 +41,7 @@ describe('Validating Topic hash calculation for leverage events', function() {
   });
 
   it('should have the expected topic[0] for PositionClosed event', async function() {
-    const positionCloserMockContract: Contract = await deployMockContract('PositionCloser_mock');
+    const positionCloserMockContract: ethers.Contract = await deployMockContract('PositionCloser_mock');
 
     const tx = await positionCloserMockContract.closePosition(
         nftId,
@@ -56,7 +56,7 @@ describe('Validating Topic hash calculation for leverage events', function() {
   });
 
   it('should have the expected topic[0] for PositionLiquidated event', async function() {
-    const positionLiquidatorMockContract: Contract = await deployMockContract('PositionLiquidator_mock');
+    const positionLiquidatorMockContract: ethers.Contract = await deployMockContract('PositionLiquidator_mock');
 
     const tx = await positionLiquidatorMockContract.liquidatePosition(
         nftId,
@@ -71,7 +71,7 @@ describe('Validating Topic hash calculation for leverage events', function() {
   });
 
   it('should have the expected topic[0] for PositionExpired event', async function() {
-    const PositionExpiratorMockContract: Contract = await deployMockContract('PositionExpirator_mock');
+    const PositionExpiratorMockContract: ethers.Contract = await deployMockContract('PositionExpirator_mock');
 
     const tx = await PositionExpiratorMockContract.expirePosition(
         nftId,
@@ -100,9 +100,9 @@ describe('Validating Topic hash calculation for leverage events', function() {
     sharesReceived = Math.floor(Math.random() * 1000);
   }
 
-  async function deployMockContract(contractName: string): Promise<Contract> {
-    const factory = await ethers.getContractFactory(contractName);
-    const mockContract: Contract = await factory.deploy();
+  async function deployMockContract(contractName: string): Promise<ethers.Contract> {
+    const factory = await hre.ethers.getContractFactory(contractName);
+    const mockContract = await factory.deploy();
     await mockContract.deployed();
 
     return mockContract;

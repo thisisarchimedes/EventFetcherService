@@ -1,17 +1,18 @@
-import {ethers} from 'ethers';
-
-import {Logger, SQSService} from '@thisisarchimedes/backend-sdk';
+import {Logger} from '@thisisarchimedes/backend-sdk';
 import {OnChainEvent} from '../OnChainEvent';
 import {ConfigService} from '../../services/config/ConfigService';
+import {EventFetcherMessage} from '../../types/EventFetcherMessage';
+import {ethers} from 'ethers';
 
 export abstract class OnChainEventPSP extends OnChainEvent {
-  constructor(rawEventLog: ethers.providers.Log, logger: Logger, sqsService: SQSService, configService: ConfigService) {
-    super(rawEventLog, logger, sqsService, configService);
+  constructor(rawEventLog: ethers.providers.Log, logger: Logger, configService: ConfigService) {
+    super(rawEventLog, logger, configService);
     this.parseEventLog(rawEventLog);
   }
 
-  public process(): void {
+  public process(): EventFetcherMessage|undefined {
     this.logPSPEvent();
+    return undefined;
   }
 
   protected abstract logPSPEvent(): void;

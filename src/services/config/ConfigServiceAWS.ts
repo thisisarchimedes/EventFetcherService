@@ -21,8 +21,6 @@ export class ConfigServiceAWS extends ConfigService {
       this.refreshLastScannedBlock(),
       this.refreshRPCURL(),
       this.refreshEventFetchPageSize(),
-      this.refreshEventQueueURL(),
-      this.refreshLeveragePositionDatabaseURL(),
     ]);
   }
 
@@ -99,13 +97,5 @@ export class ConfigServiceAWS extends ConfigService {
   private async refreshEventFetchPageSize(): Promise<void> {
     const res = await this.appConfigClient.fetchConfigRawString('EventsFetchPageSize');
     this.EventFetchPageSize = parseInt(res, 10);
-  }
-
-  private async refreshEventQueueURL(): Promise<void> {
-    this.EventQueueURL = await this.appConfigClient.fetchConfigRawString('NewEventsQueueURL');
-  }
-
-  private async refreshLeveragePositionDatabaseURL(): Promise<void> {
-    this.leveragePositionDatabaseURL = await this.appConfigClient.fetchConfigRawString('LeveragePositionDatabaseURL');
   }
 }

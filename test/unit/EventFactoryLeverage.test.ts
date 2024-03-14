@@ -11,16 +11,14 @@ import {
   EventSpecificDataLeveragePositionLiquidated,
   EventSpecificDataLeveragePositionOpened,
 } from '../../src/types/NewRelicLogEntry';
-import {SQSServiceAdapter} from '../adapters/SQSServiceAdapter';
 import {OnChainEvent} from '../../src/onchain_events/OnChainEvent';
-import {EventFetcherSQSMessage} from '../../src/types/EventFetcherSQSMessage';
+import {EventFetcherMessage} from '../../src/types/EventFetcherMessage';
 
 describe('Leverage Events Logging & Queuing', function() {
   let logger: LoggerAdapter;
   let eventFetcher: EventFetcherAdapter;
   let configService: ConfigServiceAdapter;
   let eventFactory: EventFactory;
-  let sqsService: SQSServiceAdapter;
 
   const LOCAL_LOGGER: string = 'local_logger.txt';
   const LEVERAGE_ADDRESS_FILE: string = 'test/data/leverageAddresses.json';
@@ -51,7 +49,7 @@ describe('Leverage Events Logging & Queuing', function() {
       eventSpecificData: eventSpecificDetails,
     };
 
-    const expectedSqsMessage: EventFetcherSQSMessage = {
+    const expectedMessage: EventFetcherMessage = {
       name: 'PositionOpened',
       contractType: 0,
       txHash: '0x1fe52317d52b452120708667eed57e3c19ad39268bfabcf60230978c50df426f',
@@ -72,7 +70,7 @@ describe('Leverage Events Logging & Queuing', function() {
         expectedEventName,
         configService.getLeveragePositionOpenerAddress(),
     );
-    testEventProcessing(event, expectedLogMessage, expectedSqsMessage);
+    testEventProcessing(event, expectedLogMessage, expectedMessage);
   });
 
   it('should report on PositionClosed event', async function() {
@@ -90,7 +88,7 @@ describe('Leverage Events Logging & Queuing', function() {
       debtBorrowedFromProtocol: (BigInt(2) * -1n).toString(),
     };
 
-    const expectedSqsMessage: EventFetcherSQSMessage = {
+    const expectedMessage: EventFetcherMessage = {
       name: 'PositionClosed',
       contractType: 1,
       txHash: '0x1fe52317d52b452120708667eed57e3c19ad39268bfabcf60230978c50df426f',
@@ -108,7 +106,7 @@ describe('Leverage Events Logging & Queuing', function() {
         expectedEventName,
         configService.getLeveragePositionCloserAddress(),
     );
-    testEventProcessing(event, expectedLogMessage, expectedSqsMessage);
+    testEventProcessing(event, expectedLogMessage, expectedMessage);
   });
 
   it('should report on PositionLiqiuidated event', async function() {
@@ -130,7 +128,7 @@ describe('Leverage Events Logging & Queuing', function() {
       eventSpecificData: eventSpecificDetails,
     };
 
-    const expectedSqsMessage: EventFetcherSQSMessage = {
+    const expectedMessage: EventFetcherMessage = {
       name: 'PositionLiquidated',
       contractType: 2,
       txHash: '0x1fe52317d52b452120708667eed57e3c19ad39268bfabcf60230978c50df426f',
@@ -149,7 +147,7 @@ describe('Leverage Events Logging & Queuing', function() {
         expectedEventName,
         configService.getLeveragePositionLiquidatorAddress(),
     );
-    testEventProcessing(event, expectedLogMessage, expectedSqsMessage);
+    testEventProcessing(event, expectedLogMessage, expectedMessage);
   });
 
   it('should report on PositionExpired event', async function() {
@@ -166,7 +164,7 @@ describe('Leverage Events Logging & Queuing', function() {
       collateralAddedToStrategy: (BigInt(2) * -1n).toString(),
     };
 
-    const expectedSqsMessage: EventFetcherSQSMessage = {
+    const expectedMessage: EventFetcherMessage = {
       name: 'PositionExpired',
       contractType: 3,
       txHash: '0x1fe52317d52b452120708667eed57e3c19ad39268bfabcf60230978c50df426f',
@@ -183,14 +181,13 @@ describe('Leverage Events Logging & Queuing', function() {
         expectedEventName,
         configService.getLeveragePositionExpiratorAddress(),
     );
-    testEventProcessing(event, expectedLogMessage, expectedSqsMessage);
+    testEventProcessing(event, expectedLogMessage, expectedMessage);
   });
 
 
   function setupTestEnvironment() {
     logger = new LoggerAdapter(LOCAL_LOGGER);
     eventFetcher = new EventFetcherAdapter();
-    sqsService = new SQSServiceAdapter();
     configService = new ConfigServiceAdapter();
   }
 
@@ -198,7 +195,7 @@ describe('Leverage Events Logging & Queuing', function() {
     configService.setLeverageAddressesFile(LEVERAGE_ADDRESS_FILE);
     configService.setPSPInfoFile(PSP_INFO_FILE);
     await configService.refreshConfig();
-    eventFactory = new EventFactory(configService, logger as unknown as Logger, sqsService);
+    eventFactory = new EventFactory(configService, logger as unknown as Logger);
   }
 
   async function testEventGeneration(
@@ -232,15 +229,14 @@ describe('Leverage Events Logging & Queuing', function() {
   function testEventProcessing(
       event: OnChainEvent,
       expectedLogMessage: EventFetcherLogEntryMessageLeverage,
-      expectedSqsMessage: EventFetcherSQSMessage,
+      expectedMessage: EventFetcherMessage,
   ) {
-    event.process();
+    const eventResult = event.process();
 
     const actualLogMessage = JSON.parse(JSON.parse(logger.getLastMessageRawString().split('INFO: ')[1]));
     validateLogMessage(actualLogMessage, expectedLogMessage);
 
-    const actualSqsMessage = JSON.parse(sqsService.getLatestMessage());
-    validateSQSMessage(actualSqsMessage, expectedSqsMessage);
+    validateMessage(eventResult!, expectedMessage);
   }
 
   function validateLogMessage(
@@ -259,9 +255,9 @@ describe('Leverage Events Logging & Queuing', function() {
         .to.equal(JSON.stringify(expectedLogMessage.eventSpecificData));
   }
 
-  function validateSQSMessage(
-      actualLogMessage: EventFetcherSQSMessage,
-      expectedLogMessage: EventFetcherSQSMessage,
+  function validateMessage(
+      actualLogMessage: EventFetcherMessage,
+      expectedLogMessage: EventFetcherMessage,
   ) {
     expect(actualLogMessage.blockNumber).to.equal(expectedLogMessage.blockNumber);
     expect(actualLogMessage.contractType).to.equal(expectedLogMessage.contractType);

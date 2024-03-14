@@ -1,6 +1,5 @@
-import {ethers} from 'ethers';
 import {ConfigService} from '../services/config/ConfigService';
-import {Logger, SQSService} from '@thisisarchimedes/backend-sdk';
+import {Logger} from '@thisisarchimedes/backend-sdk';
 
 import {OnChainEvent} from './OnChainEvent';
 import {OnChainEventPSPDeposit} from './psp_events/OnChainEventPSPDeposit';
@@ -18,8 +17,7 @@ import {
   TOPIC_EVENT_PSP_DEPOSIT,
   TOPIC_EVENT_PSP_WITHDRAW,
 } from './EventTopic';
-
-// const TEST_ADDRESS = '0x0000000000000000000000000000000000000000';
+import {ethers} from 'ethers';
 
 export class EventFactoryUnknownEventError extends Error {
   constructor(message: string) {
@@ -31,12 +29,10 @@ export class EventFactoryUnknownEventError extends Error {
 export class EventFactory {
   private configService: ConfigService;
   private logger: Logger;
-  private sqsService: SQSService;
 
-  constructor(configService: ConfigService, logger: Logger, sqsService: SQSService) {
+  constructor(configService: ConfigService, logger: Logger) {
     this.configService = configService;
     this.logger = logger;
-    this.sqsService = sqsService;
   }
 
   public createEvent(eventLog: ethers.providers.Log): OnChainEvent {
@@ -65,10 +61,10 @@ export class EventFactory {
 
     switch (eventLog.topics[0]) {
       case TOPIC_EVENT_PSP_DEPOSIT:
-        return new OnChainEventPSPDeposit(eventLog, this.logger, this.sqsService, this.configService);
+        return new OnChainEventPSPDeposit(eventLog, this.logger, this.configService);
 
       case TOPIC_EVENT_PSP_WITHDRAW:
-        return new OnChainEventPSPWithdraw(eventLog, this.logger, this.sqsService, this.configService);
+        return new OnChainEventPSPWithdraw(eventLog, this.logger, this.configService);
     }
 
     return undefined;
@@ -81,16 +77,16 @@ export class EventFactory {
 
     switch (eventLog.topics[0]) {
       case TOPIC_EVENT_LEVERAGE_POSITION_OPENED:
-        return new OnChainEventLeveragePositionOpened(eventLog, this.logger, this.sqsService, this.configService);
+        return new OnChainEventLeveragePositionOpened(eventLog, this.logger, this.configService);
 
       case TOPIC_EVENT_LEVERAGE_POSITION_CLOSED:
-        return new OnChainEventLeveragePositionClosed(eventLog, this.logger, this.sqsService, this.configService);
+        return new OnChainEventLeveragePositionClosed(eventLog, this.logger, this.configService);
 
       case TOPIC_EVENT_LEVERAGE_POSITION_LIQUIDATED:
-        return new OnChainEventLeveragePositionLiquidated(eventLog, this.logger, this.sqsService, this.configService);
+        return new OnChainEventLeveragePositionLiquidated(eventLog, this.logger, this.configService);
 
       case TOPIC_EVENT_LEVERAGE_POSITION_EXPIRED:
-        return new OnChainEventLeveragePositionExpired(eventLog, this.logger, this.sqsService, this.configService);
+        return new OnChainEventLeveragePositionExpired(eventLog, this.logger, this.configService);
     }
 
     return undefined;
@@ -120,11 +116,6 @@ export class EventFactory {
   private isLogEventEmittedByPSPContract(eventLog: ethers.providers.Log): boolean {
     const emitterAddress = eventLog.address;
 
-    // making tests easier - so we don't need to update synthetic data addresses every time we deploy
-    // if (TEST_ADDRESS === emitterAddress) {
-    //  return true;
-    // }
-
     const res = this.configService.getPSPStrategyInfoByAddress(emitterAddress);
     if (res === undefined) {
       return false;
@@ -134,11 +125,6 @@ export class EventFactory {
 
   private isLogEventEmittedByLeverageContract(eventLog: ethers.providers.Log): boolean {
     const emitterAddress = eventLog.address;
-
-    // making tests easier - so we don't need to update synthetic data addresses every time we deploy
-    // if (TEST_ADDRESS === emitterAddress) {
-    //  return true;
-    // }
 
     if (this.configService.getLeveragePositionOpenerAddress() === emitterAddress ||
       this.configService.getLeveragePositionCloserAddress() === emitterAddress ||
