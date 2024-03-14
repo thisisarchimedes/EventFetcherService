@@ -1,9 +1,10 @@
-import {ethers} from 'ethers';
 import {OnChainEventLeverage} from './OnChainEventLeverage';
-import {Logger, SQSService} from '@thisisarchimedes/backend-sdk';
+import {Logger} from '@thisisarchimedes/backend-sdk';
 import {ConfigService} from '../../services/config/ConfigService';
-import {EventFetcherSQSMessage} from '../../types/EventFetcherSQSMessage';
+import {EventFetcherMessage} from '../../types/EventFetcherMessage';
 import {EventFetcherLogEntryMessageLeverage} from '../../types/NewRelicLogEntry';
+import {ethers} from 'ethers';
+import {ContractType} from '../../types/EventDescriptor';
 
 const ADDRESS_TOPIC_INDEX = 3;
 
@@ -11,8 +12,8 @@ export class OnChainEventLeveragePositionClosed extends OnChainEventLeverage {
   private receivedAmount!: bigint;
   private debtAmount!: bigint;
 
-  constructor(rawEventLog: ethers.providers.Log, logger: Logger, sqsService: SQSService, configService: ConfigService) {
-    super(rawEventLog, logger, sqsService, configService);
+  constructor(rawEventLog: ethers.providers.Log, logger: Logger, configService: ConfigService) {
+    super(rawEventLog, logger, configService);
     this.eventName = 'LeveragedPositionClosed';
     this.parseEventLog(rawEventLog);
   }
@@ -59,10 +60,10 @@ export class OnChainEventLeveragePositionClosed extends OnChainEventLeverage {
     this.debtAmount = decodedData[1];
   }
 
-  protected getSQSMessage(): EventFetcherSQSMessage {
-    const msg: EventFetcherSQSMessage = {
+  protected getMessage(): EventFetcherMessage {
+    const msg: EventFetcherMessage = {
       name: 'PositionClosed',
-      contractType: 1,
+      contractType: ContractType.Closer,
       txHash: this.txHash,
       blockNumber: this.blockNumber,
       data: {

@@ -1,6 +1,6 @@
 import {ContractType} from './EventDescriptor';
 
-export type EventFetcherSQSMessage = {
+export type EventFetcherMessage = {
   name: string;
   contractType: ContractType;
   txHash: string;

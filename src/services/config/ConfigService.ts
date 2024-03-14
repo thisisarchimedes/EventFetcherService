@@ -15,7 +15,6 @@ export abstract class ConfigService {
   protected MainRPCURL: string = '';
   protected AltRPCURL: string = '';
   protected EventFetchPageSize: number = 0;
-  protected EventQueueURL: string = '';
   protected MaxNumberOfBlocksToProess: number = 1000;
 
   abstract refreshConfig(): Promise<void>;
@@ -73,10 +72,6 @@ export abstract class ConfigService {
 
   public getEventsFetchPageSize(): number {
     return this.EventFetchPageSize;
-  }
-
-  public getEventQueueURL(): string {
-    return this.EventQueueURL;
   }
 
   public getMaxNumberOfBlocksToProcess(): number {

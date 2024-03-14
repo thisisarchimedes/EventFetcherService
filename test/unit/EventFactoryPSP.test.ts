@@ -8,7 +8,6 @@ import {ConfigServiceAdapter} from '../adapters/ConfigServiceAdapter';
 
 import {EventFactory} from '../../src/onchain_events/EventFactory';
 import {EventFetcherLogEntryMessagePSP} from '../../src/types/NewRelicLogEntry';
-import {SQSServiceAdapter} from '../adapters/SQSServiceAdapter';
 import {OnChainEvent} from '../../src/onchain_events/OnChainEvent';
 
 dotenv.config();
@@ -18,19 +17,17 @@ describe('PSP Events Logging', function() {
   let eventFetcher: EventFetcherAdapter;
   let configService: ConfigServiceAdapter;
   let eventFactory: EventFactory;
-  let sqsService: SQSServiceAdapter;
 
   beforeEach(async function() {
     logger = new LoggerAdapter('local_logger.txt');
     eventFetcher = new EventFetcherAdapter();
-    sqsService = new SQSServiceAdapter();
 
     configService = new ConfigServiceAdapter();
     configService.setLeverageAddressesFile('test/data/leverageAddresses.json');
     configService.setPSPInfoFile('test/data/strategies.json');
     await configService.refreshConfig();
 
-    eventFactory = new EventFactory(configService, logger as unknown as Logger, sqsService);
+    eventFactory = new EventFactory(configService, logger as unknown as Logger);
   });
 
   it('should report on Deposit event', async function() {

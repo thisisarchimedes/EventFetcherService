@@ -1,7 +1,7 @@
-import {Logger, SQSService} from '@thisisarchimedes/backend-sdk';
+import {Logger, ethers} from '@thisisarchimedes/backend-sdk';
 import {ConfigService} from '../services/config/ConfigService';
 import {ContractInfoPSP} from '../types/ContractInfoPSP';
-import {ethers} from 'ethers';
+import {EventFetcherMessage} from '../types/EventFetcherMessage';
 
 export abstract class OnChainEvent {
   protected eventName: string = '';
@@ -11,19 +11,17 @@ export abstract class OnChainEvent {
 
   protected strategyConfig!: ContractInfoPSP;
   protected logger: Logger;
-  protected sqsService: SQSService;
   protected configService: ConfigService;
 
-  constructor(rawEventLog: ethers.providers.Log, logger: Logger, sqsService: SQSService, configService: ConfigService) {
+  constructor(rawEventLog: ethers.providers.Log, logger: Logger, configService: ConfigService) {
     this.logger = logger;
-    this.sqsService = sqsService;
     this.configService = configService;
 
     this.txHash = rawEventLog.transactionHash;
     this.blockNumber = rawEventLog.blockNumber;
   }
 
-  abstract process(): void;
+  abstract process(): EventFetcherMessage|undefined;
 
   public getEventName(): string {
     return this.eventName;

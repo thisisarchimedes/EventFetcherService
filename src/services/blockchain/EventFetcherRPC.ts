@@ -1,15 +1,12 @@
 import {ethers} from 'ethers';
 import {EventFetcher} from './EventFetcher';
 
-
 export class EventFetcherRPC extends EventFetcher {
-  private readonly mainProvider: ethers.providers.Provider;
-  private readonly altProvider: ethers.providers.Provider;
-
-  constructor(mainProviderRPCURL: string, altProviderRPCURL: string) {
+  constructor(
+    private readonly mainProvider: ethers.providers.JsonRpcProvider,
+    private readonly altProvider: ethers.providers.JsonRpcProvider,
+  ) {
     super();
-    this.mainProvider = new ethers.providers.JsonRpcProvider(mainProviderRPCURL);
-    this.altProvider = new ethers.providers.JsonRpcProvider(altProviderRPCURL);
   }
 
   public async getOnChainEvents(blockNumberFrom: number,
