@@ -38,6 +38,9 @@ export class ConfigServiceAdapter extends ConfigService {
     await this.refreshPSPContractInfo();
     await this.refreshPSPContractInfo();
 
+    dotenv.config();
+
+    this.environment = 'DemoApp';
     this.MainRPCURL = process.env.LOCAL_TEST_NODE as string;
     this.AltRPCURL = process.env.LOCAL_TEST_NODE as string;
     this.EventFetchPageSize = 100;

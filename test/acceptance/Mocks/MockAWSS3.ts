@@ -16,6 +16,7 @@ export class MockAWSS3 extends Mock {
         'x-amz-user-agent': (headerValue) => true,
       },
     })
+        .persist()
         .put('/last-block-number?x-id=PutObject')
         .reply(200);
   }
@@ -27,6 +28,7 @@ export class MockAWSS3 extends Mock {
         'x-amz-user-agent': (headerValue) => true,
       },
     })
+        .persist()
         .get('/last-block-number?x-id=GetObject')
         .reply(200, blockNumber.toString());
   }
