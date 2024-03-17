@@ -33,13 +33,13 @@ jobs:
           node-version: 'latest'
 
       - name: Install dependencies
-        run: npm install
+        run: yarn install
 
       - name: Build
-        run: npm run build
+        run: yarn build
 
       - name: Remove development dependencies
-        run: npm prune --production
+        run: yarn install --production
 
       - name: Prepare deployment package
         run: |
@@ -81,13 +81,13 @@ jobs:
           node-version: 'latest'
 
       - name: Install dependencies
-        run: npm install
+        run: yarn install
 
       - name: Build
-        run: npm run build
+        run: yarn build
 
       - name: Remove development dependencies
-        run: npm prune --production
+        run: yarn install --production
 
       - name: Prepare deployment package
         run: |
