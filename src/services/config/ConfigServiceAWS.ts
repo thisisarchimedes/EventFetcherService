@@ -21,6 +21,7 @@ export class ConfigServiceAWS extends ConfigService {
       this.refreshLastScannedBlock(),
       this.refreshRPCURL(),
       this.refreshEventFetchPageSize(),
+      this.refreshDatabaseURL(),
     ]);
   }
 
@@ -80,8 +81,12 @@ export class ConfigServiceAWS extends ConfigService {
 
   private async refreshLastScannedBlock(): Promise<void> {
     const res = JSON.parse(await this.appConfigClient.fetchConfigRawString('LastBlockScannedS3FileURL'));
-    const blockNumber = await this.s3Service.getObject(res['bucket'], res['key']);
-    this.lastBlockScanned = parseInt(blockNumber, 10);
+    try {
+      const blockNumber = await this.s3Service.getObject(res['bucket'], res['key']);
+      this.lastBlockScanned = parseInt(blockNumber, 10);
+    } catch (e) {
+      this.lastBlockScanned = 0;
+    }
   }
 
   private async refreshRPCURL(): Promise<void> {
@@ -97,5 +102,11 @@ export class ConfigServiceAWS extends ConfigService {
   private async refreshEventFetchPageSize(): Promise<void> {
     const res = await this.appConfigClient.fetchConfigRawString('EventsFetchPageSize');
     this.EventFetchPageSize = parseInt(res, 10);
+  }
+
+  private async refreshDatabaseURL(): Promise<void> {
+    const res = await this.appConfigClient.fetchConfigRawString('LeveragePositionDatabaseURL');
+    this.leveragePositionDatabaseURL = res;
+    process.env.DATABASE_URL = this.leveragePositionDatabaseURL;
   }
 }

@@ -5,7 +5,7 @@
   "main": "index.js",
   "private": true,
   "scripts": {
-    "start": "node --loader ts-node/esm index.ts",
+    "start": "node --loader ts-node/esm src/index.ts",
     "lint": "npx eslint --ext .ts,.tsx -c .eslintrc.cjs .",
     "test": "npx nyc --reporter=lcov --reporter=text hardhat test test/unit/*.test.ts test/acceptance/*.test.ts",
     "test:acceptance": "npx nyc --reporter=lcov --reporter=text hardhat test test/acceptance/*.test.ts",

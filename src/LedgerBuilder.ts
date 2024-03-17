@@ -62,8 +62,7 @@ export class LedgerBuilder {
       }
     } catch (err) {
       this.logger.error((err as Error).message.toString());
-    } finally {
-      await this.logger.flush();
+      throw err;
     }
   }
 
