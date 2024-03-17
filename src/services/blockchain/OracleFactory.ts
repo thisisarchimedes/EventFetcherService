@@ -1,7 +1,6 @@
 import {ConfigService} from '../config/ConfigService';
 import {Oracle} from './Oracle';
 import {OracleETHAsBTC} from './oracles/OracleETHAsBTC';
-import {isUndefined} from 'lodash';
 
 const ETH = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'.toLowerCase();
 const WBTC = '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599'.toLowerCase();
@@ -30,7 +29,7 @@ export class OracleFactory {
     const key = `${fromTokenAddress.toLowerCase()}->${toTokenAddress.toLowerCase()}`;
 
     const OracleType = OracleFactory.oracleMap[key];
-    if (isUndefined(OracleType)) {
+    if (OracleType === undefined) {
       throw new UnsupportedTokenPairError('Unsupported token pair for oracle');
     }
 
