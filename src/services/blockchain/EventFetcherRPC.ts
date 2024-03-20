@@ -9,7 +9,8 @@ export class EventFetcherRPC extends EventFetcher {
     super();
   }
 
-  public async getOnChainEvents(blockNumberFrom: number,
+  public async getOnChainEvents(
+      blockNumberFrom: number,
       blockNumberTo: number,
       topics: string[],
   ): Promise<ethers.providers.Log[]> {

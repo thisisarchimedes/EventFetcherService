@@ -100,7 +100,7 @@ describe('PSP Events', function() {
   async function initalizeMocks() {
     logger = new LoggerAdapter('local_logger.txt');
 
-    mockEthereumNode = new MockEthereumNode('http://ec2-52-4-114-208.compute-1.amazonaws.com:8545');
+    mockEthereumNode = new MockEthereumNode(config.getMainRPCURL());
 
     const newRelicApiUrl: string = 'https://log-api.newrelic.com';
     mockNewRelic = new MockNewRelic(newRelicApiUrl, logger);
