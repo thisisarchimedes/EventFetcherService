@@ -92,8 +92,10 @@ export class EventFactory {
     return undefined;
   }
 
-  private getEventObjectOrThrowError(results: [OnChainEvent | undefined, OnChainEvent | undefined],
-      eventLog: ethers.providers.Log): OnChainEvent {
+  private getEventObjectOrThrowError(
+      results: [OnChainEvent | undefined, OnChainEvent | undefined],
+      eventLog: ethers.providers.Log,
+  ): OnChainEvent {
     if (results.every((result) => result === undefined)) {
       const errorMessage = `Unknown event topic, ${eventLog.topics[0]}`;
       this.logger.error(errorMessage);

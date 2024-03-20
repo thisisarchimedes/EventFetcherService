@@ -175,7 +175,7 @@ describe('Leverage Events Logging & Queuing', function() {
         claimableAmount: '2',
       },
     };
-
+    
     const event: OnChainEvent = await testEventGeneration(
         eventSyntheticDataFileName,
         expectedEventName,
@@ -195,7 +195,7 @@ describe('Leverage Events Logging & Queuing', function() {
     configService.setLeverageAddressesFile(LEVERAGE_ADDRESS_FILE);
     configService.setPSPInfoFile(PSP_INFO_FILE);
     await configService.refreshConfig();
-    eventFactory = new EventFactory(configService, logger as unknown as Logger);
+        eventFactory = new EventFactory(configService, logger as unknown as Logger);
   }
 
   async function testEventGeneration(
@@ -215,6 +215,8 @@ describe('Leverage Events Logging & Queuing', function() {
         if (e.message === 'Unknown contract address') {
           continue;
         }
+
+        console.error(e);
       }
     }
 
