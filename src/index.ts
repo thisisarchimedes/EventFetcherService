@@ -2,6 +2,14 @@ import {ethers, Logger} from '@thisisarchimedes/backend-sdk';
 import {ConfigServiceAWS} from './services/config/ConfigServiceAWS';
 import {EventProcessorService} from './EventProcessorService';
 
+// Handle SIGINT signal
+let sigint = false;
+process.on('SIGINT', () => {
+  console.log('SIGINT signal received');
+  sigint = true;
+});
+
+// Run the main function on each mined block
 (async (): Promise<void> => {
   Logger.initialize('Events fetcher');
   const logger = Logger.getInstance();
@@ -34,6 +42,9 @@ import {EventProcessorService} from './EventProcessorService';
 
       await eventProcessorService.execute();
 
+      if (sigint) {
+        throw new Error('SIGINT signal received');
+      }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error('Error running events fetcher:', error);
