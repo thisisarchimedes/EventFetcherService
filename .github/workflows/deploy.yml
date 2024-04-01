@@ -20,103 +20,57 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          submodules: 'recursive'
-          fetch-depth: 0
-
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 'latest'
-
-      - name: Install dependencies
-        run: yarn install
-
-      - name: Build
-        run: yarn build
-
-      - name: Remove development dependencies
-        run: yarn install --production
-
-      - name: Prepare deployment package
-        run: |
-          mkdir -p deploy-package
-          rsync -av --progress ./dist/ ./deploy-package/ --exclude test
-          cp -r ./node_modules ./deploy-package/
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Install AWS SAM CLI
-        run: pip install --user aws-sam-cli
-
-      - name: Package the SAM application
-        run: sam package --template-file template.yaml --output-template-file packaged.yaml --s3-bucket aws-sam-eventsfetcher
-
-      - name: Deploy the SAM application
-        id: deploy
-        run: |
-          sam deploy --debug --template-file packaged.yaml --stack-name EventProcessorStack --capabilities CAPABILITY_IAM --parameter-overrides \
-          ParameterKey=Environment,ParameterValue="StableApp" \
-          ParameterKey=NewRelicApiKey,ParameterValue=${{ secrets.NEW_RELIC_API_KEY }}
-
-  deploy_demo:
-    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           submodules: 'recursive'
 
-      - name: Use Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 'latest'
+          node-version: 20
+
+      - name: Install dotenvx
+        run: |
+          curl -fsS https://dotenvx.sh/ | sudo sh
 
       - name: Install dependencies
-        run: yarn install
+        run: |
+          yarn
 
       - name: Build
         run: yarn build
 
-      - name: Remove development dependencies
-        run: yarn install --production
+      - name: Lint Code
+        run: npx eslint src/**/*.ts --ext .js,.jsx,.ts,.tsx --ignore-pattern /devops/
 
-      - name: Prepare deployment package
-        run: |
-          mkdir -p deploy-package
-          rsync -av --progress ./dist/ ./deploy-package/ --exclude test
-          cp -r ./node_modules ./deploy-package/
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
+      - name: Copy files to EC2
+        uses: appleboy/scp-action@v0.1.7
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          host: ${{ secrets.EVENTS_FETCHER_EC2_HOST }}
+          username: ${{ env.EC2_USER }}
+          key: ${{ secrets.EVENTS_FETCHER_SSH_KEY }}
+          port: 22
+          source: '.'
+          target: '/srv'
 
-      - name: Install AWS SAM CLI
-        run: pip install --user aws-sam-cli
+      - name: Run deployment script on EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EVENTS_FETCHER_EC2_HOST }}
+          username: ${{ env.EC2_USER }}
+          key: ${{ secrets.EVENTS_FETCHER_SSH_KEY }}
+          port: 22
+          script: |
+            set -e  # Exit immediately if a command exits with a non-zero status.
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+            [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+            cd /srv
+            ENVIRONMENT="StableApp" PAT_TOKEN=${{secrets.PAT_TOKEN}} AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} DOTENV_KEY='${{ secrets.DOTENV_KEY_DEMO }}' dotenvx run --  yarn install && pm2 kill && pm2 start 'yarn start'
 
-      - name: Package the SAM application
-        run: sam package --template-file template.yaml --output-template-file packaged.yaml --s3-bucket aws-sam-eventsfetcher
-
-      - name: Deploy the SAM application
-        id: deploy
-        run: |
-          sam deploy --debug --template-file packaged.yaml --stack-name EventProcessorStackDemo --capabilities CAPABILITY_IAM --parameter-overrides \
-          ParameterKey=Environment,ParameterValue="DemoApp" \
-          ParameterKey=NewRelicApiKey,ParameterValue=${{ secrets.NEW_RELIC_API_KEY }}
-
-  deploy-ec2-demo:
+  deploy-demo:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -166,11 +120,11 @@ jobs:
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
             [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
             cd /srv
-            ENVIRONMENT="demo" PAT_TOKEN=${{secrets.PAT_TOKEN}} AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} DOTENV_KEY='${{ secrets.DOTENV_KEY_DEMO }}' dotenvx run --  yarn install && pm2 kill && pm2 start 'yarn start'
+            ENVIRONMENT="DemoApp" PAT_TOKEN=${{secrets.PAT_TOKEN}} AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} DOTENV_KEY='${{ secrets.DOTENV_KEY_DEMO }}' dotenvx run --  yarn install && pm2 kill && pm2 start 'yarn start'
 
   report-devops-event-deploy:
     runs-on: ubuntu-latest
-    needs: [deploy_demo, deploy]
+    needs: [deploy-demo, deploy]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

@@ -16,7 +16,6 @@ The ledger is used in front-end to display the leverage position of a user and a
     - [Run tests](#run-tests)
     - [Linter](#linter)
   - [Environment Variables](#environment-variables)
-  - [Continuous Deployment](#continuous-deployment)
   - [Troubleshoting](#troubleshoting)
     - [dotenvx doesn't work properly](#dotenvx-doesnt-work-properly)
 
@@ -87,15 +86,6 @@ Additional environment variables for testing
    ALCHEMY_API_KEY= # Only the key (no need for the entire URL)
    INFURA_API_KEY= # Only the key (no need for the entire URL)
    ```
-
-## Continuous Deployment
-
-`template.yaml` is the AWS SAM script deploying the project to different environments:
-1. On commit: Github runs Commit Stage (`commit.yml`) - Unit tests, Linter and tsc
-2. On PR open: Github runs Acceptance Stage (`acceptance.yml`) - Acceptance tests
-3. On PR merge: Githu runs Deploy Stage (`deploy.yml`) - Deploying project to different environments (including Production)
-4. The code is run by AWS Lambda. Enrty point: `lambda-handler.ts`
-5. Every day at 00:00 UTC we run nightly test (`nightly.yml`) - Running Unit and Acceptance tests + some more extensive coverage (Stryker)
 
 ## Troubleshoting
 
