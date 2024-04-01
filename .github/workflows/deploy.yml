@@ -147,18 +147,17 @@ jobs:
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.DEMO_EVENTS_FETCHER_EC2_HOST }}
-          username: ${{ vars.EC2_USER }}
+          username: ${{ env.EC2_USER }}
           key: ${{ secrets.DEMO_EVENTS_FETCHER_SSH_KEY }}
           port: 22
           source: '.'
           target: '/srv'
-          debug: true
 
       - name: Run deployment script on EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.DEMO_EVENTS_FETCHER_EC2_HOST }}
-          username: ${{ vars.EC2_USER }}
+          username: ${{ env.EC2_USER }}
           key: ${{ secrets.DEMO_EVENTS_FETCHER_SSH_KEY }}
           port: 22
           script: |
