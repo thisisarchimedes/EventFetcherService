@@ -10,7 +10,8 @@ import {MockNewRelic} from './Mocks/MockNewRelic';
 import {MockAWSS3} from './Mocks/MockAWSS3';
 import {ConfigServiceAWS} from '../../src/services/config/ConfigServiceAWS';
 import {AppConfigClient} from '../../src/services/config/AppConfigClient';
-import runner from '../../src/runner';
+import {EventProcessorService} from '../../src/EventProcessorService';
+import {ethers, Logger} from '@thisisarchimedes/backend-sdk';
 
 dotenv.config();
 
@@ -24,9 +25,13 @@ describe('PSP Events', function() {
   let mockAWSS3: MockAWSS3;
   const config: ConfigServiceAWS = new ConfigServiceAWS(ENVIRONMENT, AWS_REGION);
   const appConfigClient: AppConfigClient = new AppConfigClient(ENVIRONMENT, AWS_REGION);
+  let mainRpcProvider;
+  let altRpcProvider;
 
-  // before(async function() {
-  // });
+  before(function() {
+    mainRpcProvider = new ethers.providers.JsonRpcProvider(config.getMainRPCURL());
+    altRpcProvider = new ethers.providers.JsonRpcProvider(config.getAlternativeRPCURL());
+  });
 
   beforeEach(async function() {
     await config.refreshConfig();
@@ -42,7 +47,7 @@ describe('PSP Events', function() {
     const strategyAddress = config.getPSPContractAddressByStrategyName('Convex FRAXBP/msUSD Single Pool');
     mockEthereumNodeResponses('test/data/depositEvent.json', strategyAddress);
 
-    await runner();
+    await runCycle();
 
     expect(mockNewRelic.isLogEntryDetected()).to.be.true;
 
@@ -73,7 +78,7 @@ describe('PSP Events', function() {
         strategyAddress,
     );
 
-    await runner();
+    await runCycle();
 
     expect(mockNewRelic.isLogEntryDetected()).to.be.true;
 
@@ -84,6 +89,16 @@ describe('PSP Events', function() {
     const res: boolean = validateLogMessage(actualLog as EventFetcherLogEntryMessagePSP, expectedLog);
     expect(res).to.be.true;
   });
+
+  function runCycle() {
+    const eventProcessorService = new EventProcessorService(
+      logger as unknown as Logger,
+      config,
+      mainRpcProvider,
+      altRpcProvider,
+    );
+    return eventProcessorService.execute();
+  }
 
   function createExpectedLogMessagePSPWithdraw(): EventFetcherLogEntryMessagePSP {
     return {

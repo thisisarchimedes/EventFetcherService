@@ -1,3 +1,48 @@
-import runner from './runner';
+import {ethers, Logger} from '@thisisarchimedes/backend-sdk';
+import {ConfigServiceAWS} from './services/config/ConfigServiceAWS';
+import {EventProcessorService} from './EventProcessorService';
 
-runner();
+(async (): Promise<void> => {
+  Logger.initialize('Events fetcher');
+  const logger = Logger.getInstance();
+
+  let isRunning = false;
+
+  const environment = process.env.ENVIRONMENT as string;
+  const region = process.env.AWS_REGION as string;
+  const configService: ConfigServiceAWS = new ConfigServiceAWS(environment, region);
+  await configService.refreshConfig();
+  const mainRpcProvider = new ethers.providers.JsonRpcProvider(configService.getMainRPCURL());
+  const altRpcProvider = new ethers.providers.JsonRpcProvider(configService.getAlternativeRPCURL());
+
+  mainRpcProvider.on('block', async (blockNumber: number) => {
+    logger.info(`New block mined: ${blockNumber}`);
+
+    // Prevent performActions from being called if it's already running
+    if (isRunning) {
+      console.warn('Already performing actions on another block. Skipping this block.');
+      logger.warning('Already performing actions on another block. Skipping this block.');
+      return;
+    }
+
+    // Mark as running
+    isRunning = true;
+
+    try {
+      // Perform actions here
+      const eventProcessorService = new EventProcessorService(logger, configService, mainRpcProvider, altRpcProvider);
+
+      await eventProcessorService.execute();
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.error('Error running events fetcher:', error);
+      logger.error('Error running events fetcher:');
+      logger.error(error);
+    } finally {
+      await logger.flush();
+      // Mark as not running
+      isRunning = false;
+    }
+  });
+})();

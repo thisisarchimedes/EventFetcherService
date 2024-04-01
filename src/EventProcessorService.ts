@@ -23,13 +23,13 @@ export class EventProcessorService {
   constructor(
       logger: Logger,
       configService: ConfigService,
+      mainRpcProvider: ethers.providers.JsonRpcProvider,
+      altRpcProvider: ethers.providers.JsonRpcProvider,
   ) {
     this.logger = logger;
     this.configService = configService;
     this.eventFactory = new EventFactory(this.configService, this.logger);
 
-    const mainRpcProvider = new ethers.providers.JsonRpcProvider(configService.getMainRPCURL());
-    const altRpcProvider = new ethers.providers.JsonRpcProvider(configService.getAlternativeRPCURL());
     const prisma = new PrismaClient();
     const multiPoolStrategies = new MultiPoolStrategies(mainRpcProvider);
     this.eventFetcher = new EventFetcherRPC(mainRpcProvider, altRpcProvider);
