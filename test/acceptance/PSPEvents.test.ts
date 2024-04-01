@@ -4,13 +4,13 @@ import nock from 'nock';
 
 import {LoggerAdapter} from '../adapters/LoggerAdapter';
 import {EventFetcherLogEntryMessagePSP} from '../../src/types/NewRelicLogEntry';
-import {handler} from '../../src/lambda-handler';
 
 import {MockEthereumNode} from './Mocks/MockEthereumNode';
 import {MockNewRelic} from './Mocks/MockNewRelic';
 import {MockAWSS3} from './Mocks/MockAWSS3';
 import {ConfigServiceAWS} from '../../src/services/config/ConfigServiceAWS';
 import {AppConfigClient} from '../../src/services/config/AppConfigClient';
+import runner from '../../src/runner';
 
 dotenv.config();
 
@@ -42,7 +42,7 @@ describe('PSP Events', function() {
     const strategyAddress = config.getPSPContractAddressByStrategyName('Convex FRAXBP/msUSD Single Pool');
     mockEthereumNodeResponses('test/data/depositEvent.json', strategyAddress);
 
-    await handler(0, 0);
+    await runner();
 
     expect(mockNewRelic.isLogEntryDetected()).to.be.true;
 
@@ -73,7 +73,7 @@ describe('PSP Events', function() {
         strategyAddress,
     );
 
-    await handler(0, 0);
+    await runner();
 
     expect(mockNewRelic.isLogEntryDetected()).to.be.true;
 
