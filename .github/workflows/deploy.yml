@@ -65,8 +65,8 @@ jobs:
             [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
             cd /srv
             yarn install
-            pm2 kill
-            ENVIRONMENT="StableApp" PAT_TOKEN=${{secrets.PAT_TOKEN}} AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} DOTENV_KEY='${{ secrets.DOTENV_KEY_STABLE }}' dotenvx run -- pm2 start 'yarn start'
+            pm2 stop eventsFetcher
+            ENVIRONMENT="StableApp" PAT_TOKEN=${{secrets.PAT_TOKEN}} AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} DOTENV_KEY='${{ secrets.DOTENV_KEY_STABLE }}' dotenvx run -- pm2 start 'yarn start' --name eventsFetcher
 
   deploy-demo:
     runs-on: ubuntu-latest
@@ -115,8 +115,8 @@ jobs:
             [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
             cd /srv
             yarn install
-            pm2 kill
-            ENVIRONMENT="DemoApp" PAT_TOKEN=${{secrets.PAT_TOKEN}} AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} DOTENV_KEY='${{ secrets.DOTENV_KEY_DEMO }}' dotenvx run -- pm2 start 'yarn start'
+            pm2 stop eventsFetcher
+            ENVIRONMENT="DemoApp" PAT_TOKEN=${{secrets.PAT_TOKEN}} AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} DOTENV_KEY='${{ secrets.DOTENV_KEY_DEMO }}' dotenvx run -- pm2 start 'yarn start' --name eventsFetcher
 
   report-devops-event-deploy:
     runs-on: ubuntu-latest
