@@ -44,9 +44,9 @@ jobs:
       - name: Copy files to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ secrets.EVENTS_FETCHER_EC2_HOST }}
+          host: ${{ secrets.STABLE_EVENTS_FETCHER_EC2_HOST }}
           username: ${{ env.EC2_USER }}
-          key: ${{ secrets.EVENTS_FETCHER_SSH_KEY }}
+          key: ${{ secrets.STABLE_EVENTS_FETCHER_SSH_KEY }}
           port: 22
           source: '.'
           target: '/srv'
@@ -54,9 +54,9 @@ jobs:
       - name: Run deployment script on EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.EVENTS_FETCHER_EC2_HOST }}
+          host: ${{ secrets.STABLE_EVENTS_FETCHER_EC2_HOST }}
           username: ${{ env.EC2_USER }}
-          key: ${{ secrets.EVENTS_FETCHER_SSH_KEY }}
+          key: ${{ secrets.STABLE_EVENTS_FETCHER_SSH_KEY }}
           port: 22
           script: |
             set -e  # Exit immediately if a command exits with a non-zero status.
