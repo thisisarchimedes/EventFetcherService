@@ -66,7 +66,7 @@ jobs:
             cd /srv
             export PAT_TOKEN=${{secrets.PAT_TOKEN}}
             yarn install
-            pm2 stop eventsFetcher
+            pm2 stop eventsFetcher || true
             ENVIRONMENT="StableApp" AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} DOTENV_KEY='${{ secrets.DOTENV_KEY_STABLE }}' dotenvx run -- pm2 start 'yarn start' --name eventsFetcher
 
   deploy-demo:
@@ -117,7 +117,7 @@ jobs:
             cd /srv
             export PAT_TOKEN=${{secrets.PAT_TOKEN}}
             yarn install
-            pm2 stop eventsFetcher
+            pm2 stop eventsFetcher || true
             ENVIRONMENT="DemoApp" AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} DOTENV_KEY='${{ secrets.DOTENV_KEY_DEMO }}' dotenvx run -- pm2 start 'yarn start' --name eventsFetcher
 
   report-devops-event-deploy:
