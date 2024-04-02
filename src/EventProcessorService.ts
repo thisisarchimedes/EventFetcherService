@@ -39,8 +39,7 @@ export class EventProcessorService {
   public async execute(): Promise<void> {
     try {
       this.logger.info('Executing the event fetcher workflow...');
-      this.logger.info(`RPC: ${this.configService.getMainRPCURL()}\n
-                        Env: ${this.configService.getEnvironment()}`);
+      this.logger.info(`Env: ${this.configService.getEnvironment()} - RPC: ${this.configService.getMainRPCURL()}`);
 
       const startBlock = await this.getStartBlockNumber();
       const endBlock = await this.eventFetcher.getCurrentBlockNumber();
