@@ -71,7 +71,7 @@ export class OnChainEventLeveragePositionLiquidated extends OnChainEventLeverage
       blockNumber: this.blockNumber,
       data: {
         nftId: this.nftId,
-        strategy: this.strategyConfig.strategyAddress,
+        strategy: this.strategyConfig.strategyName,
         wbtcDebtPaid: this.debtPaid.toString(),
         claimableAmount: this.claimableAmount.toString(),
         liquidationFee: this.liquidationFee.toString(),

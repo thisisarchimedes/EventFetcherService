@@ -67,7 +67,7 @@ describe('PSP Events', function() {
       txHash: '0x1fe52317d52b452120708667eed57e3c19ad39268bfabcf60230978c50df426f',
       event: 'Deposit',
       user: '0x93B435e55881Ea20cBBAaE00eaEdAf7Ce366BeF2',
-      strategy: 'Convex FRAXBP/msUSD Single Pool',
+      strategy: '0x825cc02ec7B77d4432e82e7bCAf3B89a67a555F1',
       amountAddedToStrategy: BigInt(5000000).toString(),
       amountAddedToAdapter: BigInt(0).toString(),
     };
@@ -109,7 +109,7 @@ describe('PSP Events', function() {
       txHash: '0x41f9437497aee519b2c3d1013fcb40b39447a3d969cc2ddc445a1bcdb49f7600',
       event: 'Withdraw',
       user: '0x2222222222222222222222222222222222222222',
-      strategy: 'Convex FRAXBP/msUSD Single Pool',
+      strategy: '0x825cc02ec7B77d4432e82e7bCAf3B89a67a555F1',
       amountAddedToStrategy: (-1n).toString(),
       amountAddedToAdapter: (0n).toString(),
     };

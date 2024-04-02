@@ -82,7 +82,7 @@ export class OnChainEventLeveragePositionOpened extends OnChainEventLeverage {
       data: {
         nftId: this.nftId,
         user: this.userAddress,
-        strategy: this.strategyConfig.strategyAddress,
+        strategy: this.strategyConfig.strategyName,
         collateralAmount: this.collateralAmount.toString(),
         wbtcToBorrow: this.borrowedAmount.toString(),
         positionExpireBlock: this.positionExpireBlock.toString(),
