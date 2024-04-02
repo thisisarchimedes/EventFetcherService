@@ -12,6 +12,7 @@ import {ConfigServiceAWS} from '../../src/services/config/ConfigServiceAWS';
 import {AppConfigClient} from '../../src/services/config/AppConfigClient';
 import {EventProcessorService} from '../../src/EventProcessorService';
 import {ethers, Logger} from '@thisisarchimedes/backend-sdk';
+import {PrismaClient} from '@prisma/client';
 
 dotenv.config();
 
@@ -25,6 +26,7 @@ describe('PSP Events', function() {
   let mockAWSS3: MockAWSS3;
   const config: ConfigServiceAWS = new ConfigServiceAWS(ENVIRONMENT, AWS_REGION);
   const appConfigClient: AppConfigClient = new AppConfigClient(ENVIRONMENT, AWS_REGION);
+  const prisma = new PrismaClient();
   let mainRpcProvider;
   let altRpcProvider;
 
@@ -94,6 +96,7 @@ describe('PSP Events', function() {
     const eventProcessorService = new EventProcessorService(
       logger as unknown as Logger,
       config,
+      prisma,
       mainRpcProvider,
       altRpcProvider,
     );

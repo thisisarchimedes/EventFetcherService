@@ -1,3 +1,4 @@
+import {PrismaClient} from '@prisma/client';
 import {ethers, Logger} from '@thisisarchimedes/backend-sdk';
 import {ConfigServiceAWS} from './services/config/ConfigServiceAWS';
 import {EventProcessorService} from './EventProcessorService';
@@ -20,6 +21,7 @@ process.on('SIGINT', () => {
   const region = process.env.AWS_REGION as string;
   const configService: ConfigServiceAWS = new ConfigServiceAWS(environment, region);
   await configService.refreshConfig();
+  const prisma = new PrismaClient();
   const mainRpcProvider = new ethers.providers.JsonRpcProvider(configService.getMainRPCURL());
   const altRpcProvider = new ethers.providers.JsonRpcProvider(configService.getAlternativeRPCURL());
 
@@ -38,7 +40,13 @@ process.on('SIGINT', () => {
 
     try {
       // Perform actions here
-      const eventProcessorService = new EventProcessorService(logger, configService, mainRpcProvider, altRpcProvider);
+      const eventProcessorService = new EventProcessorService(
+          logger,
+          configService,
+          prisma,
+          mainRpcProvider,
+          altRpcProvider,
+      );
 
       await eventProcessorService.execute();
 

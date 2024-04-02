@@ -13,16 +13,15 @@ import {MultiPoolStrategies} from './MultiPoolStrategies';
 dotenv.config();
 
 export class EventProcessorService {
-  private readonly logger: Logger;
-  private readonly configService: ConfigService;
   private readonly eventFactory: EventFactory;
   private readonly ledgerBuilder: LedgerBuilder;
 
   private readonly eventFetcher;
 
   constructor(
-      logger: Logger,
-      configService: ConfigService,
+      private readonly logger: Logger,
+      private readonly configService: ConfigService,
+      prisma: PrismaClient,
       mainRpcProvider: ethers.providers.JsonRpcProvider,
       altRpcProvider: ethers.providers.JsonRpcProvider,
   ) {
@@ -30,7 +29,6 @@ export class EventProcessorService {
     this.configService = configService;
     this.eventFactory = new EventFactory(this.configService, this.logger);
 
-    const prisma = new PrismaClient();
     const multiPoolStrategies = new MultiPoolStrategies(mainRpcProvider);
     this.eventFetcher = new EventFetcherRPC(mainRpcProvider, altRpcProvider);
     this.ledgerBuilder = new LedgerBuilder(this.logger, mainRpcProvider, altRpcProvider, prisma, multiPoolStrategies);
