@@ -43,7 +43,8 @@ process.on('SIGINT', () => {
       await eventProcessorService.execute();
 
       if (sigint) {
-        throw new Error('SIGINT signal received');
+        await logger.flush();
+        process.exit(0);
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
