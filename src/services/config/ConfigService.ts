@@ -18,6 +18,10 @@ export abstract class ConfigService {
   protected MaxNumberOfBlocksToProess: number = 1000;
   protected leveragePositionDatabaseURL: string = '';
 
+  protected leverageNormalKeyARN: string = '';
+  protected globalUrgentKeyARN: string = '';
+  protected pspNormalKeyARN: string = '';
+
   abstract refreshConfig(): Promise<void>;
   abstract setLastScannedBlock(blockNumber: number): Promise<void>;
 
@@ -81,5 +85,17 @@ export abstract class ConfigService {
 
   public getLeveragePositionDatabaseURL(): string {
     return this.leveragePositionDatabaseURL;
+  }
+
+  public getPSPKeyARN(): string {
+    return this.pspNormalKeyARN;
+  }
+
+  public getLeverageKeyARN(): string {
+    return this.leverageNormalKeyARN;
+  }
+
+  public getUrgentKeyARN(): string {
+    return this.globalUrgentKeyARN;
   }
 }
