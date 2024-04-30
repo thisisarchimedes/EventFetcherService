@@ -9,7 +9,7 @@ export abstract class OnChainEvent {
   protected txHash: string = '';
   protected blockNumber: number = 0;
 
-  protected strategyConfig!: ContractInfoPSP;
+  protected strategyConfig!: ContractInfoPSP | {strategyName: string};
   protected logger: Logger;
   protected configService: ConfigService;
 
@@ -25,14 +25,5 @@ export abstract class OnChainEvent {
 
   public getEventName(): string {
     return this.eventName;
-  }
-
-  protected findStrategyConfigBStrategyAddress(strategyAddress: string): ContractInfoPSP {
-    const res = this.configService.getPSPStrategyInfoByAddress(strategyAddress);
-    if (res === undefined) {
-      throw new Error(`Unknown strategy address: ${strategyAddress}`);
-    }
-
-    return res;
   }
 }

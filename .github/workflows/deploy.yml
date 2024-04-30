@@ -31,10 +31,6 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install dotenvx
-        run: |
-          curl -fsS https://dotenvx.sh/ | sudo sh
-
       - name: Install dependencies
         run: |
           yarn
@@ -48,9 +44,9 @@ jobs:
       - name: Copy files to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ secrets.EVENTS_FETCHER_EC2_HOST }}
+          host: ${{ secrets.STABLE_EVENTS_FETCHER_EC2_HOST }}
           username: ${{ env.EC2_USER }}
-          key: ${{ secrets.EVENTS_FETCHER_SSH_KEY }}
+          key: ${{ secrets.STABLE_EVENTS_FETCHER_SSH_KEY }}
           port: 22
           source: '.'
           target: '/srv'
@@ -58,9 +54,9 @@ jobs:
       - name: Run deployment script on EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.EVENTS_FETCHER_EC2_HOST }}
+          host: ${{ secrets.STABLE_EVENTS_FETCHER_EC2_HOST }}
           username: ${{ env.EC2_USER }}
-          key: ${{ secrets.EVENTS_FETCHER_SSH_KEY }}
+          key: ${{ secrets.STABLE_EVENTS_FETCHER_SSH_KEY }}
           port: 22
           script: |
             set -e  # Exit immediately if a command exits with a non-zero status.
@@ -68,7 +64,10 @@ jobs:
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
             [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
             cd /srv
-            ENVIRONMENT="StableApp" PAT_TOKEN=${{secrets.PAT_TOKEN}} AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} DOTENV_KEY='${{ secrets.DOTENV_KEY_DEMO }}' dotenvx run --  yarn install && pm2 kill && pm2 start 'yarn start'
+            export PAT_TOKEN=${{secrets.PAT_TOKEN}}
+            yarn install
+            pm2 stop eventsFetcher || true
+            ENVIRONMENT="StableApp" AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} DOTENV_KEY='${{ secrets.DOTENV_KEY_STABLE }}' dotenvx run -- pm2 start 'yarn start' --name eventsFetcher
 
   deploy-demo:
     runs-on: ubuntu-latest
@@ -83,10 +82,6 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install dotenvx
-        run: |
-          curl -fsS https://dotenvx.sh/ | sudo sh
-
       - name: Install dependencies
         run: |
           yarn
@@ -120,7 +115,10 @@ jobs:
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
             [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
             cd /srv
-            ENVIRONMENT="DemoApp" PAT_TOKEN=${{secrets.PAT_TOKEN}} AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} DOTENV_KEY='${{ secrets.DOTENV_KEY_DEMO }}' dotenvx run --  yarn install && pm2 kill && pm2 start 'yarn start'
+            export PAT_TOKEN=${{secrets.PAT_TOKEN}}
+            yarn install
+            pm2 stop eventsFetcher || true
+            ENVIRONMENT="DemoApp" AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} DOTENV_KEY='${{ secrets.DOTENV_KEY_DEMO }}' dotenvx run -- pm2 start 'yarn start' --name eventsFetcher
 
   report-devops-event-deploy:
     runs-on: ubuntu-latest

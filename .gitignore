@@ -24,7 +24,10 @@ artifacts
 .stryker
 
 coverage/*
+reports/
 
 .env
 .env.keys
 .env.local
+.env.demo
+.env.stable

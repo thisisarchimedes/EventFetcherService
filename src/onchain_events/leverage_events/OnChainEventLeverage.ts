@@ -18,6 +18,6 @@ export abstract class OnChainEventLeverage extends OnChainEvent {
     const trimmedAddress = '0x' + rawAddress.slice(26);
     const strategyAddress = ethers.utils.getAddress(trimmedAddress);
 
-    this.strategyConfig = this.findStrategyConfigBStrategyAddress(strategyAddress);
+    this.strategyConfig = {strategyName: strategyAddress};
   }
 }

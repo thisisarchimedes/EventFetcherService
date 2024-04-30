@@ -43,7 +43,7 @@ describe('Leverage Events Logging & Queuing', function() {
       txHash: '0x1fe52317d52b452120708667eed57e3c19ad39268bfabcf60230978c50df426f',
       event: 'LeveragedPositionOpened',
       user: '0x925cc02EC7b77d4432e82e7bCaf3B89a67a555F2',
-      strategy: 'Convex FRAXBP/msUSD Single Pool',
+      strategy: '0x825cc02ec7B77d4432e82e7bCAf3B89a67a555F1',
       collateralAddedToStrategy: BigInt(1).toString(),
       debtBorrowedFromProtocol: BigInt(2).toString(),
       eventSpecificData: eventSpecificDetails,
@@ -83,7 +83,7 @@ describe('Leverage Events Logging & Queuing', function() {
       txHash: '0x1fe52317d52b452120708667eed57e3c19ad39268bfabcf60230978c50df426f',
       event: 'LeveragedPositionClosed',
       user: '0x925cc02EC7b77d4432e82e7bCaf3B89a67a555F2',
-      strategy: 'Convex FRAXBP/msUSD Single Pool',
+      strategy: '0x825cc02ec7B77d4432e82e7bCAf3B89a67a555F1',
       collateralAddedToStrategy: BigInt(-1n).toString(),
       debtBorrowedFromProtocol: (BigInt(2) * -1n).toString(),
     };
@@ -122,7 +122,7 @@ describe('Leverage Events Logging & Queuing', function() {
       blockNumber: 6000003,
       txHash: '0x1fe52317d52b452120708667eed57e3c19ad39268bfabcf60230978c50df426f',
       event: 'LeveragedPositionLiquidated',
-      strategy: 'Convex FRAXBP/msUSD Single Pool',
+      strategy: '0x825cc02ec7B77d4432e82e7bCAf3B89a67a555F1',
       collateralAddedToStrategy: (BigInt(2) * -1n).toString(),
       debtBorrowedFromProtocol: (BigInt(1) * -1n).toString(),
       eventSpecificData: eventSpecificDetails,
@@ -159,7 +159,7 @@ describe('Leverage Events Logging & Queuing', function() {
       blockNumber: 6000003,
       txHash: '0x1fe52317d52b452120708667eed57e3c19ad39268bfabcf60230978c50df426f',
       event: 'LeveragedPositionExpired',
-      strategy: 'Convex FRAXBP/msUSD Single Pool',
+      strategy: '0x825cc02ec7B77d4432e82e7bCAf3B89a67a555F1',
       debtBorrowedFromProtocol: (BigInt(1) * -1n).toString(),
       collateralAddedToStrategy: (BigInt(2) * -1n).toString(),
     };
@@ -175,7 +175,7 @@ describe('Leverage Events Logging & Queuing', function() {
         claimableAmount: '2',
       },
     };
-    
+
     const event: OnChainEvent = await testEventGeneration(
         eventSyntheticDataFileName,
         expectedEventName,
@@ -195,7 +195,7 @@ describe('Leverage Events Logging & Queuing', function() {
     configService.setLeverageAddressesFile(LEVERAGE_ADDRESS_FILE);
     configService.setPSPInfoFile(PSP_INFO_FILE);
     await configService.refreshConfig();
-        eventFactory = new EventFactory(configService, logger as unknown as Logger);
+    eventFactory = new EventFactory(configService, logger as unknown as Logger);
   }
 
   async function testEventGeneration(

@@ -13,24 +13,22 @@ import {MultiPoolStrategies} from './MultiPoolStrategies';
 dotenv.config();
 
 export class EventProcessorService {
-  private readonly logger: Logger;
-  private readonly configService: ConfigService;
   private readonly eventFactory: EventFactory;
   private readonly ledgerBuilder: LedgerBuilder;
 
   private readonly eventFetcher;
 
   constructor(
-      logger: Logger,
-      configService: ConfigService,
+      private readonly logger: Logger,
+      private readonly configService: ConfigService,
+      prisma: PrismaClient,
+      mainRpcProvider: ethers.providers.JsonRpcProvider,
+      altRpcProvider: ethers.providers.JsonRpcProvider,
   ) {
     this.logger = logger;
     this.configService = configService;
     this.eventFactory = new EventFactory(this.configService, this.logger);
 
-    const mainRpcProvider = new ethers.providers.JsonRpcProvider(configService.getMainRPCURL());
-    const altRpcProvider = new ethers.providers.JsonRpcProvider(configService.getAlternativeRPCURL());
-    const prisma = new PrismaClient();
     const multiPoolStrategies = new MultiPoolStrategies(mainRpcProvider);
     this.eventFetcher = new EventFetcherRPC(mainRpcProvider, altRpcProvider);
     this.ledgerBuilder = new LedgerBuilder(this.logger, mainRpcProvider, altRpcProvider, prisma, multiPoolStrategies);
@@ -39,8 +37,7 @@ export class EventProcessorService {
   public async execute(): Promise<void> {
     try {
       this.logger.info('Executing the event fetcher workflow...');
-      this.logger.info(`RPC: ${this.configService.getMainRPCURL()}\n
-                        Env: ${this.configService.getEnvironment()}`);
+      this.logger.info(`Env: ${this.configService.getEnvironment()} - RPC: ${this.configService.getMainRPCURL()}`);
 
       const startBlock = await this.getStartBlockNumber();
       const endBlock = await this.eventFetcher.getCurrentBlockNumber();
