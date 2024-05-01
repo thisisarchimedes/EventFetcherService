@@ -83,6 +83,6 @@ model ExecutorBalances {
     balance   BigInt   // Balance in Wei
     updatedAt DateTime // Automatically update the timestamp when the record is updated
 
-    @@index([account])
+    @@unique([account])
     @@index([updatedAt])
 }

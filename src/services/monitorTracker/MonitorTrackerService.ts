@@ -1,10 +1,12 @@
 // Import the AWS SDK and configure the region
-import {ConfigService} from './services/config/ConfigService';
+import {ConfigService} from '../config/ConfigService';
 import {Logger, ethers} from '@thisisarchimedes/backend-sdk';
 import {KMSFetcherService} from '../kms/KMSFetcherService';
-import {PrismaClient} from '@prisma/client';
-interface Balance {
-  address: string;
+import {LeveragePosition, PrismaClient} from '@prisma/client';
+import {IMonitorTrackerStorage} from './IMonitorTrackerStorage';
+import { EventFetcher } from '../blockchain/EventFetcher';
+export interface Balance {
+  account: string;
   balance: bigint;
 }
 
@@ -13,8 +15,8 @@ export default class MonitorTrackerService {
   constructor(
     private logger: Logger,
     private configService: ConfigService,
-    private mainRpcProvider: ethers.providers.JsonRpcProvider,
-    private prismaClient:PrismaClient,
+    private eventFetcher: EventFetcher,
+    private monitorTrackerStorage: IMonitorTrackerStorage,
   ) {
 
   }
@@ -22,27 +24,15 @@ export default class MonitorTrackerService {
   public async updateEthBalances() {
     const addresses = await this.getMonitorAddress();
     const balances = await this.getEthBalances(addresses);
-
-
-    Promise.all(balances.map(async (balance)=>{
-      await this.prismaClient.executorBalances.upsert({create: {
-        account: balance.address,
-        balance: balance.balance,
-        updatedAt: new Date(),
-      }, update: {
-        balance: balance.balance,
-        updatedAt: new Date(),
-      }, where: {
-        account: balance.address,
-      }});
-    }));
+    await this.monitorTrackerStorage.updateBalances(balances);
   }
 
   private getEthBalances(addresses: string[]): Promise<Balance[]> {
     return Promise.all(addresses.map(async (address) => {
+      console.log(address);
       return {
-        address,
-        balance: (await this.mainRpcProvider.getBalance(address)).toBigInt(),
+        account: address,
+        balance: (await this.eventFetcher.getAddressBalance(address)),
       };
     }));
   }

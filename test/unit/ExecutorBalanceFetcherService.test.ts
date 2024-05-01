@@ -4,22 +4,18 @@ import sinon, {SinonStubbedInstance} from 'sinon';
 import sinonChai from 'sinon-chai';
 import {PrismaClient} from '@prisma/client';
 
-import {LedgerBuilder} from '../../src/LedgerBuilder';
 import {ethers, Logger} from '@thisisarchimedes/backend-sdk';
 import {MultiPoolStrategies} from '../../src/MultiPoolStrategies';
-import {
-  ClaimEvent,
-  ClosePositionEvent,
-  ExpirePositionEvent,
-  LiquidatePositionEvent,
-  OpenPositionEvent,
-} from '../../src/types/LedgerBuilder';
-import {ContractType} from '../../src/types/EventDescriptor';
-import {BigNumber} from 'ethers';
+import MonitorTrackerService from '../../src/services/monitorTracker/MonitorTrackerService';
+import {ConfigServiceAWS} from '../../src/services/config/ConfigServiceAWS';
+import MonitorTrackerStorage from '../../src/services/monitorTracker/MonitorTrackerStorage';
+import {MonitorTrackerStorageAdapter} from '../adapters/MonitorTrackerStorageAdapter';
+import {EventFetcherAdapter} from '../adapters/EventFetcherAdapter';
 
 chai.use(sinonChai);
 
 describe('LedgerBuilder', function() {
+  let configService: ConfigServiceAdapter;
   let mockLogger: SinonStubbedInstance<Logger>;
 
   let mockPrisma: SinonStubbedInstance<PrismaClient>;
@@ -27,7 +23,10 @@ describe('LedgerBuilder', function() {
   let mockAlchemyProvider: Partial<ethers.providers.JsonRpcProvider>;
   let mockInfuraProvider: Partial<ethers.providers.JsonRpcProvider>;
 
+
   beforeEach(async function() {
+    configService = new ConfigServiceAWS('DemoApp', 'us-east-1');
+    await configService.refreshConfig();
     initalizeMocks();
   });
 
@@ -59,12 +58,22 @@ describe('LedgerBuilder', function() {
   });
 
   it('Read ETH balance of executors and update db', async function() {
-    monitorTracker.updateEthBalances();
+    const eventFetcherAdapter = new EventFetcherAdapter();
+    eventFetcherAdapter.setAddressBalance([{account: '0x123', balance: 1n}, {account: '0x456', balance: 2n}]);
 
-    const ethBalancesFromDB = monitorTracker.getEthBalances();
+    const monitorTrackerStorage = new MonitorTrackerStorageAdapter();
+
+    const monitorTracker = new MonitorTrackerService(
+      mockLogger, configService, eventFetcherAdapter, monitorTrackerStorage);
+    await monitorTracker.updateEthBalances();
+
+    const ethBalancesFromDB = await monitorTrackerStorage.getBalances();
+    console.log(ethBalancesFromDB);
     expect(ethBalancesFromDB).to.have.length(2);
-    expect(ethBalancesFromDB[0]).to.be.equal(1);
-    expect(ethBalancesFromDB[1]).to.be.equal(2);
+    expect(ethBalancesFromDB[0].account).to.be.equal('0x123');
+    expect(ethBalancesFromDB[0].balance).to.be.equal(1);
+    expect(ethBalancesFromDB[1].account).to.be.equal('0x456');
+    expect(ethBalancesFromDB[1].balance).to.be.equal(2);
   });
 });
 

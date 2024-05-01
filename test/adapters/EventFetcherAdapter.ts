@@ -1,9 +1,11 @@
 import {ethers} from 'ethers';
 import {EventFetcher} from '../../src/services/blockchain/EventFetcher';
 import fs from 'fs';
+import { Balance } from '../../src/services/monitorTracker/MonitorTrackerService';
 
 export class EventFetcherAdapter extends EventFetcher {
   private events: ethers.providers.Log[];
+  private balances: Balance[];
 
   constructor() {
     super();
@@ -29,5 +31,19 @@ export class EventFetcherAdapter extends EventFetcher {
     } catch (err) {
       console.error(`Error reading file from disk: ${err}`);
     }
+  }
+
+  public setAddressBalance(balances: Balance[]): void {
+    this.balances = balances;
+  }
+
+  // TODO: address is the real public key of the monitor and here we want to get demi
+  public getAddressBalance(address: string): Promise<bigint> {
+    const balance = this.balances.find((balance) => balance.account === address);
+    if (balance === undefined) {
+      throw new Error('Balance not found');
+    }
+
+    return Promise.resolve(balance.balance);
   }
 }

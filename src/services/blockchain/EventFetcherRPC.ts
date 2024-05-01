@@ -37,7 +37,7 @@ export class EventFetcherRPC extends EventFetcher {
       this.altProvider.getBlockNumber(),
     ]);
 
-    return Math.min(mainBlockNumber, altBlockNumber);
+    return Math.max(mainBlockNumber, altBlockNumber);
   }
 
   private async fetchLogsFromBlockchain(filter: ethers.providers.Filter): Promise<ethers.providers.Log[]> {
@@ -52,5 +52,15 @@ export class EventFetcherRPC extends EventFetcher {
       console.error('Error fetching logs:', error);
       throw error;
     }
+  }
+
+  public async getAddressBalance(address: string): Promise<bigint> {
+    const [balance1, balance2] = await Promise.all([
+      this.mainProvider.getBalance(address),
+      this.altProvider.getBalance(address),
+    ]);
+    const balance = balance1 ?? balance2;
+
+    return balance.toBigInt();
   }
 }
