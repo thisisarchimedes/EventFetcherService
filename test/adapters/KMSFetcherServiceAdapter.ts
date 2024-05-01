@@ -19,12 +19,3 @@ export class KMSFetcherServiceAdapter implements IKMSFetcherService {
   }
   
 }
-
-/** *
- *
- *  setTag("URLURL1", TagListA)
- * setTag("URLURL2", TagListB)
- *
- * fetchTags("URLURL1") --> TagListA
- *
- */

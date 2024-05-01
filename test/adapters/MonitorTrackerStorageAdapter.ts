@@ -5,11 +5,9 @@ export class MonitorTrackerStorageAdapter implements IMonitorTrackerStorage {
   private balances: Balance[];
 
   constructor() {
-    console.log('MonitorTrackerStorageAdapter - constructor');
   }
 
   public updateBalances(balances: Balance[]): Promise<void[]> {
-    console.log('MonitorTrackerStorageAdapter - updateBalances: ', balances);
     this.balances = balances;
     return Promise.resolve([]);
   }
