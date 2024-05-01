@@ -20,6 +20,7 @@ export default class MonitorTrackerService {
   }
 
   public async updateEthBalances() {
+    console.log('calling updateEthBalances');
     const addresses = await this.getMonitorAddress();
     const balances = await this.getEthBalances(addresses);
 

@@ -1,48 +1,52 @@
 // Import the AWS SDK and configure the region
 import {ConfigService} from '../config/ConfigService';
-import {Logger, ethers} from '@thisisarchimedes/backend-sdk';
-import {KMSFetcherService} from '../kms/KMSFetcherService';
-import {LeveragePosition, PrismaClient} from '@prisma/client';
+import {Logger} from '@thisisarchimedes/backend-sdk';
 import {IMonitorTrackerStorage} from './IMonitorTrackerStorage';
-import { EventFetcher } from '../blockchain/EventFetcher';
+import {EventFetcher} from '../blockchain/EventFetcher';
+import {IKMSFetcherService} from '../kms/IKMSFetcherService';
 export interface Balance {
   account: string;
   balance: bigint;
 }
 
 export default class MonitorTrackerService {
-  private kms: KMSFetcherService = new KMSFetcherService();
   constructor(
     private logger: Logger,
     private configService: ConfigService,
     private eventFetcher: EventFetcher,
     private monitorTrackerStorage: IMonitorTrackerStorage,
-  ) {
-
-  }
+    private kms: IKMSFetcherService,
+  ) {}
 
   public async updateEthBalances() {
+    console.log('MonitorTrackerService: called updateEthBalance');
     const addresses = await this.getMonitorAddress();
+    console.log('MonitorTrackerService: updateEthBalances: addresses', addresses);
     const balances = await this.getEthBalances(addresses);
+    console.log('MonitorTrackerService: updateEthBalances: balances', balances);
     await this.monitorTrackerStorage.updateBalances(balances);
   }
 
   private getEthBalances(addresses: string[]): Promise<Balance[]> {
-    return Promise.all(addresses.map(async (address) => {
-      console.log(address);
-      return {
-        account: address,
-        balance: (await this.eventFetcher.getAddressBalance(address)),
-      };
-    }));
+    console.log({addresses});
+    return Promise.all(
+        addresses.map(async (address) => {
+          return {
+            account: address,
+            balance: await this.eventFetcher.getAddressBalance(address),
+          };
+        }),
+    );
   }
 
   private async getMonitorAddress() {
+    console.log('MonitorTrackerService: getMonitorAddress');
     const tags = await Promise.all([
       this.kms.fetchTags(this.configService.getPSPKeyARN()),
       this.kms.fetchTags(this.configService.getLeverageKeyARN()),
       this.kms.fetchTags(this.configService.getUrgentKeyARN()),
     ]);
+    console.log('MonitorTrackerService: tags', tags);
 
     const addresses = [];
     for (const i in tags) {
