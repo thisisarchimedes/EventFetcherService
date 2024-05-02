@@ -95,14 +95,13 @@ describe('PSP Events', function() {
     mockEthereumNode = new MockEthereumNode(config.getMainRPCURL());
 
     const newRelicApiUrl: string = 'https://log-api.newrelic.com';
-    mockNewRelic = new MockNewRelic(newRelicApiUrl, logger);
+    mockNewRelic = new MockNewRelic(newRelicApiUrl);
 
     const {bucket} = JSON.parse(await appConfigClient.fetchConfigRawString('LastBlockScannedS3FileURL'));
     mockAWSS3 = new MockAWSS3(bucket, AWS_REGION);
   }
 
   function setupGenericNockInterceptors() {
-    mockNewRelic = new MockNewRelic('https://log-api.newrelic.com');
     mockAWSS3Endpoint();
   }
 
