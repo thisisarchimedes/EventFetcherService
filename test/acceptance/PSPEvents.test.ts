@@ -102,6 +102,7 @@ describe('PSP Events', function() {
   }
 
   function setupGenericNockInterceptors() {
+    mockNewRelic = new MockNewRelic('https://log-api.newrelic.com');
     mockAWSS3Endpoint();
   }
 
