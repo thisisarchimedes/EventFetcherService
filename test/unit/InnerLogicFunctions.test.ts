@@ -5,13 +5,17 @@ import chaiAsPromised from 'chai-as-promised';
 import chai from 'chai';
 import hre from 'hardhat';
 import '@nomiclabs/hardhat-ethers';
+import {ethers} from 'ethers';
 
-import {S3Service, Logger, ethers} from '@thisisarchimedes/backend-sdk';
+import {S3Service} from '@thisisarchimedes/backend-sdk';
 
 import {ConfigService} from '../../src/services/config/ConfigService';
 import {ConfigServiceAdapter} from '../adapters/ConfigServiceAdapter';
 import {EventFetcherAdapter} from '../adapters/EventFetcherAdapter';
 import {EventFactory, EventFactoryUnknownEventError} from '../../src/onchain_events/EventFactory';
+
+import {Logger} from '../../src/services/logger/Logger';
+import {LoggerAdapter} from '../adapters/LoggerAdapter';
 
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
@@ -22,12 +26,14 @@ describe('Inner logic functions', function() {
   let positionLiquidatorMockContract: ethers.Contract;
   let positionExpiratorMockContract: ethers.Contract;
   let s3Stub: sinon.SinonStubbedInstance<S3Service>;
-  let loggerStub: sinon.SinonStubbedInstance<Logger>;
+
+  let logger: Logger;
   let configService: ConfigService;
   let eventFactory: EventFactory;
   let eventFetcher: EventFetcherAdapter;
 
   beforeEach(async function() {
+    logger = new LoggerAdapter('local_logger.txt');
     // Deploy a mock contract for the tests
     const PositionOpenerFactory = await hre.ethers.getContractFactory(
         'PositionOpener_mock',
@@ -61,12 +67,9 @@ describe('Inner logic functions', function() {
     s3Stub.getObject.resolves();
     s3Stub.putObject.resolves(undefined);
 
-    // Stub the Logger
-    loggerStub = sinon.createStubInstance(Logger);
-
     configService = new ConfigServiceAdapter();
 
-    eventFactory = new EventFactory(configService, loggerStub);
+    eventFactory = new EventFactory(configService, logger);
   });
 
   it('should throw for no logs', async function() {

@@ -1,7 +1,4 @@
-import {
-  S3Service,
-  Logger,
-} from '@thisisarchimedes/backend-sdk';
+import {S3Service} from '@thisisarchimedes/backend-sdk';
 import {
   ClaimEvent,
   ClosePositionEvent,
@@ -13,6 +10,7 @@ import {MultiPoolStrategies} from './MultiPoolStrategies';
 import {LeveragePosition, PrismaClient} from '@prisma/client';
 import {EventFetcherMessage} from './types/EventFetcherMessage';
 import {ethers} from 'ethers';
+import {Logger} from './services/logger/Logger';
 
 const WBTC_DECIMALS = 8;
 
@@ -26,11 +24,11 @@ export class LedgerBuilder {
   private readonly GENERIC_NFT_SOURCE = `Generic.png`;
 
   constructor(
-      private readonly logger: Logger,
-      private readonly alchemyProvider: ethers.providers.JsonRpcProvider,
-      private readonly infuraProvider: ethers.providers.JsonRpcProvider,
-      private readonly prisma: PrismaClient,
-      private readonly multiPoolStrategies: MultiPoolStrategies,
+    private readonly logger: Logger,
+    private readonly alchemyProvider: ethers.providers.JsonRpcProvider,
+    private readonly infuraProvider: ethers.providers.JsonRpcProvider,
+    private readonly prisma: PrismaClient,
+    private readonly multiPoolStrategies: MultiPoolStrategies,
   ) {
     this.s3Service = new S3Service();
   }

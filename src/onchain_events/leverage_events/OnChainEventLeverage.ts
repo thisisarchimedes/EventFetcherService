@@ -1,6 +1,6 @@
 import {OnChainEvent} from '../OnChainEvent';
 import {EventFetcherMessage} from '../../types/EventFetcherMessage';
-import {ethers} from '@thisisarchimedes/backend-sdk';
+import {ethers} from 'ethers';
 
 export abstract class OnChainEventLeverage extends OnChainEvent {
   protected nftId!: number;

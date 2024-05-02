@@ -1,61 +1,23 @@
 /* eslint-disable require-await */
-import chai, {expect} from 'chai';
-import sinon, {SinonStubbedInstance} from 'sinon';
-import sinonChai from 'sinon-chai';
-import {PrismaClient} from '@prisma/client';
+import {expect} from 'chai';
 
-import {ethers, Logger} from '@thisisarchimedes/backend-sdk';
-import {MultiPoolStrategies} from '../../src/MultiPoolStrategies';
 import MonitorTrackerService from '../../src/services/monitorTracker/MonitorTrackerService';
 import {ConfigServiceAWS} from '../../src/services/config/ConfigServiceAWS';
-import MonitorTrackerStorage from '../../src/services/monitorTracker/MonitorTrackerStorage';
 import {MonitorTrackerStorageAdapter} from '../adapters/MonitorTrackerStorageAdapter';
 import {EventFetcherAdapter} from '../adapters/EventFetcherAdapter';
 import {KMSFetcherServiceAdapter} from '../adapters/KMSFetcherServiceAdapter';
-import {KMSFetcherService} from '../../src/services/kms/KMSFetcherService';
-
-chai.use(sinonChai);
+import {LoggerAdapter} from '../adapters/LoggerAdapter';
 
 describe('LedgerBuilder', function() {
   let configService: ConfigServiceAWS;
-  let mockLogger: SinonStubbedInstance<Logger>;
-
-  let mockPrisma: SinonStubbedInstance<PrismaClient>;
-  let mockMultiPoolStrategies: SinonStubbedInstance<MultiPoolStrategies>;
-  let mockAlchemyProvider: Partial<ethers.providers.JsonRpcProvider>;
-  let mockInfuraProvider: Partial<ethers.providers.JsonRpcProvider>;
+  let logger: LoggerAdapter;
 
   beforeEach(async function() {
     configService = new ConfigServiceAWS('DemoApp', 'us-east-1');
     await configService.refreshConfig();
-    initalizeMocks();
   });
 
-  const initalizeMocks = () => {
-    mockAlchemyProvider = {
-      getBlock: sinon.stub().resolves({timestamp: 1625097600}),
-    };
-
-    mockInfuraProvider = {
-      getBlock: sinon.stub().resolves({timestamp: 1625097600}),
-    };
-
-    mockLogger = sinon.createStubInstance(Logger);
-    mockPrisma = {
-      executorBalances: {
-        findFirst: sinon.stub().callsFake(async (data) => {
-          return {id: data.data.id};
-        }),
-        create: sinon.stub().callsFake(async (data) => {
-          return {id: data.data.id};
-        }),
-        update: sinon.stub(),
-      },
-    } as unknown as SinonStubbedInstance<PrismaClient>;
-  };
-
   afterEach(function() {
-    sinon.restore();
   });
 
   it('Read ETH balance of executors and update db', async function() {
@@ -83,7 +45,7 @@ describe('LedgerBuilder', function() {
     }]);
 
     const monitorTracker = new MonitorTrackerService(
-        mockLogger,
+        logger,
         configService,
         eventFetcherAdapter,
         monitorTrackerStorage,
@@ -98,11 +60,3 @@ describe('LedgerBuilder', function() {
     expect(ethBalancesFromDB[1].balance).to.be.equal(2n);
   });
 });
-
-/**
- [] Read ETH balance of executors and update db
- [] If there is no change in both balances
- [] If there is only change in one balance, only update this one
- [] If failed to read from one provider, try the other one
- [] If fail from both log error
- */

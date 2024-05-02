@@ -17,5 +17,4 @@ export class KMSFetcherServiceAdapter implements IKMSFetcherService {
   public fetchAllTags() {
     return Promise.resolve(this.arns);
   }
-  
 }

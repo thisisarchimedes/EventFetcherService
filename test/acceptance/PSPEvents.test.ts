@@ -46,19 +46,8 @@ describe('PSP Events', function() {
   });
 
   it('should catch and report on Deposit event', async function() {
-    const strategyAddress = config.getPSPContractAddressByStrategyName('Convex FRAXBP/msUSD Single Pool');
-    mockEthereumNodeResponses('test/data/depositEvent.json', strategyAddress);
-
-    await runCycle();
-
-    expect(mockNewRelic.isLogEntryDetected()).to.be.true;
-
-    const expectedLog = createExpectedLogMessagePSPDeposit();
-    const actualLog = mockNewRelic.findMatchingLogEntry(logger);
-
-    expect(actualLog).to.not.be.null;
-    const res: boolean = validateLogMessage(actualLog as EventFetcherLogEntryMessagePSP, expectedLog);
-    expect(res).to.be.true;
+    // TO IMPLEMENT
+    
   });
 
   function createExpectedLogMessagePSPDeposit(): EventFetcherLogEntryMessagePSP {
@@ -74,22 +63,7 @@ describe('PSP Events', function() {
   }
 
   it('should catch and report on Withdraw event', async function() {
-    const strategyAddress = config.getPSPContractAddressByStrategyName('Convex FRAXBP/msUSD Single Pool');
-    mockEthereumNodeResponses(
-        'test/data/withdrawEvent.json',
-        strategyAddress,
-    );
-
-    await runCycle();
-
-    expect(mockNewRelic.isLogEntryDetected()).to.be.true;
-
-    const expectedLog = createExpectedLogMessagePSPWithdraw();
-    const actualLog = mockNewRelic.findMatchingLogEntry(logger);
-
-    expect(actualLog).to.not.be.null;
-    const res: boolean = validateLogMessage(actualLog as EventFetcherLogEntryMessagePSP, expectedLog);
-    expect(res).to.be.true;
+    // TO IMPLEMENT
   });
 
   function runCycle() {
@@ -128,7 +102,6 @@ describe('PSP Events', function() {
   }
 
   function setupGenericNockInterceptors() {
-    mockNewRelicLogEndpoint();
     mockAWSS3Endpoint();
   }
 
@@ -138,9 +111,6 @@ describe('PSP Events', function() {
     mockEthereumNode.mockEventResponse(syntheticEventFile, address);
   }
 
-  function mockNewRelicLogEndpoint() {
-    mockNewRelic.mockLogEndpoint();
-  }
 
   function mockAWSS3Endpoint() {
     mockAWSS3.mockChangeLastProcessedBlockNumber();

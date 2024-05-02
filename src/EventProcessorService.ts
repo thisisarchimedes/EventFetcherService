@@ -1,4 +1,3 @@
-import {Logger} from '@thisisarchimedes/backend-sdk';
 import dotenv from 'dotenv';
 import {ConfigService} from './services/config/ConfigService';
 import {EventFactory, EventFactoryUnknownEventError} from './onchain_events/EventFactory';
@@ -12,6 +11,7 @@ import {MultiPoolStrategies} from './MultiPoolStrategies';
 import MonitorTrackerService from './services/monitorTracker/MonitorTrackerService';
 import MonitorTrackerStorage from './services/monitorTracker/MonitorTrackerStorage';
 import {KMSFetcherService} from './services/kms/KMSFetcherService';
+import {Logger} from './services/logger/Logger';
 
 dotenv.config();
 

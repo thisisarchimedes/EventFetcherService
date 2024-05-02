@@ -1,9 +1,9 @@
-import {Logger} from '@thisisarchimedes/backend-sdk';
-import {OnChainEvent} from '../OnChainEvent';
-import {ConfigService} from '../../services/config/ConfigService';
-import {EventFetcherMessage} from '../../types/EventFetcherMessage';
-import {ethers} from 'ethers';
-import {ContractInfoPSP} from '../../types/ContractInfoPSP';
+import { OnChainEvent } from '../OnChainEvent';
+import { ConfigService } from '../../services/config/ConfigService';
+import { EventFetcherMessage } from '../../types/EventFetcherMessage';
+import { ethers } from 'ethers';
+import { ContractInfoPSP } from '../../types/ContractInfoPSP';
+import { Logger } from '../../services/logger/Logger';
 
 export abstract class OnChainEventPSP extends OnChainEvent {
   constructor(rawEventLog: ethers.providers.Log, logger: Logger, configService: ConfigService) {
@@ -11,7 +11,7 @@ export abstract class OnChainEventPSP extends OnChainEvent {
     this.parseEventLog(rawEventLog);
   }
 
-  public process(): EventFetcherMessage|undefined {
+  public process(): EventFetcherMessage | undefined {
     this.logPSPEvent();
     return undefined;
   }

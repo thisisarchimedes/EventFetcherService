@@ -1,7 +1,9 @@
+import {ethers} from 'ethers';
+
 import {PrismaClient} from '@prisma/client';
-import {ethers, Logger} from '@thisisarchimedes/backend-sdk';
 import {ConfigServiceAWS} from './services/config/ConfigServiceAWS';
 import {EventProcessorService} from './EventProcessorService';
+import {LoggerAll} from './services/logger/LoggerAll';
 
 // Handle SIGINT signal
 let sigint = false;
@@ -12,9 +14,6 @@ process.on('SIGINT', () => {
 
 // Run the main function on each mined block
 (async (): Promise<void> => {
-  Logger.initialize('Events fetcher');
-  const logger = Logger.getInstance();
-
   let isRunning = false;
 
   const environment = process.env.ENVIRONMENT as string;
@@ -24,6 +23,7 @@ process.on('SIGINT', () => {
   const prisma = new PrismaClient();
   const mainRpcProvider = new ethers.providers.JsonRpcProvider(configService.getMainRPCURL());
   const altRpcProvider = new ethers.providers.JsonRpcProvider(configService.getAlternativeRPCURL());
+  const logger = new LoggerAll(configService);
 
   mainRpcProvider.on('block', async (blockNumber: number) => {
     logger.info(`New block mined: ${blockNumber}`);
