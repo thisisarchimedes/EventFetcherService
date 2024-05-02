@@ -31,8 +31,8 @@ describe('PSP Events', function() {
   let altRpcProvider;
 
   before(function() {
-    mainRpcProvider = new ethers.providers.JsonRpcProvider(config.getMainRPCURL());
-    altRpcProvider = new ethers.providers.JsonRpcProvider(config.getAlternativeRPCURL());
+    mainRpcProvider = new ethers.JsonRpcProvider(config.getMainRPCURL());
+    altRpcProvider = new ethers.JsonRpcProvider(config.getAlternativeRPCURL());
   });
 
   beforeEach(async function() {
