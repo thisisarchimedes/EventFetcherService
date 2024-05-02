@@ -35,11 +35,9 @@ process.on('SIGINT', () => {
       return;
     }
 
-    // Mark as running
     isRunning = true;
 
     try {
-      // Perform actions here
       const eventProcessorService = new EventProcessorService(
           logger,
           configService,
@@ -47,7 +45,6 @@ process.on('SIGINT', () => {
           mainRpcProvider,
           altRpcProvider,
       );
-
       await eventProcessorService.execute();
 
       if (sigint) {
