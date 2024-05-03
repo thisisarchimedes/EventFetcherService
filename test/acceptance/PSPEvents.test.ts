@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import {expect} from 'chai';
 import nock from 'nock';
+import {ethers} from 'ethers';
 
 import {LoggerAdapter} from '../adapters/LoggerAdapter';
 import {EventFetcherLogEntryMessagePSP} from '../../src/types/NewRelicLogEntry';
@@ -11,7 +12,6 @@ import {MockAWSS3} from './Mocks/MockAWSS3';
 import {ConfigServiceAWS} from '../../src/services/config/ConfigServiceAWS';
 import {AppConfigClient} from '../../src/services/config/AppConfigClient';
 import {EventProcessorService} from '../../src/EventProcessorService';
-import {ethers, Logger} from '@thisisarchimedes/backend-sdk';
 import {PrismaClient} from '@prisma/client';
 
 dotenv.config();
@@ -31,8 +31,8 @@ describe('PSP Events', function() {
   let altRpcProvider;
 
   before(function() {
-    mainRpcProvider = new ethers.JsonRpcProvider(config.getMainRPCURL());
-    altRpcProvider = new ethers.JsonRpcProvider(config.getAlternativeRPCURL());
+    mainRpcProvider = new ethers.providers.JsonRpcProvider(config.getMainRPCURL());
+    altRpcProvider = new ethers.providers.JsonRpcProvider(config.getAlternativeRPCURL());
   });
 
   beforeEach(async function() {
@@ -46,8 +46,19 @@ describe('PSP Events', function() {
   });
 
   it('should catch and report on Deposit event', async function() {
-    // TO IMPLEMENT
-    
+    const strategyAddress = config.getPSPContractAddressByStrategyName('Convex FRAXBP/msUSD Single Pool');
+    mockEthereumNodeResponses('test/data/depositEvent.json', strategyAddress);
+
+    await runCycle();
+
+    expect(mockNewRelic.isLogEntryDetected()).to.be.true;
+
+    const expectedLog = createExpectedLogMessagePSPDeposit();
+    const actualLog = mockNewRelic.findMatchingLogEntry(logger);
+
+    expect(actualLog).to.not.be.null;
+    const res: boolean = validateLogMessage(actualLog as EventFetcherLogEntryMessagePSP, expectedLog);
+    expect(res).to.be.true;
   });
 
   function createExpectedLogMessagePSPDeposit(): EventFetcherLogEntryMessagePSP {
@@ -63,7 +74,22 @@ describe('PSP Events', function() {
   }
 
   it('should catch and report on Withdraw event', async function() {
-    // TO IMPLEMENT
+    const strategyAddress = config.getPSPContractAddressByStrategyName('Convex FRAXBP/msUSD Single Pool');
+    mockEthereumNodeResponses(
+        'test/data/withdrawEvent.json',
+        strategyAddress,
+    );
+
+    await runCycle();
+
+    expect(mockNewRelic.isLogEntryDetected()).to.be.true;
+
+    const expectedLog = createExpectedLogMessagePSPWithdraw();
+    const actualLog = mockNewRelic.findMatchingLogEntry(logger);
+
+    expect(actualLog).to.not.be.null;
+    const res: boolean = validateLogMessage(actualLog as EventFetcherLogEntryMessagePSP, expectedLog);
+    expect(res).to.be.true;
   });
 
   function runCycle() {
@@ -95,13 +121,14 @@ describe('PSP Events', function() {
     mockEthereumNode = new MockEthereumNode(config.getMainRPCURL());
 
     const newRelicApiUrl: string = 'https://log-api.newrelic.com';
-    mockNewRelic = new MockNewRelic(newRelicApiUrl);
+    mockNewRelic = new MockNewRelic(newRelicApiUrl, logger);
 
     const {bucket} = JSON.parse(await appConfigClient.fetchConfigRawString('LastBlockScannedS3FileURL'));
     mockAWSS3 = new MockAWSS3(bucket, AWS_REGION);
   }
 
   function setupGenericNockInterceptors() {
+    mockNewRelicLogEndpoint();
     mockAWSS3Endpoint();
   }
 
@@ -111,6 +138,9 @@ describe('PSP Events', function() {
     mockEthereumNode.mockEventResponse(syntheticEventFile, address);
   }
 
+  function mockNewRelicLogEndpoint() {
+    //mockNewRelic.mockLogEndpoint();
+  }
 
   function mockAWSS3Endpoint() {
     mockAWSS3.mockChangeLastProcessedBlockNumber();
