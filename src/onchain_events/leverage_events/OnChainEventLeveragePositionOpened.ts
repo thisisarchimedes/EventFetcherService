@@ -1,13 +1,13 @@
-import { OnChainEventLeverage } from './OnChainEventLeverage';
-import { ConfigService } from '../../services/config/ConfigService';
+import {OnChainEventLeverage} from './OnChainEventLeverage';
+import {ConfigService} from '../../services/config/ConfigService';
 import {
   EventFetcherLogEntryMessageLeverage,
   EventSpecificDataLeveragePositionOpened,
 } from '../../types/NewRelicLogEntry';
-import { EventFetcherMessage } from '../../types/EventFetcherMessage';
-import { ethers } from 'ethers';
-import { ContractType } from '../../types/EventDescriptor';
-import { Logger } from '../../services/logger/Logger';
+import {EventFetcherMessage} from '../../types/EventFetcherMessage';
+import {ethers} from 'ethers';
+import {ContractType} from '../../types/EventDescriptor';
+import {Logger} from '../../services/logger/Logger';
 
 const ADDRESS_TOPIC_INDEX = 3;
 
@@ -64,8 +64,8 @@ export class OnChainEventLeveragePositionOpened extends OnChainEventLeverage {
 
   private setPositionAmountsFromEventLogData(eventLog: ethers.providers.Log): void {
     const decodedData = ethers.utils.defaultAbiCoder.decode(
-      ['uint256', 'uint256', 'uint256', 'uint256'],
-      eventLog.data);
+        ['uint256', 'uint256', 'uint256', 'uint256'],
+        eventLog.data);
 
     this.collateralAmount = decodedData[0];
     this.borrowedAmount = decodedData[1];

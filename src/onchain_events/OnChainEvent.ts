@@ -1,9 +1,9 @@
-import { ethers } from 'ethers';
+import {ethers} from 'ethers';
 
-import { ConfigService } from '../services/config/ConfigService';
-import { ContractInfoPSP } from '../types/ContractInfoPSP';
-import { EventFetcherMessage } from '../types/EventFetcherMessage';
-import { Logger } from '../services/logger/Logger';
+import {ConfigService} from '../services/config/ConfigService';
+import {ContractInfoPSP} from '../types/ContractInfoPSP';
+import {EventFetcherMessage} from '../types/EventFetcherMessage';
+import {Logger} from '../services/logger/Logger';
 
 export abstract class OnChainEvent {
   protected eventName: string = '';

@@ -1,9 +1,9 @@
 // Import the AWS SDK and configure the region
-import { ConfigService } from '../config/ConfigService';
-import { IMonitorTrackerStorage } from './IMonitorTrackerStorage';
-import { EventFetcher } from '../blockchain/EventFetcher';
-import { IKMSFetcherService } from '../kms/IKMSFetcherService';
-import { Logger } from '../logger/Logger';
+import {ConfigService} from '../config/ConfigService';
+import {IMonitorTrackerStorage} from './IMonitorTrackerStorage';
+import {EventFetcher} from '../blockchain/EventFetcher';
+import {IKMSFetcherService} from '../kms/IKMSFetcherService';
+import {Logger} from '../logger/Logger';
 
 export interface Balance {
   account: string;
@@ -27,12 +27,12 @@ export default class MonitorTrackerService {
 
   private getEthBalances(addresses: string[]): Promise<Balance[]> {
     return Promise.all(
-      addresses.map(async (address) => {
-        return {
-          account: address,
-          balance: await this.eventFetcher.getAddressBalance(address),
-        };
-      }),
+        addresses.map(async (address) => {
+          return {
+            account: address,
+            balance: await this.eventFetcher.getAddressBalance(address),
+          };
+        }),
     );
   }
 

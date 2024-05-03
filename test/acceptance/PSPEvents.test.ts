@@ -139,7 +139,7 @@ describe('PSP Events', function() {
   }
 
   function mockNewRelicLogEndpoint() {
-    //mockNewRelic.mockLogEndpoint();
+    // mockNewRelic.mockLogEndpoint();
   }
 
   function mockAWSS3Endpoint() {

@@ -1,13 +1,13 @@
-import { OnChainEventLeverage } from './OnChainEventLeverage';
-import { ConfigService } from '../../services/config/ConfigService';
-import { EventFetcherMessage } from '../../types/EventFetcherMessage';
+import {OnChainEventLeverage} from './OnChainEventLeverage';
+import {ConfigService} from '../../services/config/ConfigService';
+import {EventFetcherMessage} from '../../types/EventFetcherMessage';
 import {
   EventFetcherLogEntryMessageLeverage,
   EventSpecificDataLeveragePositionLiquidated,
 } from '../../types/NewRelicLogEntry';
-import { ethers } from 'ethers';
-import { ContractType } from '../../types/EventDescriptor';
-import { Logger } from '../../services/logger/Logger';
+import {ethers} from 'ethers';
+import {ContractType} from '../../types/EventDescriptor';
+import {Logger} from '../../services/logger/Logger';
 
 const ADDRESS_TOPIC_INDEX = 2;
 
@@ -55,8 +55,8 @@ export class OnChainEventLeveragePositionLiquidated extends OnChainEventLeverage
 
   private setPositionAmountsFromEventLogData(eventLog: ethers.providers.Log): void {
     const decodedData = ethers.utils.defaultAbiCoder.decode(
-      ['uint256', 'uint256', 'uint256'],
-      eventLog.data);
+        ['uint256', 'uint256', 'uint256'],
+        eventLog.data);
 
     this.debtPaid = decodedData[0];
     this.claimableAmount = decodedData[1];

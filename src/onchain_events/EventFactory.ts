@@ -1,11 +1,11 @@
-import { ConfigService } from '../services/config/ConfigService';
-import { OnChainEvent } from './OnChainEvent';
-import { OnChainEventPSPDeposit } from './psp_events/OnChainEventPSPDeposit';
-import { OnChainEventPSPWithdraw } from './psp_events/OnChainEventPSPWithdraw';
-import { OnChainEventLeveragePositionOpened } from './leverage_events/OnChainEventLeveragePositionOpened';
-import { OnChainEventLeveragePositionClosed } from './leverage_events/OnChainEventLeveragePositionClosed';
-import { OnChainEventLeveragePositionLiquidated } from './leverage_events/OnChainEventLeveragePositionLiquidated';
-import { OnChainEventLeveragePositionExpired } from './leverage_events/OnChainEventLeveragePositionExpired';
+import {ConfigService} from '../services/config/ConfigService';
+import {OnChainEvent} from './OnChainEvent';
+import {OnChainEventPSPDeposit} from './psp_events/OnChainEventPSPDeposit';
+import {OnChainEventPSPWithdraw} from './psp_events/OnChainEventPSPWithdraw';
+import {OnChainEventLeveragePositionOpened} from './leverage_events/OnChainEventLeveragePositionOpened';
+import {OnChainEventLeveragePositionClosed} from './leverage_events/OnChainEventLeveragePositionClosed';
+import {OnChainEventLeveragePositionLiquidated} from './leverage_events/OnChainEventLeveragePositionLiquidated';
+import {OnChainEventLeveragePositionExpired} from './leverage_events/OnChainEventLeveragePositionExpired';
 
 import {
   TOPIC_EVENT_LEVERAGE_POSITION_CLOSED,
@@ -15,8 +15,8 @@ import {
   TOPIC_EVENT_PSP_DEPOSIT,
   TOPIC_EVENT_PSP_WITHDRAW,
 } from './EventTopic';
-import { ethers } from 'ethers';
-import { Logger } from '../services/logger/Logger';
+import {ethers} from 'ethers';
+import {Logger} from '../services/logger/Logger';
 
 export class EventFactoryUnknownEventError extends Error {
   constructor(message: string) {
@@ -92,8 +92,8 @@ export class EventFactory {
   }
 
   private getEventObjectOrThrowError(
-    results: [OnChainEvent | undefined, OnChainEvent | undefined],
-    eventLog: ethers.providers.Log,
+      results: [OnChainEvent | undefined, OnChainEvent | undefined],
+      eventLog: ethers.providers.Log,
   ): OnChainEvent {
     if (results.every((result) => result === undefined)) {
       const errorMessage = `Unknown event topic, ${eventLog.topics[0]}`;
