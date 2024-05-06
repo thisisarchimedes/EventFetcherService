@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import {expect} from 'chai';
 import nock from 'nock';
+import {ethers} from 'ethers';
 
 import {LoggerAdapter} from '../adapters/LoggerAdapter';
 import {EventFetcherLogEntryMessagePSP} from '../../src/types/NewRelicLogEntry';
@@ -11,7 +12,6 @@ import {MockAWSS3} from './Mocks/MockAWSS3';
 import {ConfigServiceAWS} from '../../src/services/config/ConfigServiceAWS';
 import {AppConfigClient} from '../../src/services/config/AppConfigClient';
 import {EventProcessorService} from '../../src/EventProcessorService';
-import {ethers, Logger} from '@thisisarchimedes/backend-sdk';
 import {PrismaClient} from '@prisma/client';
 
 dotenv.config();
@@ -139,7 +139,7 @@ describe('PSP Events', function() {
   }
 
   function mockNewRelicLogEndpoint() {
-    mockNewRelic.mockLogEndpoint();
+    // mockNewRelic.mockLogEndpoint();
   }
 
   function mockAWSS3Endpoint() {

@@ -1,8 +1,8 @@
 import {OnChainEventPSP} from './OnChainEventPSP';
-import {Logger} from '@thisisarchimedes/backend-sdk';
 import {ConfigService} from '../../services/config/ConfigService';
 import {EventFetcherLogEntryMessagePSP} from '../../types/NewRelicLogEntry';
 import {ethers} from 'ethers';
+import {Logger} from '../../services/logger/Logger';
 
 export class OnChainEventPSPWithdraw extends OnChainEventPSP {
   private withdrawAmount!: bigint;

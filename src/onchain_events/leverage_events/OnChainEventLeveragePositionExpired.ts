@@ -1,10 +1,10 @@
 import {OnChainEventLeverage} from './OnChainEventLeverage';
-import {Logger} from '@thisisarchimedes/backend-sdk';
 import {ConfigService} from '../../services/config/ConfigService';
 import {EventFetcherMessage} from '../../types/EventFetcherMessage';
 import {EventFetcherLogEntryMessageLeverage} from '../../types/NewRelicLogEntry';
 import {ethers} from 'ethers';
 import {ContractType} from '../../types/EventDescriptor';
+import {Logger} from '../../services/logger/Logger';
 
 const ADDRESS_TOPIC_INDEX = 2;
 

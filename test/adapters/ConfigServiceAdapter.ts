@@ -89,7 +89,7 @@ export class ConfigServiceAdapter extends ConfigService {
   public async refreshLeverageContractAddresses(): Promise<void> {
     try {
       const leverageContractInfo = await this.fetchLeverageContractInfo();
-            this.leverageContractAddresses = this.extractLeverageContractAddresses(leverageContractInfo);
+      this.leverageContractAddresses = this.extractLeverageContractAddresses(leverageContractInfo);
     } catch (error) {
       console.error('Failed to refresh leverage contract addresses:', error);
       throw error;

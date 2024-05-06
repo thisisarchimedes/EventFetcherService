@@ -1,5 +1,4 @@
 import dotenv from 'dotenv';
-import {Logger} from '@thisisarchimedes/backend-sdk';
 import {expect} from 'chai';
 
 import {LoggerAdapter} from '../adapters/LoggerAdapter';

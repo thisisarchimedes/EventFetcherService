@@ -20,4 +20,6 @@ export abstract class EventFetcher {
       const res = Array.from(uniqueLogs.values());
       return res;
     }
+
+    public abstract getAddressBalance (address: string): Promise<bigint>;
 }

@@ -1,6 +1,7 @@
-import {Logger} from '@thisisarchimedes/backend-sdk';
 import * as fs from 'fs';
 import * as path from 'path';
+
+import {Logger} from '../../src/services/logger/Logger';
 
 export class LoggerAdapter extends Logger {
   private static instance: LoggerAdapter;

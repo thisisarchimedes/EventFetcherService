@@ -22,6 +22,7 @@ export class ConfigServiceAWS extends ConfigService {
       this.refreshRPCURL(),
       this.refreshEventFetchPageSize(),
       this.refreshDatabaseURL(),
+      this.refreshWalletKeysARNs(),
     ]);
   }
 
@@ -108,5 +109,17 @@ export class ConfigServiceAWS extends ConfigService {
     const res = await this.appConfigClient.fetchConfigRawString('LeveragePositionDatabaseURL');
     this.leveragePositionDatabaseURL = res;
     process.env.DATABASE_URL = this.leveragePositionDatabaseURL;
+  }
+
+  private async refreshWalletKeysARNs(): Promise<void> {
+    const [leverageNormalKeyARN, pspNormalKeyARN, globalUrgentKeyARN] = await Promise.all([
+      this.appConfigClient.fetchConfigRawString('LeverageNormalKeyARN'),
+      this.appConfigClient.fetchConfigRawString('PSPNormalKeyARN'),
+      this.appConfigClient.fetchConfigRawString('GlobalUrgentKeyARN'),
+    ]);
+
+    this.leverageNormalKeyARN = leverageNormalKeyARN;
+    this.pspNormalKeyARN = pspNormalKeyARN;
+    this.globalUrgentKeyARN = globalUrgentKeyARN;
   }
 }

@@ -1,4 +1,3 @@
-import {Logger} from '@thisisarchimedes/backend-sdk';
 import dotenv from 'dotenv';
 import {ConfigService} from './services/config/ConfigService';
 import {EventFactory, EventFactoryUnknownEventError} from './onchain_events/EventFactory';
@@ -9,6 +8,10 @@ import {LedgerBuilder} from './LedgerBuilder';
 import {ethers} from 'ethers';
 import {PrismaClient} from '@prisma/client';
 import {MultiPoolStrategies} from './MultiPoolStrategies';
+import MonitorTrackerService from './services/monitorTracker/MonitorTrackerService';
+import MonitorTrackerStorage from './services/monitorTracker/MonitorTrackerStorage';
+import {KMSFetcherService} from './services/kms/KMSFetcherService';
+import {Logger} from './services/logger/Logger';
 
 dotenv.config();
 
@@ -17,6 +20,8 @@ export class EventProcessorService {
   private readonly ledgerBuilder: LedgerBuilder;
 
   private readonly eventFetcher;
+
+  private readonly monitorTrackerService: MonitorTrackerService;
 
   constructor(
       private readonly logger: Logger,
@@ -32,6 +37,12 @@ export class EventProcessorService {
     const multiPoolStrategies = new MultiPoolStrategies(mainRpcProvider);
     this.eventFetcher = new EventFetcherRPC(mainRpcProvider, altRpcProvider);
     this.ledgerBuilder = new LedgerBuilder(this.logger, mainRpcProvider, altRpcProvider, prisma, multiPoolStrategies);
+
+    const monitorTrackerStorage = new MonitorTrackerStorage(prisma);
+    const kmsFetcherService = new KMSFetcherService();
+
+    this.monitorTrackerService = new MonitorTrackerService(
+        logger, configService, this.eventFetcher, monitorTrackerStorage, kmsFetcherService);
   }
 
   public async execute(): Promise<void> {
@@ -46,6 +57,8 @@ export class EventProcessorService {
       await this.ledgerBuilder.processEvents(events);
 
       await this.configService.setLastScannedBlock(endBlock);
+
+      await this.monitorTrackerService.updateEthBalances();
 
       this.logger.info('Event fetcher workflow completed.');
     } catch (error) {

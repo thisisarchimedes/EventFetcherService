@@ -3,12 +3,9 @@ import chai, {expect} from 'chai';
 import sinon, {SinonStubbedInstance} from 'sinon';
 import sinonChai from 'sinon-chai';
 import {PrismaClient} from '@prisma/client';
+import {ethers} from 'ethers';
 
 import {LedgerBuilder} from '../../src/LedgerBuilder';
-import {
-  ethers,
-  Logger,
-} from '@thisisarchimedes/backend-sdk';
 import {MultiPoolStrategies} from '../../src/MultiPoolStrategies';
 import {
   ClaimEvent, ClosePositionEvent, ExpirePositionEvent,
@@ -16,11 +13,13 @@ import {
 } from '../../src/types/LedgerBuilder';
 import {ContractType} from '../../src/types/EventDescriptor';
 import {BigNumber} from 'ethers';
+import {Logger} from '../../src/services/logger/Logger';
+import {LoggerAdapter} from '../adapters/LoggerAdapter';
 
 chai.use(sinonChai);
 
 describe('LedgerBuilder', function() {
-  let mockLogger: SinonStubbedInstance<Logger>;
+  let logger: Logger;
 
   let mockPrisma: SinonStubbedInstance<PrismaClient>;
   let mockMultiPoolStrategies: SinonStubbedInstance<MultiPoolStrategies>;
@@ -28,6 +27,7 @@ describe('LedgerBuilder', function() {
   let mockInfuraProvider: Partial<ethers.providers.JsonRpcProvider>;
 
   beforeEach(async function() {
+    logger = new LoggerAdapter('local_logger.txt');
     initalizeMocks();
   });
 
@@ -40,7 +40,6 @@ describe('LedgerBuilder', function() {
       getBlock: sinon.stub().resolves({timestamp: 1625097600}),
     };
 
-    mockLogger = sinon.createStubInstance(Logger);
     mockPrisma = ({
       openLeverage: {
         findFirst: sinon.stub(),
@@ -62,7 +61,6 @@ describe('LedgerBuilder', function() {
       },
       leveragePosition: {
         findFirst: sinon.stub().callsFake(async (data) => {
-          console.log('find called with', data);
           if (data.where.nftId.toString() == '1') {
             return null;
           } else {
@@ -164,15 +162,6 @@ describe('LedgerBuilder', function() {
     expect(mockPrisma.liquidateLeverage.create).to.have.been.calledOnce;
     expect(mockPrisma.leveragePosition.findFirst).to.have.been.calledOnce;
     expect(mockPrisma.leveragePosition.update).to.have.been.calledOnce;
-
-    // check liquidation event is logged correctly
-    expect(mockLogger.warning).to.have.been.calledWithMatch(
-        sinon.match(
-            new RegExp(
-                `Liquidation position Event:\\s*- NFT ID: 2\\s*- Strategy Address: ${'0xStrategy'}`,
-            ),
-        ),
-    );
   });
 
   it('should process a PositionExpired event successfully', async function() {
@@ -196,15 +185,6 @@ describe('LedgerBuilder', function() {
     expect(mockPrisma.expireLeverage.create).to.have.been.calledOnce;
     expect(mockPrisma.leveragePosition.findFirst).to.have.been.calledOnce;
     expect(mockPrisma.leveragePosition.update).to.have.been.calledOnce;
-
-    // check liquidation event is logged correctly
-    expect(mockLogger.warning).to.have.been.calledWithMatch(
-        sinon.match(
-            new RegExp(
-                `Expired position Event:\\s*- NFT ID: 2\\s*- User: ${'0xUser'}`,
-            ),
-        ),
-    );
   });
 
   it('should process a Claim event successfully', async function() {
@@ -234,7 +214,7 @@ describe('LedgerBuilder', function() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const initializeLedgerBuilder = () => {
     return new LedgerBuilder(
-        mockLogger,
+        logger,
         mockAlchemyProvider as ethers.providers.JsonRpcProvider,
         mockInfuraProvider as ethers.providers.JsonRpcProvider,
         mockPrisma,

@@ -1,6 +1,4 @@
 import {ConfigService} from '../services/config/ConfigService';
-import {Logger} from '@thisisarchimedes/backend-sdk';
-
 import {OnChainEvent} from './OnChainEvent';
 import {OnChainEventPSPDeposit} from './psp_events/OnChainEventPSPDeposit';
 import {OnChainEventPSPWithdraw} from './psp_events/OnChainEventPSPWithdraw';
@@ -18,6 +16,7 @@ import {
   TOPIC_EVENT_PSP_WITHDRAW,
 } from './EventTopic';
 import {ethers} from 'ethers';
+import {Logger} from '../services/logger/Logger';
 
 export class EventFactoryUnknownEventError extends Error {
   constructor(message: string) {
@@ -43,7 +42,7 @@ export class EventFactory {
     }
 
     try {
-      results=[this.createPSPEvent(eventLog), this.createLeverageEvent(eventLog)];
+      results = [this.createPSPEvent(eventLog), this.createLeverageEvent(eventLog)];
     } catch (error) {
       this.logger.error(`Error creating event: ${error}`);
       throw error;
