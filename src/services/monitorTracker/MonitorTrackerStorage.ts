@@ -22,7 +22,7 @@ export default class MonitorTrackerStorage implements IMonitorTrackerStorage {
     }));
   }
 
-  public getBalances() {
-    return this.prismaClient.executorBalances.findMany();
+  public async getBalances() {
+    return await this.prismaClient.executorBalances.findMany();
   }
 }
