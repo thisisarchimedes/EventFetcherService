@@ -23,6 +23,7 @@ export class ConfigServiceAWS extends ConfigService {
       this.refreshEventFetchPageSize(),
       this.refreshDatabaseURL(),
       this.refreshWalletKeysARNs(),
+      this.refreshNewRelicConfig(),
     ]);
   }
 
@@ -121,5 +122,13 @@ export class ConfigServiceAWS extends ConfigService {
     this.leverageNormalKeyARN = leverageNormalKeyARN;
     this.pspNormalKeyARN = pspNormalKeyARN;
     this.globalUrgentKeyARN = globalUrgentKeyARN;
+  }
+
+  private async refreshNewRelicConfig(): Promise<void> {
+    const newRelicURL = await this.appConfigClient.fetchConfigRawString('NewRelicURL');
+    const newRelicAPIKey = await this.appConfigClient.fetchConfigRawString('NewRelicApiKey');
+
+    this.newRelicURL = newRelicURL;
+    this.newRelicAPIKey = newRelicAPIKey;
   }
 }
