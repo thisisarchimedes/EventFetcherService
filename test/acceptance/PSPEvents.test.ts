@@ -13,6 +13,7 @@ import {ConfigServiceAWS} from '../../src/services/config/ConfigServiceAWS';
 import {AppConfigClient} from '../../src/services/config/AppConfigClient';
 import {EventProcessorService} from '../../src/EventProcessorService';
 import {PrismaClient} from '@prisma/client';
+import {Logger} from '../../src/services/logger/Logger';
 
 dotenv.config();
 
@@ -30,13 +31,13 @@ describe('PSP Events', function() {
   let mainRpcProvider;
   let altRpcProvider;
 
-  before(function() {
+  before(async function() {
+    await config.refreshConfig();
     mainRpcProvider = new ethers.providers.JsonRpcProvider(config.getMainRPCURL());
     altRpcProvider = new ethers.providers.JsonRpcProvider(config.getAlternativeRPCURL());
   });
 
   beforeEach(async function() {
-    await config.refreshConfig();
     await initalizeMocks();
     setupGenericNockInterceptors();
   });
@@ -54,7 +55,7 @@ describe('PSP Events', function() {
     expect(mockNewRelic.isLogEntryDetected()).to.be.true;
 
     const expectedLog = createExpectedLogMessagePSPDeposit();
-    const actualLog = mockNewRelic.findMatchingLogEntry(logger);
+    const actualLog = mockNewRelic.findMatchingLogEntry();
 
     expect(actualLog).to.not.be.null;
     const res: boolean = validateLogMessage(actualLog as EventFetcherLogEntryMessagePSP, expectedLog);
@@ -85,7 +86,7 @@ describe('PSP Events', function() {
     expect(mockNewRelic.isLogEntryDetected()).to.be.true;
 
     const expectedLog = createExpectedLogMessagePSPWithdraw();
-    const actualLog = mockNewRelic.findMatchingLogEntry(logger);
+    const actualLog = mockNewRelic.findMatchingLogEntry();
 
     expect(actualLog).to.not.be.null;
     const res: boolean = validateLogMessage(actualLog as EventFetcherLogEntryMessagePSP, expectedLog);
@@ -128,7 +129,7 @@ describe('PSP Events', function() {
   }
 
   function setupGenericNockInterceptors() {
-    mockNewRelicLogEndpoint();
+    // mockNewRelicLogEndpoint();
     mockAWSS3Endpoint();
   }
 
@@ -138,9 +139,9 @@ describe('PSP Events', function() {
     mockEthereumNode.mockEventResponse(syntheticEventFile, address);
   }
 
-  function mockNewRelicLogEndpoint() {
-    // mockNewRelic.mockLogEndpoint();
-  }
+  // function mockNewRelicLogEndpoint() {
+  //   mockNewRelic.setWaitedOnMessage();
+  // }
 
   function mockAWSS3Endpoint() {
     mockAWSS3.mockChangeLastProcessedBlockNumber();

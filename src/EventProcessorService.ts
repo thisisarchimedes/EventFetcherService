@@ -49,7 +49,6 @@ export class EventProcessorService {
     try {
       this.logger.info('Executing the event fetcher workflow...');
       this.logger.info(`Env: ${this.configService.getEnvironment()} - RPC: ${this.configService.getMainRPCURL()}`);
-
       const startBlock = await this.getStartBlockNumber();
       const endBlock = await this.eventFetcher.getCurrentBlockNumber();
 
@@ -118,13 +117,13 @@ export class EventProcessorService {
   }
 
   private async getStartBlockNumber(): Promise<number> {
-    const MaxNumberOfBlocksToProess = this.configService.getMaxNumberOfBlocksToProcess();
+    const MaxNumberOfBlocksToProcess = this.configService.getMaxNumberOfBlocksToProcess();
     const currentBlockNumber = await this.eventFetcher.getCurrentBlockNumber();
-    const defaultBlockNumber = Math.max(currentBlockNumber - MaxNumberOfBlocksToProess, 0);
+    const defaultBlockNumber = Math.max(currentBlockNumber - MaxNumberOfBlocksToProcess, 0);
     const lastBlockScanned = this.configService.getLastBlockScanned();
 
     if (lastBlockScanned == 0 ||
-      currentBlockNumber - lastBlockScanned > MaxNumberOfBlocksToProess ||
+      currentBlockNumber - lastBlockScanned > MaxNumberOfBlocksToProcess ||
       lastBlockScanned > currentBlockNumber) {
       return defaultBlockNumber;
     }

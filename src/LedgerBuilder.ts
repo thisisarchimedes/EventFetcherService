@@ -1,4 +1,3 @@
-import {S3Service} from '@thisisarchimedes/backend-sdk';
 import {
   ClaimEvent,
   ClosePositionEvent,
@@ -11,6 +10,7 @@ import {LeveragePosition, PrismaClient} from '@prisma/client';
 import {EventFetcherMessage} from './types/EventFetcherMessage';
 import {ethers} from 'ethers';
 import {Logger} from './services/logger/Logger';
+import S3Service from './services/s3/S3Service';
 
 const WBTC_DECIMALS = 8;
 
