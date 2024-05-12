@@ -29,12 +29,10 @@ describe('PSP Events', function() {
   const appConfigClient: AppConfigClient = new AppConfigClient(ENVIRONMENT, AWS_REGION);
   const prisma = new PrismaClient();
   let mainRpcProvider;
-  let altRpcProvider;
 
   before(async function() {
     await config.refreshConfig();
-    mainRpcProvider = new ethers.providers.JsonRpcProvider(config.getMainRPCURL());
-    altRpcProvider = new ethers.providers.JsonRpcProvider(config.getAlternativeRPCURL());
+    mainRpcProvider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
   });
 
   beforeEach(async function() {
@@ -83,9 +81,9 @@ describe('PSP Events', function() {
 
     await runCycle();
 
-    expect(mockNewRelic.isLogEntryDetected()).to.be.true;
-
     const expectedLog = createExpectedLogMessagePSPWithdraw();
+    mockNewRelic.setWaitedOnMessage(JSON.stringify(expectedLog));
+    expect(mockNewRelic.isLogEntryDetected()).to.be.true;
     const actualLog = mockNewRelic.findMatchingLogEntry();
 
     expect(actualLog).to.not.be.null;
@@ -99,7 +97,7 @@ describe('PSP Events', function() {
       config,
       prisma,
       mainRpcProvider,
-      altRpcProvider,
+      mainRpcProvider,
     );
     return eventProcessorService.execute();
   }
@@ -119,7 +117,7 @@ describe('PSP Events', function() {
   async function initalizeMocks() {
     logger = new LoggerAdapter('local_logger.txt');
 
-    mockEthereumNode = new MockEthereumNode(config.getMainRPCURL());
+    mockEthereumNode = new MockEthereumNode('http://localhost:8545');
 
     const newRelicApiUrl: string = 'https://log-api.newrelic.com';
     mockNewRelic = new MockNewRelic(newRelicApiUrl, logger);
@@ -129,7 +127,6 @@ describe('PSP Events', function() {
   }
 
   function setupGenericNockInterceptors() {
-    // mockNewRelicLogEndpoint();
     mockAWSS3Endpoint();
   }
 
@@ -137,11 +134,8 @@ describe('PSP Events', function() {
     mockEthereumNode.mockChainId();
     mockEthereumNode.mockBlockNumber('0x5B8D86');
     mockEthereumNode.mockEventResponse(syntheticEventFile, address);
+    mockEthereumNode.mockGetBalance('0x8AC7230489E80000');
   }
-
-  // function mockNewRelicLogEndpoint() {
-  //   mockNewRelic.setWaitedOnMessage();
-  // }
 
   function mockAWSS3Endpoint() {
     mockAWSS3.mockChangeLastProcessedBlockNumber();

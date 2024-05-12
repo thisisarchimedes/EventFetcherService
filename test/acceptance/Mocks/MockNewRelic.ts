@@ -25,6 +25,7 @@ export class MockNewRelic extends Mock {
         .persist()
         .post('/log/v1', () => true)
         .reply(200, (_, requestBody) => {
+          // console.log('includesWaitedOnMessage', requestBody);
           const includesWaitedOnMessage = JSON.stringify(requestBody).includes(this.waitedOnMessage);
           if (includesWaitedOnMessage) {
             this.waitedOnMessageObserved = true;

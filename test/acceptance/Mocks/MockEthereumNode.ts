@@ -63,6 +63,20 @@ export class MockEthereumNode extends Mock {
         }));
   }
 
+  public mockGetBalance(balance: string = '0x8AC7230489E80000') {
+    nock(this.baseUrl)
+        .persist()
+        .post(
+            '/',
+            (body: EthereumRpcRequest) => body.method === 'eth_getBalance',
+        )
+        .reply(200, (uri: string, body: EthereumRpcRequest) => ({
+          jsonrpc: '2.0',
+          id: body.id,
+          result: balance,
+        }));
+  }
+
   public cleanup() {
     nock.cleanAll();
   }
