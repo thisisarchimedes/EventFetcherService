@@ -30,8 +30,7 @@ process.on('SIGINT', () => {
 
     // Prevent performActions from being called if it's already running
     if (isRunning) {
-      console.warn('Already performing actions on another block. Skipping this block.');
-      logger.warning('Already performing actions on another block. Skipping this block.');
+      logger.warn('Already performing actions on another block. Skipping this block.');
       return;
     }
 
@@ -53,7 +52,6 @@ process.on('SIGINT', () => {
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      console.error('Error running events fetcher:', error);
       logger.error('Error running events fetcher:');
       logger.error(error);
     } finally {

@@ -1,9 +1,7 @@
 import {LogLevel} from './LogLevel';
 import {Logger} from './Logger';
-import {LoggerConsole} from './interfaces/LoggerConsole';
 
-
-export class LoggerConsole extends Logger implements LoggerConsole {
+export class LoggerConsole extends Logger {
   public async flush(): Promise<void> {
     // No-op
   }
