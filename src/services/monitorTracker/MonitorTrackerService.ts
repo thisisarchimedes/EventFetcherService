@@ -7,7 +7,7 @@ import {Logger} from '../logger/Logger';
 
 export interface Balance {
   account: string;
-  balance: bigint;
+  balance: string;
 }
 
 export default class MonitorTrackerService {
@@ -30,7 +30,7 @@ export default class MonitorTrackerService {
         addresses.map(async (address) => {
           return {
             account: address,
-            balance: await this.eventFetcher.getAddressBalance(address),
+            balance: (await this.eventFetcher.getAddressBalance(address)).toString(),
           };
         }),
     );
