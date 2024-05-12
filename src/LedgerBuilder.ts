@@ -51,7 +51,7 @@ export class LedgerBuilder {
         if (processor) {
           eventProcessed = await processor.call(this, event);
         } else {
-          this.logger.warning('Unknown event type');
+          this.logger.warn('Unknown event type');
         }
 
         if (eventProcessed) {
@@ -319,7 +319,7 @@ export class LedgerBuilder {
     }
 
     // send a log to new relic
-    this.logger.warning(
+    this.logger.warn(
         `Liquidation position Event:
             - NFT ID: ${event.data.nftId}
             - Strategy Address: ${event.data.strategy}
@@ -417,7 +417,7 @@ export class LedgerBuilder {
     }
 
     // send a log to new relic
-    this.logger.warning(
+    this.logger.warn(
         `Expired position Event:
             - NFT ID: ${event.data.nftId}
             - User: ${event.data.user}

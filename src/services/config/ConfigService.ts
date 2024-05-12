@@ -22,6 +22,9 @@ export abstract class ConfigService {
   protected globalUrgentKeyARN: string = '';
   protected pspNormalKeyARN: string = '';
 
+  protected newRelicURL: string = '';
+  protected newRelicAPIKey: string = '';
+
   abstract refreshConfig(): Promise<void>;
   abstract setLastScannedBlock(blockNumber: number): Promise<void>;
 
@@ -97,5 +100,13 @@ export abstract class ConfigService {
 
   public getUrgentKeyARN(): string {
     return this.globalUrgentKeyARN;
+  }
+
+  public getNewRelicUrl(): string {
+    return this.newRelicURL;
+  }
+
+  public getNewRelicAPIKey(): string {
+    return this.newRelicAPIKey;
   }
 }

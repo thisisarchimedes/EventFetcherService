@@ -117,13 +117,13 @@ export class EventProcessorService {
   }
 
   private async getStartBlockNumber(): Promise<number> {
-    const MaxNumberOfBlocksToProcess = this.configService.getMaxNumberOfBlocksToProcess();
+    const maxNumberOfBlocksToProess = this.configService.getMaxNumberOfBlocksToProcess();
     const currentBlockNumber = await this.eventFetcher.getCurrentBlockNumber();
-    const defaultBlockNumber = Math.max(currentBlockNumber - MaxNumberOfBlocksToProcess, 0);
+    const defaultBlockNumber = Math.max(currentBlockNumber - maxNumberOfBlocksToProess, 0);
     const lastBlockScanned = this.configService.getLastBlockScanned();
 
     if (lastBlockScanned == 0 ||
-      currentBlockNumber - lastBlockScanned > MaxNumberOfBlocksToProcess ||
+      currentBlockNumber - lastBlockScanned > maxNumberOfBlocksToProess ||
       lastBlockScanned > currentBlockNumber) {
       return defaultBlockNumber;
     }

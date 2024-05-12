@@ -24,12 +24,21 @@ export class LoggerAdapter extends Logger {
     this.log('INFO', message);
   }
 
-  public warning(message: string): void {
+  public warn(message: string): void {
     this.log('WARNING', message);
+  }
+
+  public debug(message: string): void {
+    this.log('DEBUG', message);
   }
 
   public error(message: string): void {
     this.log('ERROR', message);
+  }
+
+  public flush(): Promise<void> {
+    // No-op
+    return Promise.resolve();
   }
 
   public getLastMessageRawString(): string {
