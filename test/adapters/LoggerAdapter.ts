@@ -64,17 +64,4 @@ export class LoggerAdapter extends Logger {
       return ['Error reading log file.'];
     }
   }
-
-  // Implement the missing abstract members
-  public debug(message: string): void {
-    this.log('DEBUG', message);
-  }
-
-  public warn(message: string): void {
-    this.log('WARN', message);
-  }
-
-  public flush(): Promise<void> {
-    return Promise.resolve();
-  }
 }
