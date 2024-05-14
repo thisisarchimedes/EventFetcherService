@@ -80,7 +80,7 @@ model LeveragePosition {
 model ExecutorBalances {
     id        Int      @id @default(autoincrement()) // Primary key
     account   String   @db.VarChar(42) // Ethereum account address
-    balance   BigInt   // Balance in Wei
+    balance   String   // Balance in Wei
     updatedAt DateTime // Automatically update the timestamp when the record is updated
 
     @@unique([account])

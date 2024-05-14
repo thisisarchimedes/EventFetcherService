@@ -6,8 +6,7 @@ import chai from 'chai';
 import hre from 'hardhat';
 import '@nomiclabs/hardhat-ethers';
 import {ethers} from 'ethers';
-
-import {S3Service} from '@thisisarchimedes/backend-sdk';
+import S3Service from '../../src/services/s3/S3Service';
 
 import {ConfigService} from '../../src/services/config/ConfigService';
 import {ConfigServiceAdapter} from '../adapters/ConfigServiceAdapter';

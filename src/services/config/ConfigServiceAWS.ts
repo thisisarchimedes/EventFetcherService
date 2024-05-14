@@ -2,7 +2,7 @@ import {ContractInfoLeverage} from '../../types/ContractInfoLeverage';
 import {ContractInfoPSP} from '../../types/ContractInfoPSP';
 import {ConfigService, LeverageContractAddresses} from './ConfigService';
 import {AppConfigClient} from './AppConfigClient';
-import {S3Service} from '@thisisarchimedes/backend-sdk';
+import S3Service from '../s3/S3Service';
 
 export class ConfigServiceAWS extends ConfigService {
   private readonly appConfigClient: AppConfigClient;

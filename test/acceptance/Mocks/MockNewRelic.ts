@@ -1,10 +1,12 @@
 import nock from 'nock';
 import {Mock} from './Mock';
+import {EventFetcherLogEntryMessage, NewRelicLogEntry} from '../../../src/types/NewRelicLogEntry';
 
 export class MockNewRelic extends Mock {
   private baseUrl: string;
   private waitedOnMessage!: string;
   private waitedOnMessageObserved: boolean = false;
+  private logEntryToListenFor: string = '';
 
   constructor(baseUrl: string) {
     super();
@@ -28,5 +30,18 @@ export class MockNewRelic extends Mock {
 
   public isWaitedOnMessageObserved(): boolean {
     return this.waitedOnMessageObserved;
+  }
+
+  public listenForLogEntry(entry: string): void {
+    this.logEntryToListenFor = entry;
+  }
+
+  private parseLogEntry(logLine: string): EventFetcherLogEntryMessage | null {
+    try {
+      const logEntry: NewRelicLogEntry = JSON.parse(JSON.parse(logLine.split('INFO: ')[1]));
+      return JSON.parse(String(logEntry.message));
+    } catch (error) {
+      return null;
+    }
   }
 }

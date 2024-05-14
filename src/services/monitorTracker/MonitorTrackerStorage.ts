@@ -11,10 +11,10 @@ export default class MonitorTrackerStorage implements IMonitorTrackerStorage {
     return Promise.all(balances.map(async (balance)=> {
       await this.prismaClient.executorBalances.upsert({create: {
         account: balance.account,
-        balance: balance.balance,
+        balance: balance.balance.toString(),
         updatedAt: new Date(),
       }, update: {
-        balance: balance.balance,
+        balance: balance.balance.toString(),
         updatedAt: new Date(),
       }, where: {
         account: balance.account,
