@@ -55,8 +55,8 @@ describe('LedgerBuilder', function() {
     const ethBalancesFromDB = await monitorTrackerStorage.getBalances();
     expect(ethBalancesFromDB).to.have.length(3);
     expect(ethBalancesFromDB[0].account).to.be.equal('0x123');
-    expect(ethBalancesFromDB[0].balance).to.be.equal(1n);
+    expect(ethBalancesFromDB[0].balance).to.be.equal('1');
     expect(ethBalancesFromDB[1].account).to.be.equal('0x456');
-    expect(ethBalancesFromDB[1].balance).to.be.equal(2n);
+    expect(ethBalancesFromDB[1].balance).to.be.equal('2');
   });
 });

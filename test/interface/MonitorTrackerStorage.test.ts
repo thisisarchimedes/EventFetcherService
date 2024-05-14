@@ -18,10 +18,10 @@ describe('Monitor balance storage', function() {
 
     const balancesToInsert = [{
       account: '0x123',
-      balance: 1n,
+      balance: '1',
     }, {
       account: '0x456',
-      balance: 2n,
+      balance: '2',
     }];
     await monitorTrackerStorage.updateBalances(balancesToInsert);
     const balances = await monitorTrackerStorage.getBalances();
@@ -34,8 +34,8 @@ describe('Monitor balance storage', function() {
     expect(firstWalletBalance).to.be.not.undefined;
     expect(secondWalletBalance).to.be.not.undefined;
 
-    expect(firstWalletBalance!.balance).to.be.equal(1n);
-    expect(secondWalletBalance!.balance).to.be.equal(2n);
+    expect(firstWalletBalance!.balance).to.be.equal('1');
+    expect(secondWalletBalance!.balance).to.be.equal('2');
 
     await prisma.executorBalances.deleteMany({
       where: {
