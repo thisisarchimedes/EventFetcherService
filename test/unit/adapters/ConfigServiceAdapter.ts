@@ -2,10 +2,10 @@ import fs from 'fs';
 import util from 'util';
 import dotenv from 'dotenv';
 
-import {ConfigService, LeverageContractAddresses} from '../../src/services/config/ConfigService';
-import {ContractInfoLeverage} from '../../src/types/ContractInfoLeverage';
-import {ContractInfoPSP} from '../../src/types/ContractInfoPSP';
-import {AppConfigClient} from '../../src/services/config/AppConfigClient';
+import {ConfigService, LeverageContractAddresses} from '../../../src/services/config/ConfigService';
+import {ContractInfoLeverage} from '../../../src/types/ContractInfoLeverage';
+import {ContractInfoPSP} from '../../../src/types/ContractInfoPSP';
+import {AppConfigClient} from '../../../src/services/config/AppConfigClient';
 
 const readFile = util.promisify(fs.readFile);
 

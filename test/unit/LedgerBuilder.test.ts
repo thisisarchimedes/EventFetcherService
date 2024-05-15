@@ -14,7 +14,7 @@ import {
 import {ContractType} from '../../src/types/EventDescriptor';
 import {BigNumber} from 'ethers';
 import {Logger} from '../../src/services/logger/Logger';
-import {LoggerAdapter} from '../adapters/LoggerAdapter';
+import {LoggerAdapter} from './adapters/LoggerAdapter';
 
 chai.use(sinonChai);
 

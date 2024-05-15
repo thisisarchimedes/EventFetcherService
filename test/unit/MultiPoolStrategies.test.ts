@@ -2,7 +2,7 @@ import {expect} from 'chai';
 import nock from 'nock';
 import {ethers} from 'ethers';
 
-import {ConfigServiceAdapter} from '../adapters/ConfigServiceAdapter';
+import {ConfigServiceAdapter} from './adapters/ConfigServiceAdapter';
 import {MultiPoolStrategies} from '../../src/MultiPoolStrategies';
 
 
