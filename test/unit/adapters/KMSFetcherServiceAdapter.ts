@@ -1,10 +1,10 @@
-import {IKMSFetcherService} from '../../src/services/kms/IKMSFetcherService';
+import {IKMSFetcherService} from '../../../src/services/kms/IKMSFetcherService';
 import * as AWS from 'aws-sdk';
 
 export class KMSFetcherServiceAdapter implements IKMSFetcherService {
   private arns: {
-        [key: string]: AWS.KMS.TagList
-    } = {};
+    [key: string]: AWS.KMS.TagList
+  } = {};
 
   public fetchTags(arn: string) {
     return Promise.resolve(this.arns[arn]);

@@ -9,12 +9,12 @@ import {ethers} from 'ethers';
 import S3Service from '../../src/services/s3/S3Service';
 
 import {ConfigService} from '../../src/services/config/ConfigService';
-import {ConfigServiceAdapter} from '../adapters/ConfigServiceAdapter';
-import {EventFetcherAdapter} from '../adapters/EventFetcherAdapter';
+import {ConfigServiceAdapter} from './adapters/ConfigServiceAdapter';
+import {EventFetcherAdapter} from './adapters/EventFetcherAdapter';
 import {EventFactory, EventFactoryUnknownEventError} from '../../src/onchain_events/EventFactory';
 
 import {Logger} from '../../src/services/logger/Logger';
-import {LoggerAdapter} from '../adapters/LoggerAdapter';
+import {LoggerAdapter} from './adapters/LoggerAdapter';
 
 chai.use(sinonChai);
 chai.use(chaiAsPromised);

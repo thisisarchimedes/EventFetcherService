@@ -2,9 +2,9 @@ import dotenv from 'dotenv';
 import {expect} from 'chai';
 import nock from 'nock';
 
-import {MockEthereumNode} from './Mocks/MockEthereumNode';
-import {MockNewRelic} from './Mocks/MockNewRelic';
-import {MockAWSS3} from './Mocks/MockAWSS3';
+import {MockEthereumNode} from './mock/MockEthereumNode';
+import {MockNewRelic} from './mock/MockNewRelic';
+import {MockAWSS3} from './mock/MockAWSS3';
 import {ConfigServiceAWS} from '../../src/services/config/ConfigServiceAWS';
 import {AppConfigClient} from '../../src/services/config/AppConfigClient';
 

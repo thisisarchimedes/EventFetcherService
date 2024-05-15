@@ -1,5 +1,5 @@
-import {IMonitorTrackerStorage} from '../../src/services/monitorTracker/IMonitorTrackerStorage';
-import {Balance} from '../../src/services/monitorTracker/MonitorTrackerService';
+import {IMonitorTrackerStorage} from '../../../src/services/monitorTracker/IMonitorTrackerStorage';
+import {Balance} from '../../../src/services/monitorTracker/MonitorTrackerService';
 
 export class MonitorTrackerStorageAdapter implements IMonitorTrackerStorage {
   private balances: Balance[];

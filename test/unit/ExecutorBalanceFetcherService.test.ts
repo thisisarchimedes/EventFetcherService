@@ -3,10 +3,10 @@ import {expect} from 'chai';
 
 import MonitorTrackerService from '../../src/services/monitorTracker/MonitorTrackerService';
 import {ConfigServiceAWS} from '../../src/services/config/ConfigServiceAWS';
-import {MonitorTrackerStorageAdapter} from '../adapters/MonitorTrackerStorageAdapter';
-import {EventFetcherAdapter} from '../adapters/EventFetcherAdapter';
-import {KMSFetcherServiceAdapter} from '../adapters/KMSFetcherServiceAdapter';
-import {LoggerAdapter} from '../adapters/LoggerAdapter';
+import {MonitorTrackerStorageAdapter} from './adapters/MonitorTrackerStorageAdapter';
+import {EventFetcherAdapter} from './adapters/EventFetcherAdapter';
+import {KMSFetcherServiceAdapter} from './adapters/KMSFetcherServiceAdapter';
+import {LoggerAdapter} from './adapters/LoggerAdapter';
 
 describe('LedgerBuilder', function() {
   let configService: ConfigServiceAWS;

@@ -1,8 +1,8 @@
 import {expect} from 'chai';
 
-import {LoggerAdapter} from '../adapters/LoggerAdapter';
-import {EventFetcherAdapter} from '../adapters/EventFetcherAdapter';
-import {ConfigServiceAdapter} from '../adapters/ConfigServiceAdapter';
+import {LoggerAdapter} from './adapters/LoggerAdapter';
+import {EventFetcherAdapter} from './adapters/EventFetcherAdapter';
+import {ConfigServiceAdapter} from './adapters/ConfigServiceAdapter';
 
 import {EventFactory} from '../../src/onchain_events/EventFactory';
 import {
