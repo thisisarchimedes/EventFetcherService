@@ -23,6 +23,11 @@ jobs:
   test:
     runs-on: self-hosted
     steps:
+      - name: Clean the workspace
+        uses: docker://alpine
+        with:
+          args: /bin/sh -c "find \"${GITHUB_WORKSPACE}\" -mindepth 1 ! -name . -prune -exec rm -rf {} +"
+          
       - name: Set env variables
         run: |
             echo "TEST_PASS=true" >> $GITHUB_ENV
