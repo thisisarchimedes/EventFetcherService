@@ -12,14 +12,14 @@ export class EventFetcherRPC extends EventFetcher {
   public async getOnChainEvents(
       blockNumberFrom: number,
       blockNumberTo: number,
-      topics: string[],
+      lookupTopics: string[],
   ): Promise<ethers.providers.Log[]> {
     // RPC URL supports up to 4 topics per request
     const MAX_TOPICS_PER_REQUEST = 4;
     let allLogs: ethers.providers.Log[] = [];
 
-    for (let i = 0; i < topics.length; i += MAX_TOPICS_PER_REQUEST) {
-      const chunkTopics = topics.slice(i, i + MAX_TOPICS_PER_REQUEST);
+    for (let i = 0; i < lookupTopics.length; i += MAX_TOPICS_PER_REQUEST) {
+      const chunkTopics = lookupTopics.slice(i, i + MAX_TOPICS_PER_REQUEST);
       const filter: ethers.providers.Filter = {
         topics: [chunkTopics],
         fromBlock: blockNumberFrom,
