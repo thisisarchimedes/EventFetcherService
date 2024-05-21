@@ -18,8 +18,14 @@ describe('Leveraged Position Opened', function() {
   let mockEthereumNodeAlt: MockEthereumNode;
   let mockNewRelic: MockNewRelic;
   let mockAWSS3: MockAWSS3;
-  const config: ConfigServiceAWS = new ConfigServiceAWS(ENVIRONMENT, AWS_REGION);
-  const appConfigClient: AppConfigClient = new AppConfigClient(ENVIRONMENT, AWS_REGION);
+  const config: ConfigServiceAWS = new ConfigServiceAWS(
+      ENVIRONMENT,
+      AWS_REGION,
+  );
+  const appConfigClient: AppConfigClient = new AppConfigClient(
+      ENVIRONMENT,
+      AWS_REGION,
+  );
 
   before(async function() {
     await config.refreshConfig();
@@ -34,10 +40,12 @@ describe('Leveraged Position Opened', function() {
     cleanupNock();
   });
 
-
   it('should catch and report on Leverage Position Opened event', async function() {
     const positionOpener = config.getLeveragePositionOpenerAddress();
-    mockEthereumNodeResponses('test/data/leveragePositionOpenedEvent.json', positionOpener);
+    mockEthereumNodeResponses(
+        'test/data/leveragePositionOpenedEvent.json',
+        positionOpener,
+    );
 
     const expectedLog = createExpectedLogMessageLeveragedPositionOpened();
     mockNewRelic.setWaitedOnMessage(expectedLog);
@@ -58,7 +66,9 @@ describe('Leveraged Position Opened', function() {
     const newRelicApiUrl: string = 'https://log-api.newrelic.com';
     mockNewRelic = new MockNewRelic(newRelicApiUrl);
 
-    const {bucket} = JSON.parse(await appConfigClient.fetchConfigRawString('LastBlockScannedS3FileURL'));
+    const {bucket} = JSON.parse(
+        await appConfigClient.fetchConfigRawString('LastBlockScannedS3FileURL'),
+    );
     mockAWSS3 = new MockAWSS3(bucket, AWS_REGION);
   }
 
@@ -74,26 +84,46 @@ describe('Leveraged Position Opened', function() {
   function cleanupNock() {
     nock.cleanAll();
   }
-  function mockEthereumNodeResponses(syntheticEventFile: string, address?: string) {
+  function mockEthereumNodeResponses(
+      syntheticEventFile: string,
+      address?: string,
+  ) {
     mockEthereumNode.mockChainId();
     mockEthereumNode.mockBlockNumber('0x5B8D86');
     mockEthereumNode.mockEventResponse(syntheticEventFile, address);
     mockEthereumNode.mockGetBalance('0x8AC7230489E80000');
-    mockEthereumNode.setValueForETHCall('asset', '0x000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48');
-    mockEthereumNode.setValueForETHCall('decimals', '0x0000000000000000000000000000000000000000000000000000000000000006');
-    mockEthereumNode.setValueForETHCall('convertToAssets', '0x00000000000000000000000000000000000000000000000000000000000f0e8d');
+    mockEthereumNode.setValueForETHCall(
+        'asset',
+        '0x000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+    );
+    mockEthereumNode.setValueForETHCall(
+        'decimals',
+        '0x0000000000000000000000000000000000000000000000000000000000000006',
+    );
+    mockEthereumNode.setValueForETHCall(
+        'convertToAssets',
+        '0x00000000000000000000000000000000000000000000000000000000000f0e8d',
+    );
     mockEthereumNode.mockGetBlockByNumber();
     mockEthereumNode.mockEthCall();
-
 
     mockEthereumNodeAlt.mockChainId();
     mockEthereumNodeAlt.mockBlockNumber('0x5B8D86');
     mockEthereumNodeAlt.mockEventResponse(syntheticEventFile, address);
     mockEthereumNodeAlt.mockGetBalance('0x8AC7230489E80000');
     mockEthereumNodeAlt.mockEthCall();
-    mockEthereumNodeAlt.setValueForETHCall('asset', '0x000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48');
-    mockEthereumNodeAlt.setValueForETHCall('decimals', '0x0000000000000000000000000000000000000000000000000000000000000006');
-    mockEthereumNodeAlt.setValueForETHCall('convertToAssets', '0x00000000000000000000000000000000000000000000000000000000000f0e8d');
+    mockEthereumNodeAlt.setValueForETHCall(
+        'asset',
+        '0x000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+    );
+    mockEthereumNodeAlt.setValueForETHCall(
+        'decimals',
+        '0x0000000000000000000000000000000000000000000000000000000000000006',
+    );
+    mockEthereumNodeAlt.setValueForETHCall(
+        'convertToAssets',
+        '0x00000000000000000000000000000000000000000000000000000000000f0e8d',
+    );
     mockEthereumNodeAlt.mockGetBlockByNumber();
   }
 });

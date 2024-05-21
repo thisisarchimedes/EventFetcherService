@@ -60,21 +60,20 @@ enum PositionState {
 }
 
 model LeveragePosition {
-    id                   Int           @id @default(autoincrement())
-    nftId                BigInt
-    user                 String        @db.VarChar(42)
-    collateralAmount     Decimal
-    debtAmount           Decimal
-    timestamp            Int
-    currentPositionValue Decimal
-    strategyShares       Decimal
-    strategy             String        @db.VarChar(42)
-    blockNumber          Int
-    positionExpireBlock  Int
-    positionState        PositionState
-    claimableAmount      Decimal       @default(0)
+  nftId BigInt @id @unique
+  user String @db.VarChar(42)
+  collateralAmount Decimal
+  debtAmount Decimal
+  timestamp Int
+  currentPositionValue Decimal
+  strategyShares Decimal
+  strategy String @db.VarChar(42)
+  blockNumber Int
+  positionExpireBlock Int
+  positionState PositionState
+  claimableAmount Decimal @default(0)
 
-    @@index([user])
+  @@index([user])
 }
 
 model ExecutorBalances {

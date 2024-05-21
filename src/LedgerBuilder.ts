@@ -223,20 +223,15 @@ export class LedgerBuilder {
       this.logger.error((e as Error).message.toString());
       return false;
     }
-    const leveragePosition = await this.prisma.leveragePosition.findFirst({
-      where: {
-        nftId: BigInt(event.data.nftId),
-      },
-    });
 
-    if (!leveragePosition) {
-      this.logger.error('Could not find leverage position');
-      return false;
-    }
+    // if (!leveragePosition) {
+    //   this.logger.error('Could not find leverage position');
+    //   return false;
+    // }
     try {
       await this.prisma.leveragePosition.update({
         where: {
-          id: leveragePosition.id,
+          nftId: BigInt(event.data.nftId),
         },
         data: {
           positionState: 'CLOSED',
@@ -302,7 +297,7 @@ export class LedgerBuilder {
     try {
       await this.prisma.leveragePosition.update({
         where: {
-          id: leveragePosition.id,
+          nftId: leveragePosition.nftId,
         },
         data: {
           positionState: 'LIQUIDATED',
