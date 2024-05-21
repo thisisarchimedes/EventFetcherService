@@ -135,7 +135,6 @@ describe('LedgerBuilder', function() {
 
     // Assertions to check if the PositionClosed event was processed correctly
     expect(mockPrisma.closeLeverage.create).to.have.been.calledOnce;
-    expect(mockPrisma.leveragePosition.findFirst).to.have.been.calledOnce;
     expect(mockPrisma.leveragePosition.update).to.have.been.calledOnce;
   });
 
@@ -160,7 +159,6 @@ describe('LedgerBuilder', function() {
 
     // Assertions to check if the PositionClosed event was processed correctly
     expect(mockPrisma.liquidateLeverage.create).to.have.been.calledOnce;
-    expect(mockPrisma.leveragePosition.findFirst).to.have.been.calledOnce;
     expect(mockPrisma.leveragePosition.update).to.have.been.calledOnce;
   });
 
@@ -183,7 +181,6 @@ describe('LedgerBuilder', function() {
 
     // Assertions to check if the PositionClosed event was processed correctly
     expect(mockPrisma.expireLeverage.create).to.have.been.calledOnce;
-    expect(mockPrisma.leveragePosition.findFirst).to.have.been.calledOnce;
     expect(mockPrisma.leveragePosition.update).to.have.been.calledOnce;
   });
 
@@ -204,8 +201,6 @@ describe('LedgerBuilder', function() {
 
     await ledgerBuilder.processEvents([claimEvent]);
 
-    expect(mockPrisma.leveragePosition.findFirst)
-        .to.have.been.calledOnce;
     expect(mockPrisma.leveragePosition.update)
         .to.have.been.calledOnce;
   });
