@@ -69,55 +69,32 @@ export class LedgerBuilder {
     const strategyData = await this.multiPoolStrategies.fetchStrategyData(
         event.data.strategy,
     );
-    const openPosition = await this.prisma.openLeverage.findFirst({
-      where: {
+
+    this.logger.info('Appending event to DB');
+
+    await this.prisma.openLeverage.create({
+      data: {
         txHash: event.txHash,
+        blockNumber: event.blockNumber,
         nftId: BigInt(event.data.nftId),
+        user: event.data.user.toLowerCase(),
+        strategy: event.data.strategy.toLowerCase(),
+        collateralAmount: Number(
+            ethers.utils.formatUnits(event.data.collateralAmount, WBTC_DECIMALS),
+        ),
+        wbtcToBorrow: Number(
+            ethers.utils.formatUnits(event.data.wbtcToBorrow, WBTC_DECIMALS),
+        ),
+        positionExpireBlock: Number(event.data.positionExpireBlock),
+        receivedShares: Number(
+            ethers.utils.formatUnits(
+                event.data.sharesReceived,
+                strategyData.assetDecimals,
+            ),
+        ),
       },
     });
 
-    if (openPosition) {
-      this.logger.info('Open Position already exists');
-      return true;
-    }
-    try {
-      this.logger.info('Appending event to DB');
-
-      await this.prisma.openLeverage.create({
-        data: {
-          txHash: event.txHash,
-          blockNumber: event.blockNumber,
-          nftId: BigInt(event.data.nftId),
-          user: event.data.user.toLowerCase(),
-          strategy: event.data.strategy.toLowerCase(),
-          collateralAmount: Number(
-              ethers.utils.formatUnits(event.data.collateralAmount, WBTC_DECIMALS),
-          ),
-          wbtcToBorrow: Number(
-              ethers.utils.formatUnits(event.data.wbtcToBorrow, WBTC_DECIMALS),
-          ),
-          positionExpireBlock: Number(event.data.positionExpireBlock),
-          receivedShares: Number(
-              ethers.utils.formatUnits(
-                  event.data.sharesReceived,
-                  strategyData.assetDecimals,
-              ),
-          ),
-        },
-      });
-    } catch (e) {
-      this.logger.error((e as Error).message.toString());
-      return false;
-    }
-    const leveragePosition = await this.prisma.leveragePosition.findFirst({
-      where: {
-        nftId: BigInt(event.data.nftId),
-      },
-    });
-    if (leveragePosition) {
-      this.logger.info('Leverage Position already exists');
-      return true;
-    }
     let blockTimestamp = (
       await this.alchemyProvider.getBlock(event.blockNumber)
     )?.timestamp;
@@ -193,43 +170,23 @@ export class LedgerBuilder {
   }
 
   async processClosePosition(event: ClosePositionEvent): Promise<boolean> {
-    const closePosition = await this.prisma.closeLeverage.findFirst({
-      where: {
+    await this.prisma.closeLeverage.create({
+      data: {
         txHash: event.txHash,
+        blockNumber: event.blockNumber,
         nftId: BigInt(event.data.nftId),
+        user: event.data.user.toLowerCase(),
+        receivedAmount: Number(
+            ethers.utils.formatUnits(event.data.receivedAmount, WBTC_DECIMALS),
+        ),
+        wbtcDebtAmount: Number(
+            ethers.utils.formatUnits(event.data.wbtcDebtAmount, WBTC_DECIMALS),
+        ),
       },
     });
 
-    if (closePosition) {
-      this.logger.info('Close Position already exists');
-      return true;
-    }
     try {
-      await this.prisma.closeLeverage.create({
-        data: {
-          txHash: event.txHash,
-          blockNumber: event.blockNumber,
-          nftId: BigInt(event.data.nftId),
-          user: event.data.user.toLowerCase(),
-          receivedAmount: Number(
-              ethers.utils.formatUnits(event.data.receivedAmount, WBTC_DECIMALS),
-          ),
-          wbtcDebtAmount: Number(
-              ethers.utils.formatUnits(event.data.wbtcDebtAmount, WBTC_DECIMALS),
-          ),
-        },
-      });
-    } catch (e) {
-      this.logger.error((e as Error).message.toString());
-      return false;
-    }
-
-    // if (!leveragePosition) {
-    //   this.logger.error('Could not find leverage position');
-    //   return false;
-    // }
-    try {
-      await this.prisma.leveragePosition.update({
+      const leveragePosition = await this.prisma.leveragePosition.update({
         where: {
           nftId: BigInt(event.data.nftId),
         },
@@ -238,6 +195,10 @@ export class LedgerBuilder {
           currentPositionValue: 0,
         },
       });
+      if (!leveragePosition) {
+        this.logger.error('Could not find leverage position');
+        return false;
+      }
     } catch (e) {
       this.logger.error((e as Error).message.toString());
       return false;
@@ -248,56 +209,28 @@ export class LedgerBuilder {
   async processLiquidatePosition(
       event: LiquidatePositionEvent,
   ): Promise<boolean> {
-    const liquidatePosition = await this.prisma.liquidateLeverage.findFirst(
-        {
-          where: {
-            txHash: event.txHash,
-            nftId: BigInt(event.data.nftId),
-          },
-        },
-    );
-    if (liquidatePosition) {
-      this.logger.error('Liquidate Position already exists');
-      return true;
-    }
-    try {
-      await this.prisma.liquidateLeverage.create({
-        data: {
-          txHash: event.txHash,
-          blockNumber: event.blockNumber,
-          nftId: BigInt(event.data.nftId),
-          strategy: event.data.strategy.toLowerCase(),
-          claimableAmount: Number(
-              ethers.utils.formatUnits(event.data.claimableAmount, WBTC_DECIMALS),
-          ),
-          wbtcDebtPaid: Number(
-              ethers.utils.formatUnits(event.data.wbtcDebtPaid, WBTC_DECIMALS),
-          ),
-          liquidationFee: Number(
-              ethers.utils.formatUnits(event.data.liquidationFee, WBTC_DECIMALS),
-          ),
-        },
-      });
-    } catch (e) {
-      this.logger.error((e as Error).message.toString());
-      return false;
-    }
-
-    const leveragePosition = await this.prisma.leveragePosition.findFirst({
-      where: {
+    await this.prisma.liquidateLeverage.create({
+      data: {
+        txHash: event.txHash,
+        blockNumber: event.blockNumber,
         nftId: BigInt(event.data.nftId),
+        strategy: event.data.strategy.toLowerCase(),
+        claimableAmount: Number(
+            ethers.utils.formatUnits(event.data.claimableAmount, WBTC_DECIMALS),
+        ),
+        wbtcDebtPaid: Number(
+            ethers.utils.formatUnits(event.data.wbtcDebtPaid, WBTC_DECIMALS),
+        ),
+        liquidationFee: Number(
+            ethers.utils.formatUnits(event.data.liquidationFee, WBTC_DECIMALS),
+        ),
       },
     });
 
-    if (!leveragePosition) {
-      this.logger.info('Could not find leverage position');
-      return false;
-    }
-
     try {
-      await this.prisma.leveragePosition.update({
+      const leveragePosition = await this.prisma.leveragePosition.update({
         where: {
-          nftId: leveragePosition.nftId,
+          nftId: BigInt(event.data.nftId),
         },
         data: {
           positionState: 'LIQUIDATED',
@@ -308,6 +241,10 @@ export class LedgerBuilder {
           strategyShares: 0,
         },
       });
+      if (!leveragePosition) {
+        this.logger.info('Could not find leverage position');
+        return false;
+      }
     } catch (e) {
       this.logger.error((e as Error).message.toString());
       return false;
@@ -327,26 +264,22 @@ export class LedgerBuilder {
 
     return true;
   }
-  async processClaimEvent(event: ClaimEvent) {
-    const leveragePosition = await this.prisma.leveragePosition.findFirst({
-      where: {
-        nftId: BigInt(event.data.nftId),
-      },
-    });
 
-    if (!leveragePosition) {
-      this.logger.info('Could not find leverage position');
-      return false;
-    }
+  async processClaimEvent(event: ClaimEvent) {
     try {
-      await this.prisma.leveragePosition.update({
+      const leveragePosition = await this.prisma.leveragePosition.update({
         where: {
-          id: leveragePosition.id,
+          nftId: BigInt(event.data.nftId),
         },
         data: {
           claimableAmount: Number(0),
         },
       });
+
+      if (!leveragePosition) {
+        this.logger.info('Could not find leverage position');
+        return false;
+      }
 
       return true;
     } catch (e) {
@@ -356,47 +289,22 @@ export class LedgerBuilder {
   }
 
   async processExpirePosition(event: ExpirePositionEvent) {
-    const expirePosition = await this.prisma.expireLeverage.findFirst({
-      where: {
+    await this.prisma.expireLeverage.create({
+      data: {
         txHash: event.txHash,
+        blockNumber: event.blockNumber,
         nftId: BigInt(event.data.nftId),
+        user: event.data.user.toLowerCase(),
+        claimableAmount: Number(
+            ethers.utils.formatUnits(event.data.claimableAmount, WBTC_DECIMALS),
+        ),
       },
     });
 
-    if (expirePosition) {
-      this.logger.info('Expire Position already exists');
-      return true;
-    }
     try {
-      await this.prisma.expireLeverage.create({
-        data: {
-          txHash: event.txHash,
-          blockNumber: event.blockNumber,
-          nftId: BigInt(event.data.nftId),
-          user: event.data.user.toLowerCase(),
-          claimableAmount: Number(
-              ethers.utils.formatUnits(event.data.claimableAmount, WBTC_DECIMALS),
-          ),
-        },
-      });
-    } catch (e) {
-      this.logger.error((e as Error).message.toString());
-      return false;
-    }
-    const leveragePosition = await this.prisma.leveragePosition.findFirst({
-      where: {
-        nftId: BigInt(event.data.nftId),
-      },
-    });
-
-    if (!leveragePosition) {
-      this.logger.info('Could not find leverage position');
-      return false;
-    }
-    try {
-      await this.prisma.leveragePosition.update({
+      const leveragePosition = await this.prisma.leveragePosition.update({
         where: {
-          id: leveragePosition.id,
+          nftId: BigInt(event.data.nftId),
         },
         data: {
           positionState: 'EXPIRED',
@@ -406,6 +314,11 @@ export class LedgerBuilder {
           ),
         },
       });
+
+      if (!leveragePosition) {
+        this.logger.info('Could not find leverage position');
+        return false;
+      }
     } catch (e) {
       this.logger.error((e as Error).message.toString());
       return false;
