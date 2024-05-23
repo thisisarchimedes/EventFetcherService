@@ -52,6 +52,7 @@ export class EventProcessorService {
       const startBlock = await this.getStartBlockNumber();
       const endBlock = await this.eventFetcher.getCurrentBlockNumber();
 
+      this.logger.info(`Processing events from block ${startBlock} to ${endBlock}`);
       const events = await this.processEventsAtBlockRange(startBlock, endBlock);
       await this.ledgerBuilder.processEvents(events);
 
