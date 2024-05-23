@@ -6,7 +6,8 @@ import {MockAWSS3} from './mock/MockAWSS3';
 import {MockEthereumNode} from './mock/MockEthereumNode';
 import {MockNewRelic} from './mock/MockNewRelic';
 import dotenv from 'dotenv';
-import {runOneCycle} from '../../src/index';
+import {runOneCycle, run, createDependencies} from '../../src/main';
+import MockPrisma from './mock/MockPrisma';
 
 dotenv.config();
 
@@ -41,6 +42,12 @@ describe('Leveraged Position Opened', function() {
   });
 
   it('should catch and report on Leverage Position Opened event', async function() {
+    const {logger, configService, prisma, mainRpcProvider, altRpcProvider} =
+    await createDependencies();
+
+    await run(logger, configService, new MockPrisma(), mainRpcProvider, altRpcProvider);
+    return;
+
     const positionOpener = config.getLeveragePositionOpenerAddress();
     mockEthereumNodeResponses(
         'test/data/leveragePositionOpenedEvent.json',

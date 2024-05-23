@@ -45,11 +45,13 @@ export class MockEthereumNode extends Mock {
     nock(this.baseUrl)
         .persist()
         .post(this.path, (body: EthereumRpcRequest) => body.method === 'eth_getLogs')
-        .reply(200, (uri: string, body: EthereumRpcRequest) => ({
-          jsonrpc: '2.0',
-          id: body.id,
-          result: mockData,
-        }));
+        .reply(200, (uri:string, body:EthereumRpcRequest) => {
+          return {
+            jsonrpc: '2.0',
+            id: body.id,
+            result: mockData,
+          };
+        });
   }
 
   public mockChainId(chainId: string = '0x1') {

@@ -6,7 +6,7 @@ import {MockAWSS3} from './mock/MockAWSS3';
 import {MockEthereumNode} from './mock/MockEthereumNode';
 import {MockNewRelic} from './mock/MockNewRelic';
 import dotenv from 'dotenv';
-import {runOneCycle} from '../../src/index';
+import {runOneCycle} from '../../src/main';
 
 dotenv.config();
 
@@ -56,7 +56,7 @@ describe('Leveraged Position Closed', function() {
   });
 
   function createExpectedLogMessageLeveragedPositionClosed(): string {
-    return '0x1fe52317d52b452120708667eed57e3c19ad39268bfabcf60230978c50df4123';
+    return '0x1fe52317d52b452120708667eed57e3c19ad39268bfabcf60230978c50df426f';
   }
 
   async function initalizeMocks() {

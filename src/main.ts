@@ -51,7 +51,7 @@ export const runDaemon = async (): Promise<void> => {
   });
 };
 
-const run = async (
+export const run = async (
     logger: LoggerAll,
     configService: ConfigServiceAWS,
     prisma: PrismaClient,
@@ -68,7 +68,7 @@ const run = async (
   await eventProcessorService.execute();
 };
 
-async function createDependencies() {
+export async function createDependencies() {
   const environment = process.env.ENVIRONMENT as string;
   const region = process.env.AWS_REGION as string;
   const configService: ConfigServiceAWS = new ConfigServiceAWS(
