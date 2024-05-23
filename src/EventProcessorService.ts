@@ -124,7 +124,6 @@ export class EventProcessorService {
     const lastBlockScanned = this.configService.getLastBlockScanned();
 
     if (lastBlockScanned == 0 ||
-      currentBlockNumber - lastBlockScanned > maxNumberOfBlocksToProess ||
       lastBlockScanned > currentBlockNumber) {
       return defaultBlockNumber;
     }
