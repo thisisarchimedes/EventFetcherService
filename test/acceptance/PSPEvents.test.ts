@@ -8,7 +8,9 @@ import {MockAWSS3} from './mock/MockAWSS3';
 import {ConfigServiceAWS} from '../../src/services/config/ConfigServiceAWS';
 import {AppConfigClient} from '../../src/services/config/AppConfigClient';
 
-import {runOneCycle} from '../../src/index';
+import {createDependencies, run} from '../../src/main';
+import MockPrisma from './mock/MockPrisma';
+import {PrismaClient} from '@prisma/client/extension';
 
 dotenv.config();
 
@@ -20,6 +22,7 @@ describe('PSP Events', function() {
   let mockEthereumNodeAlt: MockEthereumNode;
   let mockNewRelic: MockNewRelic;
   let mockAWSS3: MockAWSS3;
+  let mockPrisma: MockPrisma;
   const config: ConfigServiceAWS = new ConfigServiceAWS(ENVIRONMENT, AWS_REGION);
   const appConfigClient: AppConfigClient = new AppConfigClient(ENVIRONMENT, AWS_REGION);
 
@@ -80,6 +83,8 @@ describe('PSP Events', function() {
 
     const {bucket} = JSON.parse(await appConfigClient.fetchConfigRawString('LastBlockScannedS3FileURL'));
     mockAWSS3 = new MockAWSS3(bucket, AWS_REGION);
+
+    mockPrisma = new MockPrisma();
   }
 
   function setupGenericNockInterceptors() {
@@ -105,5 +110,10 @@ describe('PSP Events', function() {
 
   function cleanupNock() {
     nock.cleanAll();
+  }
+
+  async function runOneCycle() {
+    const {logger, configService, mainRpcProvider, altRpcProvider} = await createDependencies();
+    await run(logger, configService, mockPrisma as unknown as PrismaClient, mainRpcProvider, altRpcProvider);
   }
 });

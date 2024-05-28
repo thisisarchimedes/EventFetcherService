@@ -39,7 +39,7 @@ describe('Leverage Events Logging & Queuing', function() {
     const expectedLogMessage: EventFetcherLogEntryMessageLeverage = {
       nftID: 2,
       blockNumber: 6000003,
-      txHash: '0x1fe52317d52b452120708667eed57e3c19ad39268bfabcf60230978c50df426f',
+      txHash: '0xb4e72918d4e95862107483f6f1e39e3b25d5d1fe9a48a9de51c5e812d7c9c542',
       event: 'LeveragedPositionOpened',
       user: '0x925cc02EC7b77d4432e82e7bCaf3B89a67a555F2',
       strategy: '0x825cc02ec7B77d4432e82e7bCAf3B89a67a555F1',
@@ -51,7 +51,7 @@ describe('Leverage Events Logging & Queuing', function() {
     const expectedMessage: EventFetcherMessage = {
       name: 'PositionOpened',
       contractType: 0,
-      txHash: '0x1fe52317d52b452120708667eed57e3c19ad39268bfabcf60230978c50df426f',
+      txHash: '0xb4e72918d4e95862107483f6f1e39e3b25d5d1fe9a48a9de51c5e812d7c9c542',
       blockNumber: 6000003,
       data: {
         nftId: 2,
@@ -79,7 +79,7 @@ describe('Leverage Events Logging & Queuing', function() {
     const expectedLogMessage: EventFetcherLogEntryMessageLeverage = {
       nftID: 2,
       blockNumber: 6000003,
-      txHash: '0x1fe52317d52b452120708667eed57e3c19ad39268bfabcf60230978c50df426f',
+      txHash: '0xa3f9c612d3b54762107493d6f0e29d2b35c4c0fe8b37a8cd50b4e711c6d8b431',
       event: 'LeveragedPositionClosed',
       user: '0x925cc02EC7b77d4432e82e7bCaf3B89a67a555F2',
       strategy: '0x825cc02ec7B77d4432e82e7bCAf3B89a67a555F1',
@@ -90,7 +90,7 @@ describe('Leverage Events Logging & Queuing', function() {
     const expectedMessage: EventFetcherMessage = {
       name: 'PositionClosed',
       contractType: 1,
-      txHash: '0x1fe52317d52b452120708667eed57e3c19ad39268bfabcf60230978c50df426f',
+      txHash: '0xa3f9c612d3b54762107493d6f0e29d2b35c4c0fe8b37a8cd50b4e711c6d8b431',
       blockNumber: 6000003,
       data: {
         nftId: 2,
@@ -119,7 +119,7 @@ describe('Leverage Events Logging & Queuing', function() {
     const expectedLogMessage: EventFetcherLogEntryMessageLeverage = {
       nftID: 2,
       blockNumber: 6000003,
-      txHash: '0x1fe52317d52b452120708667eed57e3c19ad39268bfabcf60230978c50df426f',
+      txHash: '0xd03622e60b30042467d73958782ebbb6c2ba67f7c9c573c3246f5a768028e8f3',
       event: 'LeveragedPositionLiquidated',
       strategy: '0x825cc02ec7B77d4432e82e7bCAf3B89a67a555F1',
       collateralAddedToStrategy: (BigInt(2) * -1n).toString(),
@@ -130,7 +130,7 @@ describe('Leverage Events Logging & Queuing', function() {
     const expectedMessage: EventFetcherMessage = {
       name: 'PositionLiquidated',
       contractType: 2,
-      txHash: '0x1fe52317d52b452120708667eed57e3c19ad39268bfabcf60230978c50df426f',
+      txHash: '0xd03622e60b30042467d73958782ebbb6c2ba67f7c9c573c3246f5a768028e8f3',
       blockNumber: 6000003,
       data: {
         nftId: 2,
@@ -156,7 +156,7 @@ describe('Leverage Events Logging & Queuing', function() {
     const expectedLogMessage: EventFetcherLogEntryMessageLeverage = {
       nftID: 2,
       blockNumber: 6000003,
-      txHash: '0x1fe52317d52b452120708667eed57e3c19ad39268bfabcf60230978c50df426f',
+      txHash: '0xb4e72918d4e95862107483f6f1e39e3b25d5d1fe9a48a9de51c5e812d7c9c651',
       event: 'LeveragedPositionExpired',
       strategy: '0x825cc02ec7B77d4432e82e7bCAf3B89a67a555F1',
       debtBorrowedFromProtocol: (BigInt(1) * -1n).toString(),
@@ -166,7 +166,7 @@ describe('Leverage Events Logging & Queuing', function() {
     const expectedMessage: EventFetcherMessage = {
       name: 'PositionExpired',
       contractType: 3,
-      txHash: '0x1fe52317d52b452120708667eed57e3c19ad39268bfabcf60230978c50df426f',
+      txHash: '0xb4e72918d4e95862107483f6f1e39e3b25d5d1fe9a48a9de51c5e812d7c9c651',
       blockNumber: 6000003,
       data: {
         nftId: 2,
@@ -194,7 +194,7 @@ describe('Leverage Events Logging & Queuing', function() {
     configService.setLeverageAddressesFile(LEVERAGE_ADDRESS_FILE);
     configService.setPSPInfoFile(PSP_INFO_FILE);
     await configService.refreshConfig();
-    eventFactory = new EventFactory(configService, logger as unknown as Logger);
+    eventFactory = new EventFactory(configService, logger);
   }
 
   async function testEventGeneration(

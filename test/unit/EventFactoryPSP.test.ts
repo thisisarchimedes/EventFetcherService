@@ -26,7 +26,7 @@ describe('PSP Events Logging', function() {
     configService.setPSPInfoFile('test/data/strategies.json');
     await configService.refreshConfig();
 
-    eventFactory = new EventFactory(configService, logger as unknown as Logger);
+    eventFactory = new EventFactory(configService, logger);
   });
 
   it('should report on Deposit event', async function() {
