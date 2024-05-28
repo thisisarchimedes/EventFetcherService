@@ -6,7 +6,8 @@ import {MockAWSS3} from './mock/MockAWSS3';
 import {MockEthereumNode} from './mock/MockEthereumNode';
 import {MockNewRelic} from './mock/MockNewRelic';
 import dotenv from 'dotenv';
-import {runOneCycle, run, createDependencies} from '../../src/main';
+import {createDependencies, run} from '../../src/main';
+import {PrismaClient} from '@prisma/client';
 import MockPrisma from './mock/MockPrisma';
 
 dotenv.config();
@@ -19,6 +20,7 @@ describe('Leveraged Position Opened', function() {
   let mockEthereumNodeAlt: MockEthereumNode;
   let mockNewRelic: MockNewRelic;
   let mockAWSS3: MockAWSS3;
+  let mockPrisma: MockPrisma;
   const config: ConfigServiceAWS = new ConfigServiceAWS(
       ENVIRONMENT,
       AWS_REGION,
@@ -42,12 +44,6 @@ describe('Leveraged Position Opened', function() {
   });
 
   it('should catch and report on Leverage Position Opened event', async function() {
-    const {logger, configService, prisma, mainRpcProvider, altRpcProvider} =
-    await createDependencies();
-
-    await run(logger, configService, new MockPrisma(), mainRpcProvider, altRpcProvider);
-    return;
-
     const positionOpener = config.getLeveragePositionOpenerAddress();
     mockEthereumNodeResponses(
         'test/data/leveragePositionOpenedEvent.json',
@@ -63,7 +59,7 @@ describe('Leveraged Position Opened', function() {
   });
 
   function createExpectedLogMessageLeveragedPositionOpened(): string {
-    return '0x1fe52317d52b452120708667eed57e3c19ad39268bfabcf60230978c50df426f';
+    return '0xb4e72918d4e95862107483f6f1e39e3b25d5d1fe9a48a9de51c5e812d7c9c542';
   }
 
   async function initalizeMocks() {
@@ -77,6 +73,8 @@ describe('Leveraged Position Opened', function() {
         await appConfigClient.fetchConfigRawString('LastBlockScannedS3FileURL'),
     );
     mockAWSS3 = new MockAWSS3(bucket, AWS_REGION);
+
+    mockPrisma = new MockPrisma();
   }
 
   function setupGenericNockInterceptors() {
@@ -132,5 +130,10 @@ describe('Leveraged Position Opened', function() {
         '0x00000000000000000000000000000000000000000000000000000000000f0e8d',
     );
     mockEthereumNodeAlt.mockGetBlockByNumber();
+  }
+
+  async function runOneCycle() {
+    const {logger, configService, mainRpcProvider, altRpcProvider} = await createDependencies();
+    await run(logger, configService, mockPrisma as unknown as PrismaClient, mainRpcProvider, altRpcProvider);
   }
 });

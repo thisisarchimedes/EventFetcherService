@@ -15,7 +15,7 @@ dotenv.config();
 const ENVIRONMENT = process.env.ENVIRONMENT!;
 const AWS_REGION = process.env.AWS_REGION!;
 
-describe('Leveraged Position Closed', function() {
+describe('Leveraged Position Liquidated', function() {
   let mockEthereumNode: MockEthereumNode;
   let mockEthereumNodeAlt: MockEthereumNode;
   let mockNewRelic: MockNewRelic;
@@ -43,14 +43,14 @@ describe('Leveraged Position Closed', function() {
     cleanupNock();
   });
 
-  it('should catch and report on Leverage Position Closed event', async function() {
-    const positionCloser = config.getLeveragePositionCloserAddress();
+  it('should catch and report on Leverage Position Liquidated event', async function() {
+    const positionLiquidator = config.getLeveragePositionLiquidatorAddress();
     mockEthereumNodeResponses(
-        'test/data/leveragePositionClosedEvent.json',
-        positionCloser,
+        'test/data/leveragePositionLiquidatedEvent.json',
+        positionLiquidator,
     );
 
-    const expectedLog = createExpectedLogMessageLeveragedPositionClosed();
+    const expectedLog = createExpectedLogMessageLeveragedPositionLiquidated();
     mockNewRelic.setWaitedOnMessage(expectedLog);
 
     await runOneCycle();
@@ -58,8 +58,8 @@ describe('Leveraged Position Closed', function() {
     expect(mockNewRelic.isWaitedOnMessageObserved()).to.be.true;
   });
 
-  function createExpectedLogMessageLeveragedPositionClosed(): string {
-    return '0xa3f9c612d3b54762107493d6f0e29d2b35c4c0fe8b37a8cd50b4e711c6d8b431';
+  function createExpectedLogMessageLeveragedPositionLiquidated(): string {
+    return '0xd03622e60b30042467d73958782ebbb6c2ba67f7c9c573c3246f5a768028e8f3';
   }
 
   async function initalizeMocks() {

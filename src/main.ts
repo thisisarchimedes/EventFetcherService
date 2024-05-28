@@ -93,10 +93,3 @@ export async function createDependencies() {
     altRpcProvider,
   };
 }
-
-export async function runOneCycle() {
-  const {logger, configService, prisma, mainRpcProvider, altRpcProvider} =
-  await createDependencies();
-
-  await run(logger, configService, prisma, mainRpcProvider, altRpcProvider);
-}
