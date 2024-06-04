@@ -121,6 +121,8 @@ export class EventFactory {
     if (res === undefined) {
       return false;
     }
+
+    this.logger.error(`Unknown contract address: ${emitterAddress}`);
     return true;
   }
 
@@ -133,6 +135,8 @@ export class EventFactory {
       this.configService.getLeveragePositionExpiratorAddress() === emitterAddress) {
       return true;
     }
+
+    this.logger.error(`Unknown contract address: ${emitterAddress}`);
     return false;
   }
 }
