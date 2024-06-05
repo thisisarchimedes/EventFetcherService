@@ -25,6 +25,6 @@ describe('Tvl fetcher', function() {
         '0x7694Cd972Baa64018e5c6389740832e4C7f2Ce9a',
     );
     expect(tvl).to.be.not.undefined;
-    expect(tvl).to.be.an('bigint');
+    expect(tvl).to.be.an('string');
   });
 });

@@ -57,7 +57,7 @@ describe('Fetch on-chain events from blockchain', function() {
   it('should get address balance', async function() {
     const address = '0x95622e85962BC154c76AB24e48FdF6CdAeDAd6E5';
     const balance = await eventFetcherRPC.getAddressBalance(address);
-    expect(balance).to.be.a('bigint');
+    expect(balance).to.be.a('string');
     expect(Number(balance)).to.be.greaterThan(0);
   });
 });

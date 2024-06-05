@@ -59,17 +59,17 @@ export class EventFetcherRPC extends EventFetcher {
     }
   }
 
-  public async getAddressBalance(address: string): Promise<bigint> {
+  public async getAddressBalance(address: string): Promise<string> {
     const [balance1, balance2] = await Promise.all([
       this.mainProvider.getBalance(address),
       this.altProvider.getBalance(address),
     ]);
     const balance = balance1 ?? balance2;
 
-    return balance.toBigInt();
+    return balance.toString();
   }
 
-  public async getStrategyTvl(strategyAddress: string): Promise<bigint> {
+  public async getStrategyTvl(strategyAddress: string): Promise<string> {
     const strategyContractMainProvider = new ethers.Contract(
         strategyAddress,
         ['function underlyingBalance() view returns (uint256)'],
@@ -86,6 +86,6 @@ export class EventFetcherRPC extends EventFetcher {
       strategyContractAltProvider.underlyingBalance(),
     ]);
     const tvl = tvl1 ?? tvl2;
-    return tvl.toBigInt();
+    return tvl.toString();
   }
 }

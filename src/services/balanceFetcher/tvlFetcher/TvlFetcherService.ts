@@ -1,11 +1,9 @@
 import {EventFetcher} from '../../blockchain/EventFetcher';
-import {Logger} from '../../logger/Logger';
 import {IBalanceFetcherStorage} from '../IBalanceFetcherStorage';
 import {Balance} from '../monitorTracker/MonitorTrackerService';
 
 export class TvlFetcherService {
   constructor(
-    private logger: Logger,
     private eventFetcher: EventFetcher,
     private tvlFetcherStorage: IBalanceFetcherStorage,
   ) {}

@@ -1,6 +1,9 @@
 import dotenv from 'dotenv';
 import {ConfigService} from './services/config/ConfigService';
-import {EventFactory, EventFactoryUnknownEventError} from './onchain_events/EventFactory';
+import {
+  EventFactory,
+  EventFactoryUnknownEventError,
+} from './onchain_events/EventFactory';
 import {EventFetcherRPC} from './services/blockchain/EventFetcherRPC';
 import {ALL_TOPICS} from './onchain_events/EventTopic';
 import {EventFetcherMessage} from './types/EventFetcherMessage';
@@ -12,6 +15,9 @@ import {KMSFetcherService} from './services/kms/KMSFetcherService';
 import {Logger} from './services/logger/Logger';
 import MonitorTrackerService from './services/balanceFetcher/monitorTracker/MonitorTrackerService';
 import MonitorTrackerStorage from './services/balanceFetcher/monitorTracker/MonitorTrackerStorage';
+import {TvlFetcherStorage} from './services/balanceFetcher/tvlFetcher/TvlFetcherStorage';
+import {TvlFetcherService} from './services/balanceFetcher/tvlFetcher/TvlFetcherService';
+import {leverageStrategyAddresses} from './constants/leverageStrategyAddresses';
 
 dotenv.config();
 
@@ -23,12 +29,14 @@ export class EventProcessorService {
 
   private readonly monitorTrackerService: MonitorTrackerService;
 
+  private readonly tvlFetcherService: TvlFetcherService;
+
   constructor(
-      private readonly logger: Logger,
-      private readonly configService: ConfigService,
-      prisma: PrismaClient,
-      mainRpcProvider: ethers.providers.JsonRpcProvider,
-      altRpcProvider: ethers.providers.JsonRpcProvider,
+    private readonly logger: Logger,
+    private readonly configService: ConfigService,
+    prisma: PrismaClient,
+    mainRpcProvider: ethers.providers.JsonRpcProvider,
+    altRpcProvider: ethers.providers.JsonRpcProvider,
   ) {
     this.logger = logger;
     this.configService = configService;
@@ -36,23 +44,45 @@ export class EventProcessorService {
 
     const multiPoolStrategies = new MultiPoolStrategies(mainRpcProvider);
     this.eventFetcher = new EventFetcherRPC(mainRpcProvider, altRpcProvider);
-    this.ledgerBuilder = new LedgerBuilder(this.logger, mainRpcProvider, altRpcProvider, prisma, multiPoolStrategies);
+    this.ledgerBuilder = new LedgerBuilder(
+        this.logger,
+        mainRpcProvider,
+        altRpcProvider,
+        prisma,
+        multiPoolStrategies,
+    );
 
     const monitorTrackerStorage = new MonitorTrackerStorage(prisma);
     const kmsFetcherService = new KMSFetcherService();
 
     this.monitorTrackerService = new MonitorTrackerService(
-        logger, configService, this.eventFetcher, monitorTrackerStorage, kmsFetcherService);
+        logger,
+        configService,
+        this.eventFetcher,
+        monitorTrackerStorage,
+        kmsFetcherService,
+    );
+
+    const tvlFetcherStorage = new TvlFetcherStorage(prisma);
+    this.tvlFetcherService = new TvlFetcherService(
+        this.eventFetcher,
+        tvlFetcherStorage,
+    );
+    this.tvlFetcherService.updateStrategyTvls(leverageStrategyAddresses);
   }
 
   public async execute(): Promise<void> {
     try {
       this.logger.info('Executing the event fetcher workflow...');
-      this.logger.info(`Env: ${this.configService.getEnvironment()} - RPC: ${this.configService.getMainRPCURL()}`);
+      this.logger.info(
+          `Env: ${this.configService.getEnvironment()} - RPC: ${this.configService.getMainRPCURL()}`,
+      );
       const startBlock = await this.getStartBlockNumber();
       const endBlock = await this.eventFetcher.getCurrentBlockNumber();
 
-      this.logger.info(`Processing events from block ${startBlock} to ${endBlock}`);
+      this.logger.info(
+          `Processing events from block ${startBlock} to ${endBlock}`,
+      );
       const events = await this.processEventsAtBlockRange(startBlock, endBlock);
       await this.ledgerBuilder.processEvents(events);
 
@@ -69,7 +99,10 @@ export class EventProcessorService {
     }
   }
 
-  private async processEventsAtBlockRange(startBlock: number, endBlock: number): Promise<EventFetcherMessage[]> {
+  private async processEventsAtBlockRange(
+      startBlock: number,
+      endBlock: number,
+  ): Promise<EventFetcherMessage[]> {
     let events: EventFetcherMessage[] = [];
 
     for (
@@ -88,16 +121,15 @@ export class EventProcessorService {
           ALL_TOPICS,
       );
 
-      events = [
-        ...events,
-        ...this.processLogGroup(eventLogGroup),
-      ];
+      events = [...events, ...this.processLogGroup(eventLogGroup)];
     }
 
     return events;
   }
 
-  private processLogGroup(eventLogGroup: ethers.providers.Log[]): EventFetcherMessage[] {
+  private processLogGroup(
+      eventLogGroup: ethers.providers.Log[],
+  ): EventFetcherMessage[] {
     const events: EventFetcherMessage[] = [];
 
     for (const eventLog of eventLogGroup) {
@@ -118,13 +150,16 @@ export class EventProcessorService {
   }
 
   private async getStartBlockNumber(): Promise<number> {
-    const maxNumberOfBlocksToProess = this.configService.getMaxNumberOfBlocksToProcess();
+    const maxNumberOfBlocksToProess =
+      this.configService.getMaxNumberOfBlocksToProcess();
     const currentBlockNumber = await this.eventFetcher.getCurrentBlockNumber();
-    const defaultBlockNumber = Math.max(currentBlockNumber - maxNumberOfBlocksToProess, 0);
+    const defaultBlockNumber = Math.max(
+        currentBlockNumber - maxNumberOfBlocksToProess,
+        0,
+    );
     const lastBlockScanned = this.configService.getLastBlockScanned();
 
-    if (lastBlockScanned == 0 ||
-      lastBlockScanned > currentBlockNumber) {
+    if (lastBlockScanned == 0 || lastBlockScanned > currentBlockNumber) {
       return defaultBlockNumber;
     }
 

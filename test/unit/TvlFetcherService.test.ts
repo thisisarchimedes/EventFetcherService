@@ -3,12 +3,9 @@ import {expect} from 'chai';
 
 import {TvlFetcherService} from '../../src/services/balanceFetcher/tvlFetcher/TvlFetcherService';
 import {EventFetcherAdapter} from './adapters/EventFetcherAdapter';
-import {LoggerAdapter} from './adapters/LoggerAdapter';
 import {TvlFectherStorageAdapter} from './adapters/TvlFetcherStorageAdapter';
 
 describe('TvlFectherService', function() {
-  let logger: LoggerAdapter;
-
   it('Read strategy tvls from event fetcher and writes them to DB', async function() {
     const eventFetcherAdapter = new EventFetcherAdapter();
     eventFetcherAdapter.setStrategyTvl([
@@ -20,7 +17,6 @@ describe('TvlFectherService', function() {
     const tlvFetcherStorage = new TvlFectherStorageAdapter();
 
     const tlvTracker = new TvlFetcherService(
-        logger,
         eventFetcherAdapter,
         tlvFetcherStorage,
     );
