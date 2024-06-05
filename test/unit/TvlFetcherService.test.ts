@@ -1,7 +1,7 @@
 /* eslint-disable require-await */
 import {expect} from 'chai';
 
-import {TvlFetcherService} from '../../src/services/tvlFetcher/TvlFetcherService';
+import {TvlFetcherService} from '../../src/services/balanceFetcher/tvlFetcher/TvlFetcherService';
 import {EventFetcherAdapter} from './adapters/EventFetcherAdapter';
 import {LoggerAdapter} from './adapters/LoggerAdapter';
 import {TvlFectherStorageAdapter} from './adapters/TvlFetcherStorageAdapter';
@@ -25,7 +25,7 @@ describe('TvlFectherService', function() {
         tlvFetcherStorage,
     );
     await tlvTracker.updateStrategyTvls(['0x123', '0x456', '0x789']);
-    const tvlsFromDb = await tlvFetcherStorage.getTvls();
+    const tvlsFromDb = await tlvFetcherStorage.getBalances();
     expect(tvlsFromDb).to.have.length(3);
     expect(tvlsFromDb[0].account).to.be.equal('0x123');
     expect(tvlsFromDb[0].balance).to.be.equal('1');

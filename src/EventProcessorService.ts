@@ -8,10 +8,10 @@ import {LedgerBuilder} from './LedgerBuilder';
 import {ethers} from 'ethers';
 import {PrismaClient} from '@prisma/client';
 import {MultiPoolStrategies} from './MultiPoolStrategies';
-import MonitorTrackerService from './services/monitorTracker/MonitorTrackerService';
-import MonitorTrackerStorage from './services/monitorTracker/MonitorTrackerStorage';
 import {KMSFetcherService} from './services/kms/KMSFetcherService';
 import {Logger} from './services/logger/Logger';
+import MonitorTrackerService from './services/balanceFetcher/monitorTracker/MonitorTrackerService';
+import MonitorTrackerStorage from './services/balanceFetcher/monitorTracker/MonitorTrackerStorage';
 
 dotenv.config();
 

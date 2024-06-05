@@ -1,18 +1,18 @@
-import {EventFetcher} from '../blockchain/EventFetcher';
-import {Logger} from '../logger/Logger';
+import {EventFetcher} from '../../blockchain/EventFetcher';
+import {Logger} from '../../logger/Logger';
+import {IBalanceFetcherStorage} from '../IBalanceFetcherStorage';
 import {Balance} from '../monitorTracker/MonitorTrackerService';
-import {ITvlFetcherStorage} from './ITvlFetcherStorage';
 
 export class TvlFetcherService {
   constructor(
     private logger: Logger,
     private eventFetcher: EventFetcher,
-    private tvlFetcherStorage: ITvlFetcherStorage,
+    private tvlFetcherStorage: IBalanceFetcherStorage,
   ) {}
 
   public async updateStrategyTvls(addresses: string[]) {
     const balances = await this.getStrategyTvls(addresses);
-    await this.tvlFetcherStorage.updateTvls(balances);
+    await this.tvlFetcherStorage.updateBalances(balances);
   }
 
   private getStrategyTvls(addresses: string[]): Promise<Balance[]> {

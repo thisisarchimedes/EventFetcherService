@@ -1,5 +1,5 @@
 import {expect} from 'chai';
-import MonitorTrackerStorage from '../../src/services/monitorTracker/MonitorTrackerStorage';
+import MonitorTrackerStorage from '../../src/services/balanceFetcher/monitorTracker/MonitorTrackerStorage';
 
 import dotenv from 'dotenv';
 import {PrismaClient} from '@prisma/client';

@@ -2,7 +2,7 @@ import {expect} from 'chai';
 
 import dotenv from 'dotenv';
 import {PrismaClient} from '@prisma/client';
-import {TvlFetcherStorage} from '../../src/services/tvlFetcher/TvlFetcherStorage';
+import {TvlFetcherStorage} from '../../src/services/balanceFetcher/tvlFetcher/TvlFetcherStorage';
 
 dotenv.config();
 
@@ -23,8 +23,8 @@ describe('Tvl Fetcher Storage', function() {
       account: '0x456',
       balance: '2',
     }];
-    await tvlFetcherStorage.updateTvls(balancesToInsert);
-    const tvls = await tvlFetcherStorage.getTvls();
+    await tvlFetcherStorage.updateBalances(balancesToInsert);
+    const tvls = await tvlFetcherStorage.getBalances();
     const firstStrategyTvl = tvls.find((a)=>(
       a.account === '0x123'
     ));
@@ -44,7 +44,7 @@ describe('Tvl Fetcher Storage', function() {
         },
       },
     });
-    const tvlsTwo = await tvlFetcherStorage.getTvls();
+    const tvlsTwo = await tvlFetcherStorage.getBalances();
     const firstStrategyTvlAfterDelete = tvlsTwo.find((a)=>(
       a.account === '0x123'
     ));

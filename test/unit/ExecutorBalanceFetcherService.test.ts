@@ -1,7 +1,7 @@
 /* eslint-disable require-await */
 import {expect} from 'chai';
 
-import MonitorTrackerService from '../../src/services/monitorTracker/MonitorTrackerService';
+import MonitorTrackerService from '../../src/services/balanceFetcher/monitorTracker/MonitorTrackerService';
 import {ConfigServiceAWS} from '../../src/services/config/ConfigServiceAWS';
 import {MonitorTrackerStorageAdapter} from './adapters/MonitorTrackerStorageAdapter';
 import {EventFetcherAdapter} from './adapters/EventFetcherAdapter';

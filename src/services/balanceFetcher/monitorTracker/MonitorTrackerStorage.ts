@@ -1,15 +1,15 @@
 import {PrismaClient} from '@prisma/client';
-import {Balance} from '../monitorTracker/MonitorTrackerService';
-import {ITvlFetcherStorage} from './ITvlFetcherStorage';
+import {Balance} from './MonitorTrackerService';
+import {IBalanceFetcherStorage} from '../IBalanceFetcherStorage';
 
-export class TvlFetcherStorage implements ITvlFetcherStorage {
+export default class MonitorTrackerStorage implements IBalanceFetcherStorage {
   constructor(
     private prismaClient:PrismaClient,
   ) {}
 
-  public updateTvls(balances: Balance[]) {
+  public updateBalances(balances: Balance[]) {
     return Promise.all(balances.map(async (balance)=> {
-      await this.prismaClient.strategyTVLs.upsert({create: {
+      await this.prismaClient.executorBalances.upsert({create: {
         account: balance.account,
         balance: balance.balance.toString(),
         updatedAt: new Date(),
@@ -22,7 +22,7 @@ export class TvlFetcherStorage implements ITvlFetcherStorage {
     }));
   }
 
-  public async getTvls() {
-    return await this.prismaClient.strategyTVLs.findMany();
+  public async getBalances() {
+    return await this.prismaClient.executorBalances.findMany();
   }
 }
