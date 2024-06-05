@@ -100,6 +100,8 @@ export class MockEthereumNode extends Mock {
           let result = '0x';
 
           if (requestBody.params.length === 0 || typeof(requestBody.params) === 'string') return;
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-expect-error
           switch (requestBody.params[0].data.slice(0, 10)) {
             case FUNCTION_SELECTORS.asset:
               result = this.ethCallResponse.asset;
@@ -125,7 +127,7 @@ export class MockEthereumNode extends Mock {
     nock(this.baseUrl).
         persist().
         post(this.path, (body:EthereumRpcRequest)=>body.method === 'eth_getBlockByNumber').
-        reply(200, (uri:string, requestBody:EthereumRpcRequest) => ({
+        reply(200, () => ({
           'jsonrpc': '2.0',
           'id': 58,
           'result': {
@@ -334,6 +336,7 @@ export class MockEthereumNode extends Mock {
               '0xf2dec5d44f74424f4be8ce0381b12c851bba5c7f129bf3d3ce32ca68e4131a90',
             ],
             'totalDifficulty': '0x12950cf7729307a8636',
+            /* eslint-disable-next-line max-len */
             'logsBloom': '0x06280056006a1221840010c0061040060200801088120818401801004080016890001890408420187931120010000000068016042c101104400c300300040000000480081108000184c00008012042000000000011850208801140001aa2010a00000401026021020441005340f00c45280422000000a00008044211c02031d3a00402100000330800501c04062c0008016000000020000400018040a02a050000840020022248801810400050088804605004404010800048000808000405080000100288440010411000040084008018007c1422324265202200002240680808292847000c00009040000b10408e8026001805600200902080425142900390',
             'receiptsRoot': '0x11ef0d7149881ac6f88798a6b4172cb571597a53521b87b68072e6b220430829',
             'extraData': '0x65746865726d696e652d6177732d61736961312d32',

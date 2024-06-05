@@ -21,7 +21,7 @@ export abstract class EventFetcher {
       return res;
     }
 
-    public abstract getAddressBalance (address: string): Promise<bigint>;
+    public abstract getAddressBalance (address: string): Promise<string>;
 
-    public abstract getStrategyTvl (address: string): Promise<bigint>;
+    public abstract getStrategyTvl (address: string): Promise<string>;
 }

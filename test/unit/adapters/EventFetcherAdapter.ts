@@ -14,8 +14,6 @@ export class EventFetcherAdapter extends EventFetcher {
   }
   // eslint-disable-next-line require-await, @typescript-eslint/no-unused-vars
   public async getOnChainEvents(
-      blockNumberFrom: number,
-      blockNumberTo: number,
   ): Promise<ethers.providers.Log[]> {
     return this.dedupLogsBasedOnTxHashLogIndexAndTopic0(this.events);
   }
@@ -45,7 +43,7 @@ export class EventFetcherAdapter extends EventFetcher {
   }
 
   // TODO: address is the real public key of the monitor and here we want to get demi
-  public getAddressBalance(address: string): Promise<bigint> {
+  public getAddressBalance(address: string): Promise<string> {
     const balance = this.balances.find((balance) => balance.account === address);
     if (balance === undefined) {
       throw new Error('Balance not found');
@@ -58,7 +56,7 @@ export class EventFetcherAdapter extends EventFetcher {
     this.tvls = balances;
   }
 
-  public getStrategyTvl(address: string): Promise<bigint> {
+  public getStrategyTvl(address: string): Promise<string> {
     const balance = this.tvls.find((balance) => balance.account === address);
     if (balance === undefined) {
       throw new Error('Balance not found');
