@@ -40,14 +40,19 @@ export class EventFetcherRPC extends EventFetcher {
     return Math.max(mainBlockNumber, altBlockNumber);
   }
 
-  private async fetchLogsFromBlockchain(filter: ethers.providers.Filter): Promise<ethers.providers.Log[]> {
+  private async fetchLogsFromBlockchain(
+      filter: ethers.providers.Filter,
+  ): Promise<ethers.providers.Log[]> {
     try {
       const [mainLogs, altLogs] = await Promise.all([
         this.mainProvider.getLogs(filter),
         this.altProvider.getLogs(filter),
       ]);
 
-      return this.dedupLogsBasedOnTxHashLogIndexAndTopic0([...mainLogs, ...altLogs]);
+      return this.dedupLogsBasedOnTxHashLogIndexAndTopic0([
+        ...mainLogs,
+        ...altLogs,
+      ]);
     } catch (error) {
       console.error('Error fetching logs:', error);
       throw error;
@@ -62,5 +67,25 @@ export class EventFetcherRPC extends EventFetcher {
     const balance = balance1 ?? balance2;
 
     return balance.toBigInt();
+  }
+
+  public async getStrategyTvl(strategyAddress: string): Promise<bigint> {
+    const strategyContractMainProvider = new ethers.Contract(
+        strategyAddress,
+        ['function underlyingBalance() view returns (uint256)'],
+        this.mainProvider,
+    );
+    const strategyContractAltProvider = new ethers.Contract(
+        strategyAddress,
+        ['function underlyingBalance() view returns (uint256)'],
+        this.altProvider,
+    );
+
+    const [tvl1, tvl2] = await Promise.all([
+      strategyContractMainProvider.underlyingBalance(),
+      strategyContractAltProvider.underlyingBalance(),
+    ]);
+    const tvl = tvl1 ?? tvl2;
+    return tvl.toBigInt();
   }
 }

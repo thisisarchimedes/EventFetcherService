@@ -6,13 +6,17 @@ import {Balance} from '../../../src/services/monitorTracker/MonitorTrackerServic
 export class EventFetcherAdapter extends EventFetcher {
   private events: ethers.providers.Log[];
   private balances: Balance[];
+  private tvls: Balance[];
 
   constructor() {
     super();
     this.events = [];
   }
   // eslint-disable-next-line require-await, @typescript-eslint/no-unused-vars
-  public async getOnChainEvents(blockNumberFrom: number, blockNumberTo: number): Promise<ethers.providers.Log[]> {
+  public async getOnChainEvents(
+      blockNumberFrom: number,
+      blockNumberTo: number,
+  ): Promise<ethers.providers.Log[]> {
     return this.dedupLogsBasedOnTxHashLogIndexAndTopic0(this.events);
   }
 
@@ -43,6 +47,19 @@ export class EventFetcherAdapter extends EventFetcher {
   // TODO: address is the real public key of the monitor and here we want to get demi
   public getAddressBalance(address: string): Promise<bigint> {
     const balance = this.balances.find((balance) => balance.account === address);
+    if (balance === undefined) {
+      throw new Error('Balance not found');
+    }
+
+    return Promise.resolve(balance.balance);
+  }
+
+  public setStrategyTvl(balances: Balance[]): void {
+    this.tvls = balances;
+  }
+
+  public getStrategyTvl(address: string): Promise<bigint> {
+    const balance = this.tvls.find((balance) => balance.account === address);
     if (balance === undefined) {
       throw new Error('Balance not found');
     }
